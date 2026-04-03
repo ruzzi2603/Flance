@@ -1,0 +1,296 @@
+// FLANCE DATABASE SCHEMA
+// Propósito: Definir estrutura de dados para todo o sistema
+// Ferramentas: Prisma ORM + PostgreSQL 15+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+// ============= ENUMS =============
+
+enum Role {
+  CLIENT
+  FREELANCER
+}
+
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum BudgetType {
+  FIXED
+  RANGE
+  NEGOTIABLE
+}
+
+enum EscrowStatus {
+  PENDING
+  RELEASED
+  REFUNDED
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum PlanTier {
+  FREE
+  BASIC
+  PRO
+  PREMIUM
+}
+
+// ============= MODELS =============
+
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique // Case-insensitive em PostgreSQL
+  password  String // Hash bcryptjs
+  name      String
+  role      Role
+  bio       String?
+  avatarUrl String?
+  headline  String?
+  services  String?
+  servicesTags String[] @default([])
+  needs     String?
+
+  // === Dados de Empresa ===
+  companyEnabled Boolean @default(false)
+  companyName String?
+  companyCnpj String?
+  companyDescription String?
+  companyLocation String?
+  companyCity String?
+  companyState String?
+  companyAddress String?
+  companyWebsite String?
+  companyInstagram String?
+  companyWhatsapp String?
+  companyEmail String?
+  companyHours String?
+  companyPhotos String[] @default([])
+  companyIsOnline Boolean @default(true)
+  companyIsPhysical Boolean @default(false)
+  companyViews Int @default(0)
+
+  // === Plano de Subscrição ===
+  planTier PlanTier @default(FREE)
+  planStartedAt DateTime?
+  planRenewsAt DateTime?
+
+  // === Gamificação ===
+  xp        Int      @default(0)
+  level     Int      @default(1)
+
+  // === Auditoria ===
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // === Relacionamentos ===
+  postedJobs Job[] @relation("ClientJobs")
+  proposals Proposal[] @relation("FreelancerProposals")
+  badges Badge[]
+  refreshTokens RefreshToken[]
+  passwordResets PasswordReset[]
+  conversationsAsClient Conversation[] @relation("ClientConversations")
+  conversationsAsFreelancer Conversation[] @relation("FreelancerConversations")
+  messages Message[]
+
+  // === INDEXES ===
+  // IMPORTANTE: Indexes para queries frequentes
+  @@index([email]) // @unique já cria um index, mas explícito é melhor para query planner
+  @@index([role]) // Listar freelancers/clientes
+  @@index([companyEnabled]) // Filtrar empresas
+  @@index([createdAt]) // Ordenar por data
+}
+
+
+model Job {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  budgetType  BudgetType @default(FIXED)
+  budget      Decimal?  @db.Decimal(10, 2) // FIXED budget
+  budgetMin   Decimal?  @db.Decimal(10, 2) // RANGE budget
+  budgetMax   Decimal?  @db.Decimal(10, 2) // RANGE budget
+  status      JobStatus @default(OPEN)
+  clientId    String
+
+  category    String // Ex: "Design", "Development", "Marketing"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // === Relacionamentos ===
+  client      User      @relation("ClientJobs", fields: [clientId], references: [id], onDelete: Cascade)
+  proposals   Proposal[]
+  escrow      EscrowTransaction[]
+  conversations Conversation[]
+
+  // === INDEXES ===
+  @@index([clientId]) // Listar jobs de um cliente
+  @@index([status]) // Filtrar por status
+  @@index([createdAt]) // Ordenar por data
+  @@index([category]) // Filtrar por categoria
+}
+
+
+model Proposal {
+  id           String   @id @default(cuid())
+  text         String // Mensagem/pitch do freelancer
+  bidAmount    Decimal  @db.Decimal(10, 2) // Valor proposto
+  freelancerId String
+  jobId        String
+  aiScore      Float    @default(0) // Score de matching (0-1) - TODO: implementar AI
+  status       ProposalStatus @default(PENDING)
+  respondedAt  DateTime? // Quando cliente respondeu (aceita/rejeita)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // === Relacionamentos ===
+  freelancer User @relation("FreelancerProposals", fields: [freelancerId], references: [id], onDelete: Cascade)
+  job        Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  conversation Conversation? // Uma proposta tem uma conversa
+
+  // === CONSTRAINTS ===
+  // Apenas UM proposal por freelancer/job (evita spam)
+  @@unique([freelancerId, jobId])
+
+  // === INDEXES ===
+  @@index([jobId]) // Listar propostas de um job
+  @@index([freelancerId]) // Listar propostas de um freelancer
+  @@index([status]) // Filtrar por status
+  @@index([createdAt]) // Ordenar por data
+  @@index([aiScore]) // Encontrar top proposals por score
+  @@index([freelancerId, jobId, status]) // Query comum: proposals pendentes de freelancer X em job Y
+}
+
+
+model Conversation {
+  id           String   @id @default(cuid())
+  jobId        String?
+  clientId     String
+  freelancerId String
+  proposalId   String?  @unique // Uma conversa = uma proposta
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // === Relacionamentos ===
+  job        Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  client     User      @relation("ClientConversations", fields: [clientId], references: [id], onDelete: Cascade)
+  freelancer User      @relation("FreelancerConversations", fields: [freelancerId], references: [id], onDelete: Cascade)
+  proposal   Proposal? @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  messages   Message[]
+
+  // === CONSTRAINTS ===
+  // Apenas UMA conversa por job/freelancer
+  @@unique([jobId, freelancerId])
+
+  // === INDEXES ===
+  @@index([clientId]) // Listar conversas de cliente
+  @@index([freelancerId]) // Listar conversas de freelancer
+  @@index([jobId]) // Listar conversas de job
+  @@index([updatedAt]) // Ordernar por última mensagem (para inbox)
+}
+
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  createdAt      DateTime @default(now())
+
+  // === Relacionamentos ===
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  // === INDEXES ===
+  @@index([conversationId]) // Listar mensagens de conversa
+  @@index([senderId]) // Listar mensagens de usuário (admin audit)
+  @@index([createdAt]) // Paginação por data
+}
+
+
+model EscrowTransaction {
+  id        String       @id @default(cuid())
+  amount    Decimal      @db.Decimal(10, 2)
+  status    EscrowStatus @default(PENDING)
+  jobId     String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // === Relacionamentos ===
+  job       Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  // === INDEXES ===
+  @@index([jobId]) // Listar escrows de job
+  @@index([status]) // Listar por status
+}
+
+
+model Badge {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String // URL de ícone
+  userId    String
+  createdAt DateTime @default(now())
+
+  // === Relacionamentos ===
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // === CONSTRAINTS ===
+  // Cada user/badge combo é único
+  @@unique([userId, name])
+
+  // === INDEX ===
+  @@index([userId])
+}
+
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique // SHA256 hash do token
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // === Relacionamentos ===
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // === INDEXES ===
+  @@index([userId]) // Listar tokens de usuário (logout revoga todos)
+  @@index([expiresAt]) // Remover tokens expirados (cleanup job)
+}
+
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique // SHA256 hash
+  code      String   // 6 dígitos
+  attempts  Int      @default(0) // Tentativas de code errado
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  // === Relacionamentos ===
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // === INDEXES ===
+  @@index([userId]) // Listar resets de usuário
+  @@index([expiresAt]) // Remover resets expirados
+}
