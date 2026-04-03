@@ -26,3 +26,13 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+# Prisma local DB (se usar SQLite em algum pacote)
+**/prisma/*.db
+**/prisma/*.db-journal
+
+# Cache
+.cache/
+.eslintcache
+
+# Vercel
+.vercel/
