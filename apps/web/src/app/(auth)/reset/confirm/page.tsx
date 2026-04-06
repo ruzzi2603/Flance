@@ -108,7 +108,11 @@ export default function ResetConfirmPage() {
           <ChromeBlocker />
           <main className="page-shell">
             <section className="section-shell-sm">
-              <div className="card-lg">Carregando...</div>
+              <div className="card-lg">
+                <div className="loader-wrap">
+                  <div className="loader"></div>
+                </div>
+              </div>
             </section>
           </main>
         </>

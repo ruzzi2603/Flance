@@ -6,9 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 import { listConversations } from "../../services/chat";
 import { useAuth } from "../../hooks/useAuth";
 import { getSocket } from "../../services/realtime";
+import { useI18n } from "../../i18n/useI18n";
 
 export default function ChatListPage() {
   const { user, isLoading } = useAuth();
+  const { t } = useI18n();
 
   const conversationsQuery = useQuery({
     queryKey: ["conversations"],
@@ -34,14 +36,22 @@ export default function ChatListPage() {
     <main className="page-shell">
       <section className="section-shell">
         <header className="mb-8">
-          <h1 className="heading-xl">Chats</h1>
-          <p className="mt-2 text-muted">Conversas em andamento com empresas e clientes.</p>
+          <h1 className="heading-xl">{t("chat.list.title")}</h1>
+          <p className="mt-2 text-muted" id="p">{t("chat.list.subtitle")}</p>
         </header>
 
         {isLoading ? (
-          <div className="card">Carregando...</div>
+          <div className="card">
+            <div className="loader-wrap">
+              <div className="loader"></div>
+            </div>
+          </div>
         ) : conversationsQuery.isLoading ? (
-          <div className="card">Carregando conversas...</div>
+          <div className="card">
+            <div className="loader-wrap">
+              <div className="loader"></div>
+            </div>
+          </div>
         ) : conversationsQuery.data && conversationsQuery.data.length > 0 ? (
           <div className="grid gap-4">
             {conversationsQuery.data.map((conversation) => {
@@ -65,14 +75,14 @@ export default function ChatListPage() {
                   </div>
                   {conversation.lastMessage ? (
                     <p className="mt-3 text-xs text-slate-500">
-                      Ultima mensagem: {conversation.lastMessage.body}
+                      {t("chat.list.lastMessage", { message: conversation.lastMessage.body })}
                     </p>
                   ) : (
-                    <p className="mt-3 text-xs text-slate-500">Sem mensagens ainda.</p>
+                    <p className="mt-3 text-xs text-slate-500">{t("chat.list.noMessages")}</p>
                   )}
                   <div className="mt-4">
                     <Link className="btn-outline" href={`/chat/${conversation.id}`}>
-                      Abrir chat
+                      {t("chat.list.open")}
                     </Link>
                   </div>
                 </div>
@@ -81,11 +91,10 @@ export default function ChatListPage() {
           </div>
         ) : (
           <div className="card">
-            <p className="text-sm text-muted">Nenhuma conversa encontrada.</p>
+            <p className="text-sm text-muted">{t("chat.list.empty")}</p>
           </div>
         )}
       </section>
     </main>
   );
 }
-

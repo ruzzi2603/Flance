@@ -6,11 +6,13 @@ import { loginSchema } from "../../../services/schemas";
 import { login } from "../../../services/auth";
 import { useAuthStore } from "../../../store/useAuthStore";
 import { useAuth } from "../../../hooks/useAuth";
+import { useI18n } from "../../../i18n/useI18n";
 
 export default function LoginPage() {
   const router = useRouter();
   const { setUser } = useAuthStore();
   const { user, isLoading, isAuthenticated } = useAuth();
+  const { t } = useI18n();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -53,7 +55,7 @@ export default function LoginPage() {
       setUser(result.user);
       router.push("/profile");
     } catch (error) {
-      setFormError("Credenciais invalidas. Tente novamente.");
+      setFormError(t("auth.login.error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -63,28 +65,28 @@ export default function LoginPage() {
     <main className="page-shell">
       <section className="section-shell-md">
         <div className="card-lg">
-          <h1 className="heading-xl">Entrar</h1>
-          <p className="mt-2 text-muted">Acesse sua conta para continuar.</p>
+          <h1 className="heading-xl">{t("auth.login.title")}</h1>
+          <p className="mt-2 text-muted">{t("auth.login.subtitle")}</p>
 
           <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
             <label className="form-label">
-              Email
+              {t("auth.login.email")}
               <input
                 className="input"
                 type="email"
                 name="email"
-                placeholder="voce@exemplo.com"
+                placeholder={t("auth.login.emailPlaceholder")}
                 autoComplete="email"
               />
               {fieldErrors.email ? <span className="text-xs text-rose-600">{fieldErrors.email}</span> : null}
             </label>
             <label className="form-label">
-              Senha
+              {t("auth.login.password")}
               <input
                 className="input"
                 type="password"
                 name="password"
-                placeholder="********"
+                placeholder={t("auth.login.passwordPlaceholder")}
                 autoComplete="current-password"
               />
               {fieldErrors.password ? <span className="text-xs text-rose-600">{fieldErrors.password}</span> : null}
@@ -99,17 +101,17 @@ export default function LoginPage() {
               disabled={isSubmitting}
               className="btn-primary disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "Entrando..." : "Entrar"}
+              {isSubmitting ? t("auth.login.loading") : t("auth.login.button")}
             </button>
           </form>
 
           <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted">
             <a className="text-slate-900 underline" href="/register">
-              Criar conta
+              {t("auth.login.create")}
             </a>
             <span>|</span>
             <a className="text-slate-900 underline" href="/reset">
-              Esqueci minha senha
+              {t("auth.login.forgot")}
             </a>
           </div>
         </div>

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listCompanies } from "../../services/companies";
+import { useI18n } from "../../i18n/useI18n";
 
 export default function CompaniesPage() {
   const [search, setSearch] = useState("");
+  const { t } = useI18n();
   const companiesQuery = useInfiniteQuery({
     queryKey: ["companies", search],
     queryFn: ({ pageParam = 0 }) => listCompanies({ query: search, limit: 40, offset: pageParam }),
@@ -18,12 +20,14 @@ export default function CompaniesPage() {
     <main className="page-shell">
       <section className="section-shell">
         <header className="mb-8">
-          <h1 className="heading-xl">Empresas e prestadores</h1>
-          <p className="mt-2 text-muted">Encontre empresas e prestadores de servico para sua necessidade.</p>
+          <h1 className="heading-xl">{t("companies.title")}</h1>
+          <p className="mt-2 text-muted" id="p">
+            {t("companies.subtitle")}
+          </p>
           <div className="mt-4 max-w-xl">
             <input
               className="input"
-              placeholder="Pesquisar por nome, area ou cidade"
+              placeholder={t("companies.search")}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -31,9 +35,13 @@ export default function CompaniesPage() {
         </header>
 
         {companiesQuery.isLoading ? (
-          <div className="card">Carregando perfis...</div>
+          <div className="card">
+            <div className="loader-wrap">
+              <div className="loader"></div>
+            </div>
+          </div>
         ) : companiesQuery.isError ? (
-          <div className="card">Nao foi possivel carregar os perfis.</div>
+          <div className="card">{t("companies.loadError")}</div>
         ) : companies.length ? (
           <div className="company-list">
             {companies.map((company) => {
@@ -74,7 +82,7 @@ export default function CompaniesPage() {
 
                     <div className="mt-2">
                       <a className="btn-primary-sm" href={`/empresas/${company.id}`}>
-                        Ver perfil
+                        {t("companies.viewProfile")}
                       </a>
                     </div>
                   </div>
@@ -85,7 +93,7 @@ export default function CompaniesPage() {
                         <img key={photo} src={photo} alt="Foto da empresa" />
                       ))
                     ) : (
-                      <div className="text-sm text-muted">Sem fotos cadastradas.</div>
+                      <div className="text-sm text-muted">{t("companies.noPhotos")}</div>
                     )}
                   </div>
                 </article>
@@ -93,7 +101,7 @@ export default function CompaniesPage() {
             })}
           </div>
         ) : (
-          <div className="card">Nenhuma empresa encontrada.</div>
+          <div className="card">{t("companies.empty")}</div>
         )}
         {companiesQuery.hasNextPage ? (
           <div className="mt-6 flex justify-center">
@@ -102,7 +110,14 @@ export default function CompaniesPage() {
               onClick={() => companiesQuery.fetchNextPage()}
               disabled={companiesQuery.isFetchingNextPage}
             >
-              {companiesQuery.isFetchingNextPage ? "Carregando..." : "Ver mais"}
+              {companiesQuery.isFetchingNextPage ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="loader loader-sm"></div>
+                  <span>{t("common.loading")}</span>
+                </div>
+              ) : (
+                t("companies.loadMore")
+              )}
             </button>
           </div>
         ) : null}

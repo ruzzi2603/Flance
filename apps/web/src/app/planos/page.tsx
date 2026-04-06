@@ -2,48 +2,50 @@
 
 import Link from "next/link";
 import { useAuth } from "../../hooks/useAuth";
-
-const plans = [
-  {
-    id: "FREE",
-    name: "Teste gratuito",
-    price: "R$ 0",
-    description: "Ideal para conhecer a plataforma.",
-    features: ["Cadastrar 1 empresa", "Perfil basico", "Contato direto via chat"],
-  },
-  {
-    id: "BASIC",
-    name: "Plano Essencial",
-    price: "R$ 29,99",
-    description: "Para empresas em inicio de divulgacao.",
-    features: ["Cadastrar 2 empresas", "Prioridade simples", "Relatorio mensal de visitas"],
-  },
-  {
-    id: "PRO",
-    name: "Plano Profissional",
-    price: "R$ 39,99",
-    description: "Mais visibilidade e recursos.",
-    features: ["Cadastrar 5 empresas", "Destaque na busca", "Relatorios semanais"],
-  },
-  {
-    id: "PREMIUM",
-    name: "Plano Premium",
-    price: "R$ 59,99",
-    description: "Maximo alcance e suporte.",
-    features: ["Cadastrar ate 10 empresas", "Destaque maximo", "Suporte dedicado"],
-  },
-];
+import { useI18n } from "../../i18n/useI18n";
 
 export default function PlansPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useI18n();
+
+  const plans = [
+    {
+      id: "FREE",
+      name: t("plans.free.title"),
+      price: t("plans.free.price"),
+      description: t("plans.free.desc"),
+      features: [t("plans.free.feature1"), t("plans.free.feature2"), t("plans.free.feature3")],
+    },
+    {
+      id: "BASIC",
+      name: t("plans.essential.title"),
+      price: t("plans.essential.price"),
+      description: t("plans.essential.desc"),
+      features: [t("plans.essential.feature1"), t("plans.essential.feature2"), t("plans.essential.feature3")],
+    },
+    {
+      id: "PRO",
+      name: t("plans.professional.title"),
+      price: t("plans.professional.price"),
+      description: t("plans.professional.desc"),
+      features: [t("plans.professional.feature1"), t("plans.professional.feature2"), t("plans.professional.feature3")],
+    },
+    {
+      id: "PREMIUM",
+      name: t("plans.premium.title"),
+      price: t("plans.premium.price"),
+      description: t("plans.premium.desc"),
+      features: [t("plans.premium.feature1"), t("plans.premium.feature2"), t("plans.premium.feature3")],
+    },
+  ];
 
   return (
     <main className="page-shell">
       <section className="section-shell">
         <header className="mb-10">
-          <h1 className="heading-xl">Planos para divulgar sua empresa</h1>
-          <p className="mt-2 text-muted">
-            Escolha um plano e publique seu perfil profissional com contatos e fotos.
+          <h1 className="heading-xl">{t("plans.title")}</h1>
+          <p className="mt-2 text-muted" id="p">
+            {t("plans.subtitle")}
           </p>
         </header>
 
@@ -58,10 +60,10 @@ export default function PlansPage() {
                 <div className="title">{plan.description}</div>
                 <div className="plain">
                   <p>{plan.price}</p>
-                  <p>por mes</p>
+                  <p>{t("plans.period")}</p>
                 </div>
                 <div className="card-separate">
-                  <span>Detalhes</span>
+                  <span>{t("plans.details")}</span>
                   <span className="separate" />
                 </div>
                 <div className="card-list-features">
@@ -74,11 +76,11 @@ export default function PlansPage() {
                 </div>
                 {isAuthenticated ? (
                   <Link href={`/profile?plan=${plan.id}`} className="card-btn">
-                    Selecionar plano
+                    {t("plans.select")}
                   </Link>
                 ) : (
                   <Link href={`/register?plan=${plan.id}`} className="card-btn">
-                    Criar conta e escolher
+                    {t("plans.createAndSelect")}
                   </Link>
                 )}
               </div>

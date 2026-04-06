@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { registerSchema } from "../../../services/schemas";
 import { register } from "../../../services/auth";
 import { useAuthStore } from "../../../store/useAuthStore";
+import { useI18n } from "../../../i18n/useI18n";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { setUser } = useAuthStore();
+  const { t } = useI18n();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -20,11 +22,11 @@ export default function RegisterPage() {
   function handleAvatarUpload(file: File | null) {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setAvatarError("Selecione um arquivo de imagem.");
+      setAvatarError(t("auth.register.photoErrorType"));
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      setAvatarError("A imagem precisa ter ate 2MB.");
+      setAvatarError(t("auth.register.photoErrorSize"));
       return;
     }
     const reader = new FileReader();
@@ -76,7 +78,7 @@ export default function RegisterPage() {
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).response?.data?.message
           : null;
-      setFormError(message || "Nao foi possivel criar a conta.");
+      setFormError(message || t("auth.register.error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -86,30 +88,30 @@ export default function RegisterPage() {
     <main className="page-shell">
       <section className="section-shell">
         <div className="card-lg">
-          <h1 className="heading-xl">Criar conta</h1>
-          <p className="mt-2 text-muted">Cadastre-se para acessar empresas e divulgar seu servico.</p>
+          <h1 className="heading-xl">{t("auth.register.title")}</h1>
+          <p className="mt-2 text-muted">{t("auth.register.subtitle")}</p>
 
           <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
             <label className="form-label">
-              Nome completo
-              <input className="input" name="name" placeholder="Seu nome" />
+              {t("auth.register.name")}
+              <input className="input" name="name" placeholder={t("auth.register.namePlaceholder")} />
               {fieldErrors.name ? <span className="text-xs text-rose-600">{fieldErrors.name}</span> : null}
             </label>
             <label className="form-label">
-              Email
-              <input className="input" name="email" placeholder="voce@exemplo.com" />
+              {t("auth.register.email")}
+              <input className="input" name="email" placeholder={t("auth.register.emailPlaceholder")} />
               {fieldErrors.email ? <span className="text-xs text-rose-600">{fieldErrors.email}</span> : null}
             </label>
             <label className="form-label">
-              Senha
-              <input className="input" name="password" type="password" placeholder="Minimo 8 caracteres" />
+              {t("auth.register.password")}
+              <input className="input" name="password" type="password" placeholder={t("auth.register.passwordPlaceholder")} />
               {fieldErrors.password ? <span className="text-xs text-rose-600">{fieldErrors.password}</span> : null}
             </label>
 
             <div className="form-label">
-              Foto de perfil
+              {t("auth.register.photo")}
               <label className="form-label">
-                Enviar foto da galeria
+                {t("auth.register.photoUpload")}
                 <input
                   className="input file-input"
                   type="file"
@@ -118,23 +120,23 @@ export default function RegisterPage() {
                 />
                 {avatarError ? <span className="text-xs text-rose-600">{avatarError}</span> : null}
               </label>
-              <div className="avatar-grid">
+              <div className="avatar-grid ">
                 {avatarIsImage ? (
                   <label className="avatar-option is-active">
                     <input type="radio" checked readOnly />
                     <img className="avatar-image" src={avatarUrl} alt="Foto enviada" />
-                    <span className="text-xs text-slate-600">Foto</span>
+                    <span className="text-xs text-slate-600">{t("auth.register.photoFile")}</span>
                   </label>
                 ) : null}
                 {[
-                  { id: "avatar-sky", label: "Azul" },
-                  { id: "avatar-amber", label: "Amarelo" },
-                  { id: "avatar-emerald", label: "Verde" },
-                  { id: "avatar-rose", label: "Rosa" },
-                  { id: "avatar-violet", label: "Violeta" },
-                  { id: "avatar-slate", label: "Cinza" },
+                  { id: "avatar-sky", label: t("auth.register.avatar.blue") },
+                  { id: "avatar-amber", label: t("auth.register.avatar.yellow") },
+                  { id: "avatar-emerald", label: t("auth.register.avatar.green") },
+                  { id: "avatar-rose", label: t("auth.register.avatar.pink") },
+                  { id: "avatar-violet", label: t("auth.register.avatar.purple") },
+                  { id: "avatar-slate", label: t("auth.register.avatar.gray") },
                 ].map((option) => (
-                  <label key={option.id} className={`avatar-option ${avatarUrl === option.id ? "is-active" : ""}`}>
+                  <label key={option.id} className={` avatar-option ${avatarUrl === option.id ? "is-active" : ""}`}>
                     <input
                       type="radio"
                       name="profileAvatar"
@@ -142,7 +144,7 @@ export default function RegisterPage() {
                       onChange={() => setAvatarUrl(option.id)}
                     />
                     <span className={`nav-avatar ${option.id}`}>{option.label.charAt(0)}</span>
-                    <span className="text-xs text-slate-600">{option.label}</span>
+                    <span className="text-xs text-slate-600 ">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -151,7 +153,7 @@ export default function RegisterPage() {
             {formError ? <div className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{formError}</div> : null}
 
             <button type="submit" className="btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? "Criando conta..." : "Criar conta"}
+              {isSubmitting ? t("auth.register.creating") : t("auth.register.create")}
             </button>
           </form>
         </div>
@@ -159,4 +161,3 @@ export default function RegisterPage() {
     </main>
   );
 }
-

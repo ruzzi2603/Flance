@@ -17,21 +17,23 @@ export default function HomePage() {
         transition={{ duration: 0.55, ease: "easeOut" }}
         className="hero-card"
       >
-        <p className="hero-eyebrow">Diretorio profissional</p>
-        <h1 className="hero-title">Servicos, produtos e solucoes em um unico lugar.</h1>
+        <p className="hero-eyebrow">empreender é a essência</p>
+        <h1 className="hero-title">
+          Servicos, produtos e <span className="hero-highlight">soluções</span> em um único lugar.
+        </h1>
         <p className="hero-subtitle">
           Encontre empresas e prestadores de servico confiaveis, com contato direto e perfis completos.
           Para quem presta servico, destaque sua empresa com planos pensados para crescer sua visibilidade.
         </p>
-        <img className="image-hero" src="/imgLD.png" alt="Flance" />
         <div className="hero-actions">
           {isAuthenticated ? null : (
             <>
+              
+              <Link href="/planos" className="btn-cta-secondary">
+                Quero divulgar meu serviço
+              </Link>
               <Link href="/empresas" className="btn-cta-primary">
                 Quero encontrar empresas
-              </Link>
-              <Link href="/planos" className="btn-cta-secondary">
-                Quero divulgar meu servico
               </Link>
             </>
           )}
@@ -40,4 +42,3 @@ export default function HomePage() {
     </main>
   );
 }
-

@@ -18,33 +18,21 @@
 
 'use client';
 
-export const ProposalSkeleton = () => (
-  <div className="space-y-4 p-4 border rounded-lg animate-pulse">
-    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-    <div className="h-4 bg-gray-200 rounded w-full"></div>
-    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-    <div className="flex gap-2 mt-4">
-      <div className="h-8 bg-gray-200 rounded w-24"></div>
-      <div className="h-8 bg-gray-200 rounded w-24"></div>
-    </div>
+const Loader = ({ className = "" }: { className?: string }) => (
+  <div className={`loader ${className}`}></div>
+);
+
+const LoaderWrap = ({ className = "" }: { className?: string }) => (
+  <div className={`loader-wrap ${className}`}>
+    <Loader />
   </div>
 );
 
-export const ChatMessageSkeleton = () => (
-  <div className="space-y-2 p-3 bg-gray-50 rounded animate-pulse">
-    <div className="h-3 bg-gray-200 rounded w-full"></div>
-    <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-  </div>
-);
+export const ProposalSkeleton = () => <LoaderWrap className="border rounded-lg" />;
 
-export const JobCardSkeleton = () => (
-  <div className="space-y-3 p-4 border rounded-lg animate-pulse">
-    <div className="h-5 bg-gray-200 rounded w-2/3"></div>
-    <div className="h-4 bg-gray-200 rounded w-full"></div>
-    <div className="h-4 bg-gray-200 rounded w-full"></div>
-    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-  </div>
-);
+export const ChatMessageSkeleton = () => <LoaderWrap className="rounded" />;
+
+export const JobCardSkeleton = () => <LoaderWrap className="border rounded-lg" />;
 
 /**
  * LOADING OVERLAY - Mostrado em topo da página durante operações
@@ -55,7 +43,9 @@ export const JobCardSkeleton = () => (
 export const LoadingOverlay = ({ message = "Carregando..." }: { message?: string }) => (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white rounded-lg p-6 text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <div className="flex justify-center mb-4">
+        <Loader />
+      </div>
       <p className="text-gray-700 font-medium">{message}</p>
     </div>
   </div>

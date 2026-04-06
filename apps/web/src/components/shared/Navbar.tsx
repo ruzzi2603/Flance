@@ -7,17 +7,22 @@ import { useAuth } from "../../hooks/useAuth";
 import { logout } from "../../services/auth";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { useI18n } from "../../i18n/useI18n";
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoading } = useAuth();
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { setUser } = useAuthStore();
   const navLinksRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const [indicatorStyle, setIndicatorStyle] = useState<{ width: number; left: number }>({ width: 0, left: 0 });
   const [isHidden, setIsHidden] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
@@ -40,16 +45,16 @@ export function Navbar() {
 
   const visibleLinks = useMemo(() => {
     const links = [
-      { key: "companies", href: "/empresas", label: "Empresas" },
-      { key: "plans", href: "/planos", label: "Planos" },
+      { key: "companies", href: "/empresas", label: t("nav.companies") },
+      { key: "plans", href: "/planos", label: t("nav.plans") },
     ];
     if (!isLoading && user) {
-      links.push({ key: "chat", href: "/chat", label: "Chat" });
+      links.push({ key: "chat", href: "/chat", label: t("nav.chat") });
     } else if (!isLoading) {
-      links.push({ key: "login", href: "/login", label: "Login" });
+      links.push({ key: "login", href: "/login", label: t("nav.login") });
     }
     return links;
-  }, [isLoading, user]);
+  }, [isLoading, user, t]);
 
   useEffect(() => {
     const activeLink = visibleLinks.find((link) => isActive(link.href)) ?? visibleLinks[0];
@@ -61,6 +66,22 @@ export function Navbar() {
     const containerRect = container.getBoundingClientRect();
     setIndicatorStyle({ width: elRect.width, left: elRect.left - containerRect.left });
   }, [pathname, visibleLinks]);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    function handleOutsideClick(event: MouseEvent) {
+      const target = event.target as Node;
+      if (!isMenuOpen) return;
+      if (menuRef.current?.contains(target)) return;
+      if (toggleRef.current?.contains(target)) return;
+      setIsMenuOpen(false);
+    }
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, [isMenuOpen]);
 
   useEffect(() => {
     function handleResize() {
@@ -104,11 +125,50 @@ export function Navbar() {
 
   return (
     <header className={`nav-root ${isHidden ? "nav-root-hidden" : ""}`}>
+      <div className={`nav-overlay ${isMenuOpen ? "nav-overlay-open" : ""}`} />
       <nav className="nav-shell">
         <Link href="/" className="nav-logo" aria-label="Flance">
           <img className="nav-logo-image" src="/logoDef.png" alt="Flance" />
         </Link>
-        <div className="nav-links" ref={navLinksRef}>
+        <button
+          type="button"
+          className={`switch nav-toggle ${isMenuOpen ? "is-open" : ""}`}
+          aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={isMenuOpen}
+          aria-controls="nav-links-menu"
+          aria-haspopup="menu"
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          ref={toggleRef}
+        >
+          <span className="wrapper">
+            <span className="row">
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </span>
+            <span className="row row-bottom">
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </span>
+            <span className="row-vertical">
+              <span className="dot"></span>
+              <span className="dot middle-dot"></span>
+              <span className="dot"></span>
+            </span>
+            <span className="row-horizontal">
+              <span className="dot"></span>
+              <span className="dot middle-dot-horizontal"></span>
+              <span className="dot"></span>
+            </span>
+          </span>
+        </button>
+        <div
+          id="nav-links-menu"
+          className={`nav-links ${isMenuOpen ? "nav-links-open" : ""}`}
+          ref={(el) => {
+            navLinksRef.current = el;
+            menuRef.current = el;
+          }}
+        >
           {visibleLinks.map((link) => (
             <Link
               key={link.key}
@@ -134,15 +194,15 @@ export function Navbar() {
                 ) : (
                   <span className={`nav-avatar ${avatarValue}`}>{initials}</span>
                 )}
-                Perfil
+                {t("nav.profile")}
               </Link>
               <button type="button" onClick={handleLogout} className="nav-logout">
-                Sair
+                {t("nav.logout")}
               </button>
             </>
           ) : (
             <Link href="/register" className="nav-cta">
-              Comecar
+              {t("nav.start")}
             </Link>
           )}
         </div>

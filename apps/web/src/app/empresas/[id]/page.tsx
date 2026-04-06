@@ -52,7 +52,11 @@ export default function CompanyProfilePage() {
     <main className="page-shell">
       <section className="section-shell-wide">
         {profileQuery.isLoading ? (
-          <div className="card">Carregando perfil...</div>
+          <div className="card">
+            <div className="loader-wrap">
+              <div className="loader"></div>
+            </div>
+          </div>
         ) : profileQuery.isError ? (
           <div className="card">Nao foi possivel carregar o perfil.</div>
         ) : profileQuery.data ? (

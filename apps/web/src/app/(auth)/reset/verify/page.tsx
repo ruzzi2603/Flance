@@ -56,7 +56,11 @@ function ResetVerifyInner() {
             <h1 className="heading-xl">Confirmar codigo</h1>
             <p className="mt-2 text-muted">Selecione o numero correto que enviamos para o seu email.</p>
 
-            {loading ? <p className="mt-6 text-sm text-muted">Carregando...</p> : null}
+            {loading ? (
+              <div className="mt-6 flex justify-center">
+                <div className="loader"></div>
+              </div>
+            ) : null}
             {error ? (
               <div className="mt-6 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div>
             ) : null}
@@ -85,7 +89,11 @@ export default function ResetVerifyPage() {
           <ChromeBlocker />
           <main className="page-shell">
             <section className="section-shell-sm">
-              <div className="card-lg">Carregando...</div>
+              <div className="card-lg">
+                <div className="loader-wrap">
+                  <div className="loader"></div>
+                </div>
+              </div>
             </section>
           </main>
         </>

@@ -338,7 +338,9 @@ export default function ChatPage() {
           ) : null}
 
           {messagesQuery.isLoading ? (
-            <p className="text-sm text-muted">Carregando mensagens...</p>
+            <div className="loader-wrap">
+              <div className="loader"></div>
+            </div>
           ) : orderedMessages.length === 0 ? (
             <p className="text-sm text-muted">Nenhuma mensagem ainda.</p>
           ) : (

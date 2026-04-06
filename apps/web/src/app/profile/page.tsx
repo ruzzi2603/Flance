@@ -234,13 +234,17 @@ function ProfilePageInner() {
   }
 
   if (isLoading) {
-    return (
-      <main className="page-shell">
-        <section className="section-shell">
-          <div className="card">Carregando perfil...</div>
-        </section>
-      </main>
-    );
+        return (
+          <main className="page-shell">
+            <section className="section-shell">
+              <div className="card">
+                <div className="loader-wrap">
+                  <div className="loader"></div>
+                </div>
+              </div>
+            </section>
+          </main>
+        );
   }
 
   return (
@@ -606,7 +610,11 @@ export default function ProfilePage() {
       fallback={
         <main className="page-shell">
           <section className="section-shell">
-            <div className="card">Carregando perfil...</div>
+          <div className="card">
+            <div className="loader-wrap">
+              <div className="loader"></div>
+            </div>
+          </div>
           </section>
         </main>
       }
