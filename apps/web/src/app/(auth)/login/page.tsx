@@ -106,11 +106,11 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted">
-            <a className="text-slate-900 underline" href="/register">
+            <a className="text-slate-900 underline" href="/register" id="Remember">
               {t("auth.login.create")}
             </a>
             <span>|</span>
-            <a className="text-slate-900 underline" href="/reset">
+            <a className="text-slate-900 underline" id="Remember" href="/reset">
               {t("auth.login.forgot")}
             </a>
           </div>

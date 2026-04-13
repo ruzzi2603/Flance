@@ -51,7 +51,7 @@ export default function CompanyProfilePage() {
   });
 
   return (
-    <main className="page-shell">
+    <main className="page-shell" id="Remember">
       <section className="section-shell-wide">
         {profileQuery.isLoading ? (
           <div className="card">
@@ -63,39 +63,39 @@ export default function CompanyProfilePage() {
           <div className="card">{t("companyProfile.loadError")}</div>
         ) : profileQuery.data ? (
           <div className="grid-2-1">
-            <div className="card">
-              <div className="flex items-center gap-4">
+            <div className="card" >
+              <div className="flex items-center gap-4" >
                 {profileQuery.data.avatarUrl ? (
                   <img className="avatar-image" src={profileQuery.data.avatarUrl} alt={profileQuery.data.name} />
                 ) : (
                   <div className="avatar-fallback">{profileQuery.data.name.slice(0, 2).toUpperCase()}</div>
                 )}
                 <div>
-                  <h1 className="heading-xl">{profileQuery.data.companyName || profileQuery.data.name}</h1>
+                  <h1 className="heading-xl"id="Remember">{profileQuery.data.companyName || profileQuery.data.name}</h1>
                   {profileQuery.data.companyLocation ? (
-                  <p className="mt-2 text-muted">{profileQuery.data.companyLocation}</p>
+                  <p className="mt-2 text-muted" id="Remember">{profileQuery.data.companyLocation}</p>
                 ) : null}
                 </div>
               </div>
 
               {profileQuery.data.companyDescription ? (
-                <div className="mt-4">
-                  <p className="text-sm font-semibold text-slate-800">{t("companyProfile.about")}</p>
-                  <p className="mt-2 text-sm text-muted">{profileQuery.data.companyDescription}</p>
+                <div className="mt-4" id="Remember">
+                  <p className="text-sm font-semibold text-slate-800" id="Remember">{t("companyProfile.about")}</p>
+                  <p className="mt-2 text-sm text-muted" id="Remember">{profileQuery.data.companyDescription}</p>
                 </div>
               ) : null}
 
               {profileQuery.data.services ? (
                 <div className="mt-4">
-                  <p className="text-sm font-semibold text-slate-800">{t("companyProfile.services")}</p>
-                  <p className="mt-2 text-sm text-muted">{profileQuery.data.services}</p>
+                  <p className="text-sm font-semibold text-slate-800" id="Remember">{t("companyProfile.services")}</p>
+                  <p className="mt-2 text-sm text-muted"  id="Remember">{profileQuery.data.services}</p>
                 </div>
               ) : null}
 
               {profileQuery.data.servicesTags?.length ? (
                 <div className="mt-4">
-                  <p className="text-sm font-semibold text-slate-800">{t("companyProfile.specialties")}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <p className="text-sm font-semibold text-slate-800" id="Remember">{t("companyProfile.specialties")}</p>
+                  <div className="mt-2 flex flex-wrap gap-2" id="Remember">
                     {profileQuery.data.servicesTags.map((tag) => (
                       <span key={tag} className="chip-neutral">
                         {tag}
@@ -106,29 +106,39 @@ export default function CompanyProfilePage() {
               ) : null}
 
               {profileQuery.data.companyHours ? (
-                <p className="mt-4 text-sm text-muted">
+                <p className="mt-4 text-sm text-muted" id="Remember">
                   {t("companyProfile.hours", { value: profileQuery.data.companyHours })}
                 </p>
               ) : null}
               {profileQuery.data.companyIsOnline ? (
-                <p className="mt-2 text-sm text-muted">{t("companyProfile.online")}</p>
+                <p className="mt-2 text-sm text-muted" id="Remember">
+                  {t("companyProfile.online")}
+                </p>
               ) : null}
               {profileQuery.data.companyIsPhysical ? (
-                <p className="mt-1 text-sm text-muted">{t("companyProfile.physical")}</p>
+                <p className="mt-1 text-sm text-muted" id="Remember">
+                  {t("companyProfile.physical")}
+                </p>
               ) : null}
 
               {profileQuery.data.companyPhotos?.length ? (
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {profileQuery.data.companyPhotos.map((photo) => (
-                    <img key={photo} className="rounded-2xl border border-slate-200 object-cover" src={photo} alt="Foto" />
-                  ))}
-                </div>
+              <div className="fotosCarrosel">
+  {profileQuery.data.companyPhotos.map((photo) => (
+    <img
+      key={photo}
+      className="rounded-2xl object-cover"
+      src={photo}
+      alt="Foto demonstrativa da empresa"
+    />
+  ))}
+</div>
+
               ) : null}
             </div>
 
             <aside className="card">
               <h2 className="heading-lg">{t("companyProfile.contactTitle")}</h2>
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-sm text-muted" id="Remember">
                 {t("companyProfile.contactSubtitle")}
               </p>
               <button
@@ -152,13 +162,13 @@ export default function CompanyProfilePage() {
                   : t("companyProfile.contactButton")}
               </button>
               {!user || loginWarning ? (
-                <p className="mt-2 text-xs text-slate-500">{t("companyProfile.contactLogin")}</p>
+                <p className="mt-2 text-xs text-slate-500" id="Remember">{t("companyProfile.contactLogin")}</p>
               ) : null}
               {chatError ? (
                 <p className="mt-2 text-xs text-rose-600">{chatError}</p>
               ) : null}
 
-              <div className="mt-6 grid gap-2 text-sm text-slate-700">
+              <div className="mt-6 grid gap-2 text-sm text-slate-700" id="Remember">
                 {profileQuery.data.companyEmail ? (
                   <p>{t("companyProfile.contactEmail", { value: profileQuery.data.companyEmail })}</p>
                 ) : null}

@@ -46,9 +46,18 @@ export default function CompaniesPage() {
           <div className="company-list">
             {companies.map((company) => {
               const photos = company.companyPhotos?.filter(Boolean) ?? [];
-              const visiblePhotos = photos.slice(0, 2);
+              const visiblePhotos = photos.slice(0, 1);
               return (
                 <article key={company.id} className="company-card">
+                  <div className="company-card-photos">
+                    {visiblePhotos.length ? (
+                      visiblePhotos.map((photo) => (
+                        <img key={photo} src={photo} alt="Foto da empresa" />
+                      ))
+                    ) : (
+                      <div className="text-sm text-muted">{t("companies.noPhotos")}</div>
+                    )}
+                  </div>
                   <div className="company-card-main">
                  
                     <div className="company-card-meta">
@@ -60,7 +69,7 @@ export default function CompaniesPage() {
                       <div>
                         <h2 className="heading-lg">{company.companyName || company.name}</h2>
                         {company.companyLocation ? (
-                          <p className="text-sm text-muted" id="desc">{company.companyLocation}</p>
+                          <p className="text-sm text-muted" id="descE">{company.companyLocation}</p>
                         ) : null}
                       </div>
                     </div>
@@ -95,16 +104,6 @@ export default function CompaniesPage() {
             ></path>
           </svg>
         </Link>
-                  </div>
-
-                  <div className="company-card-photos">
-                    {visiblePhotos.length ? (
-                      visiblePhotos.map((photo) => (
-                        <img key={photo} src={photo} alt="Foto da empresa" />
-                      ))
-                    ) : (
-                      <div className="text-sm text-muted">{t("companies.noPhotos")}</div>
-                    )}
                   </div>
                 </article>
               );
