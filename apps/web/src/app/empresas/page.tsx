@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listCompanies } from "../../services/companies";
@@ -46,10 +46,11 @@ export default function CompaniesPage() {
           <div className="company-list">
             {companies.map((company) => {
               const photos = company.companyPhotos?.filter(Boolean) ?? [];
-              const visiblePhotos = photos.slice(0, 3);
+              const visiblePhotos = photos.slice(0, 2);
               return (
                 <article key={company.id} className="company-card">
                   <div className="company-card-main">
+                 
                     <div className="company-card-meta">
                       {company.avatarUrl ? (
                         <img className="avatar-image" src={company.avatarUrl} alt={company.name} />
@@ -59,15 +60,15 @@ export default function CompaniesPage() {
                       <div>
                         <h2 className="heading-lg">{company.companyName || company.name}</h2>
                         {company.companyLocation ? (
-                          <p className="text-sm text-muted">{company.companyLocation}</p>
+                          <p className="text-sm text-muted" id="desc">{company.companyLocation}</p>
                         ) : null}
                       </div>
                     </div>
 
                     {company.companyDescription ? (
-                      <p className="text-sm text-muted">{company.companyDescription}</p>
+                      <p className="text-sm text-muted" id="desc">{company.companyDescription}</p>
                     ) : company.services ? (
-                      <p className="text-sm text-muted">{company.services}</p>
+                      <p className="text-sm text-muted" id="desc">{company.services}</p>
                     ) : null}
 
                     {company.servicesTags?.length ? (
@@ -80,11 +81,20 @@ export default function CompaniesPage() {
                       </div>
                     ) : null}
 
-                    <div className="mt-2">
-                      <a className="btn-primary-sm" href={`/empresas/${company.id}`}>
-                        {t("companies.viewProfile")}
-                      </a>
-                    </div>
+                   <Link href={`/empresas/${company.id}`} className="animated-button" id="btnEmp">
+          <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+            ></path>
+          </svg>
+          <span className="text">Ver empresa</span>
+          <span className="circle"></span>
+          <svg viewBox="0 0 24 24" className="arr-1" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+            ></path>
+          </svg>
+        </Link>
                   </div>
 
                   <div className="company-card-photos">

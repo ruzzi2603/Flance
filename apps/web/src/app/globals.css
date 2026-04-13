@@ -72,6 +72,7 @@ body {
 
   .section-shell {
     @apply mx-auto w-full max-w-6xl px-6 py-14;
+
   }
 
   .section-shell-md {
@@ -116,10 +117,14 @@ body {
     letter-spacing: -0.03em;
     line-height: 1.15;
   }
-
+ #desc{
+  color: #f7f7f7
+ }
   .heading-lg {
     @apply text-lg font-semibold text-[#FF4103];
     letter-spacing: -0.01em;
+    font-weight: 900;
+    font-size: 30px
   }
 
   .text-muted {
@@ -195,15 +200,6 @@ body {
 
   .btn-primary:active { transform: translateY(0); }
 
-  .btn-primary-sm {
-    @apply inline-flex items-center justify-center gap-1.5
-           rounded-lg bg-[#0f1f3d] px-4 py-2 text-xs font-bold text-white
-           transition-all duration-200;
-  }
-
-  .btn-primary-sm:hover {
-    background-color: var(--red-600);
-  }
 
   .btn-success {
     @apply inline-flex items-center justify-center gap-2
@@ -509,12 +505,16 @@ body {
   }
 
   .company-card {
-    @apply w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-sm;
+    @apply w-full rounded-3xl p-6 shadow-sm;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+    background-color: #1f2232;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 560px);
     gap: 20px;
   }
-
+  #btnEmp{
+    
+  margin-top: 50px;
+  }
   .company-card-main {
     display: flex;
     flex-direction: column;
@@ -529,16 +529,17 @@ body {
 
   .company-card-photos {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px;
   }
 
   .company-card-photos img {
+     height: 200px;
     width: 100%;
-    height: 100%;
     object-fit: cover;
     border-radius: 14px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e2e8f000;
   }
 
   @media (max-width: 1024px) {
@@ -605,7 +606,7 @@ body {
   .card-container .card-content {
     width: 100%;
     height: 100%;
-    background-color: #000000;
+    background-color: #1c1b1b;
     border-radius: 20px;
     color: #f0e9e9;
     font-size: 12px;
@@ -629,10 +630,10 @@ body {
   .card-container .card-content .card-btn {
     background: linear-gradient(
       4deg,
-      #FF4103,
-      #FF4103 40%,
-      #FF4103 70%,
-      #FF4103 100%
+      #000000,
+      #000000 40%,
+      #000000 70%,
+      #000000 100%
     );
     padding: 8px;
     border: none;
@@ -650,8 +651,9 @@ body {
 
   .card-container .card-content .card-btn:hover {
     color: #ffffff;
-    text-shadow: 0 0 8px #fff;
+    text-shadow: 0 5px 18px #00ddff;
     transform: scale(1.03);
+    box-shadow: 0 0 10px #00ddff;
   }
 
   .card-container .card-content .card-btn:active {
@@ -958,7 +960,7 @@ body {
 
   .avatar-fallback {
     @apply flex h-10 w-10 items-center justify-center rounded-full
-           bg-[#e8edf6] text-xs font-bold text-[#29416c];
+           bg-[#e8edf6] text-xs font-bold text-[#ebedf1];
   }
 
   /* Avatar gradients */
