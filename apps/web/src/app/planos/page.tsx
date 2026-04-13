@@ -30,13 +30,7 @@ export default function PlansPage() {
       description: t("plans.professional.desc"),
       features: [t("plans.professional.feature1"), t("plans.professional.feature2"), t("plans.professional.feature3")],
     },
-    {
-      id: "PREMIUM",
-      name: t("plans.premium.title"),
-      price: t("plans.premium.price"),
-      description: t("plans.premium.desc"),
-      features: [t("plans.premium.feature1"), t("plans.premium.feature2"), t("plans.premium.feature3")],
-    },
+  
   ];
 
   return (
