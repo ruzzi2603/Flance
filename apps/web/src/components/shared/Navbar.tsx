@@ -13,7 +13,7 @@ export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoading } = useAuth();
-  const { t } = useI18n();
+  const { t, currency, setCurrency } = useI18n();
   const queryClient = useQueryClient();
   const { setUser } = useAuthStore();
   const navLinksRef = useRef<HTMLDivElement | null>(null);
@@ -185,6 +185,52 @@ export function Navbar() {
             className="nav-indicator"
             style={{ width: indicatorStyle.width, transform: `translateX(${indicatorStyle.left}px)` }}
           />
+
+          <div className="currency-switch">
+            <button
+              type="button"
+              className="currency-button"
+              aria-haspopup="listbox"
+              aria-label="Selecionar moeda"
+            >
+              <span className="currency-flag" aria-hidden>
+                {currency === "USD" ? "🇺🇸" : currency === "EUR" ? "🇪🇺" : "🇧🇷"}
+              </span>
+              <span className="currency-code">{currency}</span>
+            </button>
+            <div className="currency-menu" role="listbox">
+              <button
+                type="button"
+                className={`currency-option ${currency === "BRL" ? "is-active" : ""}`}
+                onClick={() => setCurrency("BRL")}
+              >
+                <span className="currency-flag" aria-hidden>
+                  🇧🇷
+                </span>
+                BRL
+              </button>
+              <button
+                type="button"
+                className={`currency-option ${currency === "USD" ? "is-active" : ""}`}
+                onClick={() => setCurrency("USD")}
+              >
+                <span className="currency-flag" aria-hidden>
+                  🇺🇸
+                </span>
+                USD
+              </button>
+              <button
+                type="button"
+                className={`currency-option ${currency === "EUR" ? "is-active" : ""}`}
+                onClick={() => setCurrency("EUR")}
+              >
+                <span className="currency-flag" aria-hidden>
+                  🇪🇺
+                </span>
+                EUR
+              </button>
+            </div>
+          </div>
 
           {isLoading ? null : user ? (
             <>

@@ -9,6 +9,8 @@ type I18nContextValue = {
   locale: Locale;
   t: (key: string, vars?: Record<string, string | number>) => string;
   formatCurrency: (value: number, currencyOverride?: "BRL" | "USD") => string;
+  currency: "BRL" | "USD" | "EUR";
+  setCurrency: (value: "BRL" | "USD" | "EUR") => void;
 };
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
@@ -21,6 +23,10 @@ export function LocaleProvider({
   children: React.ReactNode;
 }) {
   const [locale, setLocale] = useState<Locale>(initialLocale);
+  const [currency, setCurrencyState] = useState<"BRL" | "USD" | "EUR">(
+    initialLocale === "en-US" ? "USD" : "BRL"
+  );
+  const [rates, setRates] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (typeof navigator === "undefined") return;
@@ -29,6 +35,83 @@ export function LocaleProvider({
       setLocale(browserLocale);
     }
   }, [locale]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const cached = window.localStorage.getItem("flance_currency");
+    const cachedAt = window.localStorage.getItem("flance_currency_at");
+    const isFresh = cachedAt ? Date.now() - Number(cachedAt) < 1000 * 60 * 60 * 24 : false;
+    const isOverride = window.localStorage.getItem("flance_currency_override") === "true";
+    if (cached === "USD" || cached === "BRL" || cached === "EUR") {
+      if (isFresh) {
+        setCurrencyState(cached);
+        if (isOverride) {
+          return;
+        }
+      }
+    }
+
+    fetch("/api/geo")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { countryCode?: string | null; currency?: string | null } | null) => {
+        const countryCode = data?.countryCode ?? "";
+        const currencyCode = data?.currency ?? "";
+        const countryFallback: Record<string, "USD" | "EUR" | "BRL"> = {
+          US: "USD",
+          PT: "EUR",
+          FR: "EUR",
+          ES: "EUR",
+          IT: "EUR",
+          DE: "EUR",
+          NL: "EUR",
+          BE: "EUR",
+          IE: "EUR",
+          AT: "EUR",
+          LU: "EUR",
+        };
+        const nextCurrency =
+          currencyCode === "USD" || countryCode === "US"
+            ? "USD"
+            : currencyCode === "EUR" || countryFallback[countryCode] === "EUR"
+              ? "EUR"
+              : locale === "en-US"
+                ? "USD"
+                : "BRL";
+        setCurrencyState(nextCurrency);
+        window.localStorage.setItem("flance_currency", nextCurrency);
+        window.localStorage.setItem("flance_currency_override", "false");
+        window.localStorage.setItem("flance_currency_at", String(Date.now()));
+      })
+      .catch(() => {
+        const fallback = locale === "en-US" ? "USD" : "BRL";
+        setCurrencyState(fallback);
+      });
+  }, [locale]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const cachedRates = window.localStorage.getItem("flance_fx_rates");
+    const cachedRatesAt = window.localStorage.getItem("flance_fx_rates_at");
+    const isFresh = cachedRatesAt ? Date.now() - Number(cachedRatesAt) < 1000 * 60 * 60 * 6 : false;
+    if (cachedRates && isFresh) {
+      try {
+        const parsed = JSON.parse(cachedRates) as Record<string, number>;
+        setRates(parsed);
+      } catch {
+        // ignore
+      }
+    }
+
+    fetch("https://api.frankfurter.dev/v2/rates?base=BRL&quotes=USD,EUR")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { rates?: Record<string, number> } | null) => {
+        if (!data?.rates) return;
+        setRates(data.rates);
+        window.localStorage.setItem("flance_fx_rates", JSON.stringify(data.rates));
+        window.localStorage.setItem("flance_fx_rates_at", String(Date.now()));
+      })
+      .catch(() => null);
+  }, []);
 
   const t = useCallback(
     (key: string, vars?: Record<string, string | number>) => {
@@ -45,14 +128,35 @@ export function LocaleProvider({
   );
 
   const formatCurrency = useCallback(
-    (value: number, currencyOverride?: "BRL" | "USD") => {
-      const currency = currencyOverride ?? (locale === "en-US" ? "USD" : "BRL");
-      return new Intl.NumberFormat(locale, { style: "currency", currency }).format(value);
+    (value: number, currencyOverride?: "BRL" | "USD" | "EUR") => {
+      const chosenCurrency = currencyOverride ?? currency;
+      let convertedValue = value;
+      if (chosenCurrency !== "BRL") {
+        const rate = rates[chosenCurrency];
+        if (rate && Number.isFinite(rate)) {
+          convertedValue = value * rate;
+        }
+      }
+      return new Intl.NumberFormat(locale, { style: "currency", currency: chosenCurrency }).format(
+        convertedValue
+      );
     },
-    [locale]
+    [locale, currency, rates]
   );
 
-  const contextValue = useMemo(() => ({ locale, t, formatCurrency }), [locale, t, formatCurrency]);
+  const setCurrency = useCallback((value: "BRL" | "USD" | "EUR") => {
+    setCurrencyState(value);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("flance_currency", value);
+      window.localStorage.setItem("flance_currency_override", "true");
+      window.localStorage.setItem("flance_currency_at", String(Date.now()));
+    }
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({ locale, t, formatCurrency, currency, setCurrency }),
+    [locale, t, formatCurrency, currency]
+  );
 
   return <I18nContext.Provider value={contextValue}>{children}</I18nContext.Provider>;
 }

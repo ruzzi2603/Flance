@@ -6,27 +6,27 @@ import { useI18n } from "../../i18n/useI18n";
 
 export default function PlansPage() {
   const { isAuthenticated } = useAuth();
-  const { t } = useI18n();
+  const { t, formatCurrency } = useI18n();
 
   const plans = [
     {
       id: "FREE",
       name: t("plans.free.title"),
-      price: t("plans.free.price"),
+      price: 0,
       description: t("plans.free.desc"),
       features: [t("plans.free.feature1"), t("plans.free.feature2"), t("plans.free.feature3")],
     },
     {
       id: "BASIC",
       name: t("plans.essential.title"),
-      price: t("plans.essential.price"),
+      price: 29.99,
       description: t("plans.essential.desc"),
       features: [t("plans.essential.feature1"), t("plans.essential.feature2"), t("plans.essential.feature3")],
     },
     {
       id: "PRO",
       name: t("plans.professional.title"),
-      price: t("plans.professional.price"),
+      price: 39.99,
       description: t("plans.professional.desc"),
       features: [t("plans.professional.feature1"), t("plans.professional.feature2"), t("plans.professional.feature3")],
     },
@@ -48,12 +48,12 @@ export default function PlansPage() {
             <div key={plan.id} className="card-container">
               <div className="title-card">
                 <p>{plan.name}</p>
-                <span>{plan.price}</span>
+                <span>{formatCurrency(plan.price)}</span>
               </div>
               <div className="card-content">
                 <div className="title">{plan.description}</div>
                 <div className="plain">
-                  <p>{plan.price}</p>
+                  <p>{formatCurrency(plan.price)}</p>
                   <p>{t("plans.period")}</p>
                 </div>
                 <div className="card-separate">

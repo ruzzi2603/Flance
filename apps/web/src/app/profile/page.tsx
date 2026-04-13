@@ -5,18 +5,23 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "../../hooks/useAuth";
 import { updateProfile } from "../../services/users";
 import { useAuthStore } from "../../store/useAuthStore";
-
-const plans = [
-  { id: "FREE", label: "Teste gratuito", price: "R$ 0", limit: "1 empresa" },
-  { id: "BASIC", label: "Plano Essencial", price: "R$ 29,99", limit: "2 empresas" },
-  { id: "PRO", label: "Plano Profissional", price: "R$ 39,99", limit: "5 empresas" },
-  { id: "PREMIUM", label: "Plano Premium", price: "R$ 59,99", limit: "10 empresas" },
-];
+import { useI18n } from "../../i18n/useI18n";
 
 function ProfilePageInner() {
   const searchParams = useSearchParams();
   const { user, isLoading } = useAuth();
   const { setUser } = useAuthStore();
+  const { t, formatCurrency } = useI18n();
+
+  const plans = useMemo(
+    () => [
+      { id: "FREE", label: t("plans.free.title"), price: 0, limit: 1 },
+      { id: "BASIC", label: t("plans.essential.title"), price: 29.99, limit: 2 },
+      { id: "PRO", label: t("plans.professional.title"), price: 39.99, limit: 5 },
+      { id: "PREMIUM", label: t("plans.premium.title"), price: 59.99, limit: 10 },
+    ],
+    [t],
+  );
 
   const [name, setName] = useState(user?.name || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "avatar-sky");
@@ -58,11 +63,11 @@ function ProfilePageInner() {
   function handleAvatarUpload(file: File | null) {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setAvatarError("Selecione um arquivo de imagem.");
+      setAvatarError(t("profile.photoErrorType"));
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      setAvatarError("A imagem precisa ter ate 2MB.");
+      setAvatarError(t("profile.photoErrorSize"));
       return;
     }
     const reader = new FileReader();
@@ -79,11 +84,11 @@ function ProfilePageInner() {
   function handleCompanyPhotoUpload(index: number, file: File | null) {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setCompanyPhotoError("Selecione uma imagem valida.");
+      setCompanyPhotoError(t("profile.company.photoErrorType"));
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      setCompanyPhotoError("Cada foto precisa ter ate 2MB.");
+      setCompanyPhotoError(t("profile.company.photoErrorSize"));
       return;
     }
     const reader = new FileReader();
@@ -142,7 +147,7 @@ function ProfilePageInner() {
     setSaveError(null);
     setSaveSuccess(null);
     if (!name.trim()) {
-      setSaveError("Informe um nome valido.");
+      setSaveError(t("profile.nameRequired"));
       return;
     }
     setIsSaving(true);
@@ -153,14 +158,14 @@ function ProfilePageInner() {
         bio: bio.trim() || undefined,
       });
       setUser(updated);
-      setSaveSuccess("Perfil atualizado com sucesso.");
+      setSaveSuccess(t("profile.saveSuccess"));
     } catch (error) {
       const message =
         typeof error === "object" && error && "response" in error
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).response?.data?.message
           : null;
-      setSaveError(message || "Nao foi possivel salvar. Tente novamente.");
+      setSaveError(message || t("profile.saveError"));
     } finally {
       setIsSaving(false);
     }
@@ -171,19 +176,19 @@ function ProfilePageInner() {
     setSaveSuccess(null);
     setCompanyPhotoError(null);
     if (!selectedPlan) {
-      setSaveError("Selecione um plano para continuar.");
+      setSaveError(t("profile.company.planRequired"));
       return;
     }
     if (!companyName.trim()) {
-      setSaveError("Informe o nome da empresa.");
+      setSaveError(t("profile.company.nameRequired"));
       return;
     }
     if (!companyDescription.trim()) {
-      setSaveError("Descreva o que sua empresa faz.");
+      setSaveError(t("profile.company.descriptionRequired"));
       return;
     }
     if (companyPhotos.filter(Boolean).length > maxPhotos) {
-      setCompanyPhotoError(`Voce pode enviar no maximo ${maxPhotos} fotos neste plano.`);
+      setCompanyPhotoError(t("profile.company.photoErrorLimit", { max: maxPhotos }));
       return;
     }
     setIsSaving(true);
@@ -219,7 +224,7 @@ function ProfilePageInner() {
       } else if (!companyEnabled) {
         setShowPaymentScreen(true);
       } else {
-        setSaveSuccess("Empresa atualizada com sucesso.");
+        setSaveSuccess(t("profile.company.saveSuccess"));
       }
     } catch (error) {
       const message =
@@ -227,7 +232,7 @@ function ProfilePageInner() {
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (error as any).response?.data?.message
           : null;
-      setSaveError(message || "Nao foi possivel salvar a empresa.");
+      setSaveError(message || t("profile.company.saveError"));
     } finally {
       setIsSaving(false);
     }
@@ -252,21 +257,25 @@ function ProfilePageInner() {
       <section className="section-shell">
         {showCompanySuccess ? (
           <div className="success-overlay">
-            <span>Empresa cadastrada no plano gratuito</span>
+            <span>{t("profile.company.successFree")}</span>
           </div>
         ) : null}
         {showPaymentScreen ? (
           <div className="payment-overlay">
             <div className="payment-card">
-              <h2 className="heading-lg">Confirmar plano</h2>
+              <h2 className="heading-lg">{t("profile.company.paymentTitle")}</h2>
               <p className="mt-2 text-muted">
-                Plano selecionado: {plans.find((plan) => plan.id === selectedPlan)?.label}
+                {t("profile.company.paymentSelected", {
+                  plan: plans.find((plan) => plan.id === selectedPlan)?.label || "",
+                })}
               </p>
               <p className="mt-1 text-sm text-slate-600">
-                Valor: {plans.find((plan) => plan.id === selectedPlan)?.price}
+                {t("profile.company.paymentValue", {
+                  value: formatCurrency(plans.find((plan) => plan.id === selectedPlan)?.price ?? 0),
+                })}
               </p>
               <p className="mt-4 text-sm text-slate-600">
-                Em seguida vamos integrar o pagamento real com seguranca.
+                {t("profile.company.paymentNote")}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <button
@@ -274,14 +283,14 @@ function ProfilePageInner() {
                   type="button"
                   onClick={() => setShowPaymentScreen(false)}
                 >
-                  Voltar
+                  {t("profile.company.paymentBack")}
                 </button>
                 <button
                   className="btn-primary"
                   type="button"
                   onClick={() => setShowPaymentScreen(false)}
                 >
-                  Continuar para pagamento
+                  {t("profile.company.paymentContinue")}
                 </button>
               </div>
             </div>
@@ -295,34 +304,34 @@ function ProfilePageInner() {
               <div className={`nav-avatar ${avatarUrl}`}>{initials}</div>
             )}
             <div>
-              <h1 className="heading-lg">{name || user?.name || "Perfil"}</h1>
+              <h1 className="heading-lg">{name || user?.name || t("profile.title")}</h1>
               <p className="text-muted">{user?.email}</p>
             </div>
           </div>
 
           <div className="mt-6 grid gap-4">
             <label className="form-label">
-              Nome de exibicao
+              {t("profile.displayName")}
               <input
                 className="input"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Seu nome"
+                placeholder={t("profile.displayNamePlaceholder")}
               />
             </label>
             <label className="form-label">
-              Sobre voce
+              {t("profile.about")}
               <textarea
                 className="textarea"
                 value={bio}
                 onChange={(event) => setBio(event.target.value)}
-                placeholder="Conte um pouco sobre voce"
+                placeholder={t("profile.aboutPlaceholder")}
               />
             </label>
             <div className="form-label">
-              Foto de perfil
+              {t("profile.photo")}
               <label className="form-label">
-                Enviar foto da galeria
+                {t("profile.photoUpload")}
                 <input
                   className="input file-input"
                   type="file"
@@ -336,16 +345,16 @@ function ProfilePageInner() {
                   <label className="avatar-option is-active">
                     <input type="radio" checked readOnly />
                     <img className="avatar-image" src={avatarUrl} alt="Foto enviada" />
-                    <span className="text-xs text-slate-600">Foto</span>
+                    <span className="text-xs text-slate-600">{t("profile.photoSent")}</span>
                   </label>
                 ) : null}
                 {[
-                  { id: "avatar-sky", label: "Azul" },
-                  { id: "avatar-amber", label: "Amarelo" },
-                  { id: "avatar-emerald", label: "Verde" },
-                  { id: "avatar-rose", label: "Rosa" },
-                  { id: "avatar-violet", label: "Violeta" },
-                  { id: "avatar-slate", label: "Cinza" },
+                  { id: "avatar-sky", label: t("auth.register.avatar.blue") },
+                  { id: "avatar-amber", label: t("auth.register.avatar.yellow") },
+                  { id: "avatar-emerald", label: t("auth.register.avatar.green") },
+                  { id: "avatar-rose", label: t("auth.register.avatar.pink") },
+                  { id: "avatar-violet", label: t("auth.register.avatar.purple") },
+                  { id: "avatar-slate", label: t("auth.register.avatar.gray") },
                 ].map((option) => (
                   <label key={option.id} className={`avatar-option ${avatarUrl === option.id ? "is-active" : ""}`}>
                     <input
@@ -361,16 +370,14 @@ function ProfilePageInner() {
               </div>
             </div>
             <button type="button" className="btn-primary" onClick={handleSaveProfile} disabled={isSaving}>
-              {isSaving ? "Salvando..." : "Salvar perfil"}
+              {isSaving ? t("profile.saving") : t("profile.save")}
             </button>
           </div>
         </div>
 
         <div className="card mt-8">
-          <h2 className="heading-lg">Minha empresa</h2>
-          <p className="mt-2 text-muted">
-            Escolha um plano e preencha os dados para divulgar sua empresa ou servico.
-          </p>
+          <h2 className="heading-lg">{t("profile.company.sectionTitle")}</h2>
+          <p className="mt-2 text-muted">{t("profile.company.sectionSubtitle")}</p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {plans.map((plan) => (
@@ -383,33 +390,33 @@ function ProfilePageInner() {
                 <div className={`card-container ${selectedPlan === plan.id ? "is-active" : ""}`}>
                   <div className="title-card">
                     <p>{plan.label}</p>
-                    <span>{plan.price}</span>
+                    <span>{formatCurrency(plan.price)}</span>
                   </div>
                   <div className="card-content">
-                    <div className="title">Limite: {plan.limit}</div>
+                    <div className="title">{t("profile.company.planLimit", { limit: plan.limit })}</div>
                     <div className="plain">
-                      <p>{plan.price}</p>
-                      <p>por mes</p>
+                      <p>{formatCurrency(plan.price)}</p>
+                      <p>{t("plans.period")}</p>
                     </div>
                     <div className="card-separate">
-                      <span>Plano</span>
+                      <span>{t("profile.company.planLabel")}</span>
                       <span className="separate" />
                     </div>
                     <div className="card-list-features">
                       <div className="option">
                         <span>-</span>
-                        <span>Cadastro de empresas</span>
+                        <span>{t("plans.free.feature1")}</span>
                       </div>
                       <div className="option">
                         <span>-</span>
-                        <span>Perfil publico</span>
+                        <span>{t("plans.free.feature2")}</span>
                       </div>
                       <div className="option">
                         <span>-</span>
-                        <span>Contato via chat</span>
+                        <span>{t("plans.free.feature3")}</span>
                       </div>
                     </div>
-                    <span className="card-btn">Selecionar plano</span>
+                    <span className="card-btn">{t("profile.company.planSelect")}</span>
                   </div>
                 </div>
               </button>
@@ -418,44 +425,44 @@ function ProfilePageInner() {
 
           <div className="mt-6 grid gap-4">
             <label className="form-label">
-              Nome da empresa
+              {t("profile.company.name")}
               <input
                 className="input"
                 value={companyName}
                 onChange={(event) => setCompanyName(event.target.value)}
-                placeholder="Ex: Flance Solucoes"
+                placeholder={t("profile.company.namePlaceholder")}
               />
             </label>
             <label className="form-label">
-              CNPJ (opcional)
+              {t("profile.company.cnpj")}
               <input
                 className="input"
                 value={companyCnpj}
                 onChange={(event) => setCompanyCnpj(event.target.value)}
-                placeholder="00.000.000/0001-00"
+                placeholder={t("profile.company.cnpjPlaceholder")}
               />
             </label>
             <label className="form-label">
-              O que a empresa faz
+              {t("profile.company.description")}
               <textarea
                 className="textarea"
                 value={companyDescription}
                 onChange={(event) => setCompanyDescription(event.target.value)}
-                placeholder="Descreva seus servicos e diferenciais"
+                placeholder={t("profile.company.descriptionPlaceholder")}
               />
             </label>
             <label className="form-label">
-              Localizacao
+              {t("profile.company.location")}
               <input
                 className="input"
                 value={companyLocation}
                 onChange={(event) => setCompanyLocation(event.target.value)}
-                placeholder="Ex: Sao Paulo - SP"
+                placeholder={t("profile.company.locationPlaceholder")}
               />
             </label>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="form-label">
-                Cidade
+                {t("profile.company.city")}
                 <input
                   className="input"
                   value={companyCity}
@@ -463,7 +470,7 @@ function ProfilePageInner() {
                 />
               </label>
               <label className="form-label">
-                Estado
+                {t("profile.company.state")}
                 <input
                   className="input"
                   value={companyState}
@@ -472,7 +479,7 @@ function ProfilePageInner() {
               </label>
             </div>
             <label className="form-label">
-              Endereco completo
+              {t("profile.company.address")}
               <input
                 className="input"
                 value={companyAddress}
@@ -480,7 +487,7 @@ function ProfilePageInner() {
               />
             </label>
             <label className="form-label">
-              Site
+              {t("profile.company.website")}
               <input
                 className="input"
                 value={companyWebsite}
@@ -489,7 +496,7 @@ function ProfilePageInner() {
               />
             </label>
             <label className="form-label">
-              Instagram
+              {t("profile.company.instagram")}
               <input
                 className="input"
                 value={companyInstagram}
@@ -498,7 +505,7 @@ function ProfilePageInner() {
               />
             </label>
             <label className="form-label">
-              WhatsApp
+              {t("profile.company.whatsapp")}
               <input
                 className="input"
                 value={companyWhatsapp}
@@ -507,7 +514,7 @@ function ProfilePageInner() {
               />
             </label>
             <label className="form-label">
-              Email comercial
+              {t("profile.company.email")}
               <input
                 className="input"
                 value={companyEmail}
@@ -516,12 +523,12 @@ function ProfilePageInner() {
               />
             </label>
             <label className="form-label">
-              Horario de funcionamento
+              {t("profile.company.hours")}
               <input
                 className="input"
                 value={companyHours}
                 onChange={(event) => setCompanyHours(event.target.value)}
-                placeholder="Seg a Sex, 08:00 as 18:00"
+                placeholder={t("profile.company.hoursPlaceholder")}
               />
             </label>
 
@@ -532,7 +539,7 @@ function ProfilePageInner() {
                   checked={companyIsOnline}
                   onChange={(event) => setCompanyIsOnline(event.target.checked)}
                 />{" "}
-                Atendimento online
+                {t("profile.company.online")}
               </label>
               <label className="form-label">
                 <input
@@ -540,19 +547,19 @@ function ProfilePageInner() {
                   checked={companyIsPhysical}
                   onChange={(event) => setCompanyIsPhysical(event.target.checked)}
                 />{" "}
-                Atendimento presencial
+                {t("profile.company.physical")}
               </label>
             </div>
 
             <label className="form-label">
-              Fotos da empresa (ate {maxPhotos})
+              {t("profile.company.photos", { max: maxPhotos })}
               <div className="grid gap-3 md:grid-cols-2">
                 {Array.from({ length: maxPhotos }).map((_, index) => (
                   <div key={index} className="card">
                     {companyPhotos[index] ? (
                       <img className="rounded-2xl border border-slate-200 object-cover" src={companyPhotos[index]} alt="Foto" />
                     ) : (
-                      <div className="text-xs text-slate-500">Nenhuma foto selecionada</div>
+                      <div className="text-xs text-slate-500">{t("profile.company.photoEmpty")}</div>
                     )}
                     <input
                       className="input file-input mt-3"
@@ -572,7 +579,7 @@ function ProfilePageInner() {
                           })
                         }
                       >
-                        Remover foto
+                        {t("profile.company.photoRemove")}
                       </button>
                     ) : null}
                   </div>
@@ -582,7 +589,9 @@ function ProfilePageInner() {
           </div>
 
           {user?.companyViews ? (
-            <p className="mt-4 text-sm text-slate-600">Visualizacoes: {user.companyViews}</p>
+            <p className="mt-4 text-sm text-slate-600">
+              {t("profile.company.views", { count: user.companyViews })}
+            </p>
           ) : null}
 
           {companyPhotoError ? (
@@ -596,7 +605,11 @@ function ProfilePageInner() {
           ) : null}
 
           <button type="button" className="btn-primary mt-5" onClick={handleSaveCompany} disabled={isSaving}>
-            {isSaving ? "Salvando..." : companyEnabled ? "Atualizar empresa" : "Ativar empresa"}
+            {isSaving
+              ? t("profile.saving")
+              : companyEnabled
+                ? t("profile.company.update")
+                : t("profile.company.save")}
           </button>
         </div>
       </section>

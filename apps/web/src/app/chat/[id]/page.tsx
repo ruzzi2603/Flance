@@ -9,12 +9,14 @@ import { updateProposalBid, updateProposalStatus } from "../../../services/propo
 import { useAuth } from "../../../hooks/useAuth";
 import { getSocket } from "../../../services/realtime";
 import type { MessageEntity } from "@flance/types";
+import { useI18n } from "../../../i18n/useI18n";
 
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
   const conversationId = typeof params?.id === "string" ? params.id : "";
   const { user } = useAuth();
+  const { t, formatCurrency } = useI18n();
   const [message, setMessage] = useState("");
   const [participantNames, setParticipantNames] = useState<Record<string, string>>({});
   const [conversationInfo, setConversationInfo] = useState<{
@@ -201,8 +203,8 @@ export default function ChatPage() {
     <main className="page-shell">
       <section className="section-shell">
         <header className="mb-6">
-          <h1 className="heading-xl">Chat</h1>
-          <p className="mt-1 text-muted">Conversa entre cliente e freelancer.</p>
+          <h1 className="heading-xl">{t("chat.title")}</h1>
+          <p className="mt-1 text-muted">{t("chat.subtitle")}</p>
         </header>
 
         <div className="card">
@@ -247,11 +249,11 @@ export default function ChatPage() {
                   )}
                   <div>
                     <p className="text-sm font-semibold">{conversationInfo.client.name}</p>
-                    <p className="text-xs text-muted">Cliente</p>
+                    <p className="text-xs text-muted">{t("chat.clientLabel")}</p>
                   </div>
                 </button>
               )}
-              <span className="text-xs text-slate-500">Clique na foto para ver o perfil</span>
+              <span className="text-xs text-slate-500">{t("chat.profileHint")}</span>
             </div>
           ) : null}
           {proposalQuery.data ? (
@@ -260,7 +262,9 @@ export default function ChatPage() {
                 <div>
                   <p className="text-sm font-semibold">{proposalQuery.data.job.title}</p>
                   <p className="mt-1 text-xs text-muted">
-                    Proposta atual: R$ {proposalQuery.data.bidAmount.toFixed(2)}
+                    {t("chat.proposalCurrent", {
+                      value: formatCurrency(proposalQuery.data.bidAmount),
+                    })}
                   </p>
                 </div>
                 <span
@@ -282,14 +286,16 @@ export default function ChatPage() {
                     disabled={updateStatusMutation.isPending}
                     onClick={() => updateStatusMutation.mutate("ACCEPTED")}
                   >
-                    Aceitar proposta, valor: R$ {proposalQuery.data.bidAmount.toFixed(2)}
+                    {t("chat.proposalAccept", {
+                      value: formatCurrency(proposalQuery.data.bidAmount),
+                    })}
                   </button>
                   <button
                     className="btn-danger"
                     disabled={updateStatusMutation.isPending}
                     onClick={() => updateStatusMutation.mutate("REJECTED")}
                   >
-                    Recusar proposta
+                    {t("chat.proposalReject")}
                   </button>
                 </div>
               ) : null}
@@ -304,7 +310,7 @@ export default function ChatPage() {
                       setBidInput(String(proposalQuery.data?.bidAmount ?? ""));
                     }}
                   >
-                    Alterar valor da proposta
+                    {t("chat.proposalEdit")}
                   </button>
                   {editBidOpen ? (
                     <form
@@ -317,7 +323,7 @@ export default function ChatPage() {
                       }}
                     >
                       <label className="form-label">
-                        Novo valor
+                        {t("chat.proposalNewValue")}
                         <input
                           className="input"
                           type="number"
@@ -328,7 +334,7 @@ export default function ChatPage() {
                         />
                       </label>
                       <button className="btn-success" type="submit" disabled={updateBidMutation.isPending}>
-                        {updateBidMutation.isPending ? "Salvando..." : "Salvar novo valor"}
+                        {updateBidMutation.isPending ? t("chat.proposalSaving") : t("chat.proposalSave")}
                       </button>
                     </form>
                   ) : null}
@@ -342,7 +348,7 @@ export default function ChatPage() {
               <div className="loader"></div>
             </div>
           ) : orderedMessages.length === 0 ? (
-            <p className="text-sm text-muted">Nenhuma mensagem ainda.</p>
+            <p className="text-sm text-muted">{t("chat.empty")}</p>
           ) : (
             <div className="chat-thread">
               {sortedMessages.map((item) => (
@@ -356,8 +362,8 @@ export default function ChatPage() {
                 >
                   <p className={`text-xs font-semibold ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
                     {item.senderId === user?.id
-                      ? "Voce"
-                      : participantNames[item.senderId] ?? "Prestador/Cliente"}
+                      ? t("chat.you")
+                      : participantNames[item.senderId] ?? t("chat.other")}
                   </p>
                   <p className="whitespace-pre-line">{item.body}</p>
                   <p className={`mt-2 text-xs ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
@@ -372,13 +378,13 @@ export default function ChatPage() {
           <form className="mt-6 grid gap-3" onSubmit={handleSend}>
             <textarea
               className="textarea"
-              placeholder="Escreva sua mensagem"
+              placeholder={t("chat.placeholder")}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               onKeyDown={handleKeyDown}
             />
             <button className="btn-primary" disabled={sendMutation.isPending}>
-              {sendMutation.isPending ? "Enviando..." : "Enviar mensagem"}
+              {sendMutation.isPending ? t("chat.sending") : t("chat.send")}
             </button>
           </form>
         </div>

@@ -7,12 +7,14 @@ import { createDirectConversation } from "../../../services/chat";
 import { useAuth } from "../../../hooks/useAuth";
 import { useState } from "react";
 import axios from "axios";
+import { useI18n } from "../../../i18n/useI18n";
 
 export default function CompanyProfilePage() {
   const params = useParams();
   const router = useRouter();
   const companyId = typeof params?.id === "string" ? params.id : "";
   const { user } = useAuth();
+  const { t } = useI18n();
   const [loginWarning, setLoginWarning] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
 
@@ -41,10 +43,10 @@ export default function CompanyProfilePage() {
           router.push(`/login?next=/empresas/${companyId}`);
           return;
         }
-        setChatError(message || "Nao foi possivel abrir o chat.");
+        setChatError(message || t("companyProfile.contactError"));
         return;
       }
-      setChatError("Nao foi possivel abrir o chat.");
+      setChatError(t("companyProfile.contactError"));
     },
   });
 
@@ -58,7 +60,7 @@ export default function CompanyProfilePage() {
             </div>
           </div>
         ) : profileQuery.isError ? (
-          <div className="card">Nao foi possivel carregar o perfil.</div>
+          <div className="card">{t("companyProfile.loadError")}</div>
         ) : profileQuery.data ? (
           <div className="grid-2-1">
             <div className="card">
@@ -71,28 +73,28 @@ export default function CompanyProfilePage() {
                 <div>
                   <h1 className="heading-xl">{profileQuery.data.companyName || profileQuery.data.name}</h1>
                   {profileQuery.data.companyLocation ? (
-                    <p className="mt-2 text-muted">{profileQuery.data.companyLocation}</p>
-                  ) : null}
+                  <p className="mt-2 text-muted">{profileQuery.data.companyLocation}</p>
+                ) : null}
                 </div>
               </div>
 
               {profileQuery.data.companyDescription ? (
                 <div className="mt-4">
-                  <p className="text-sm font-semibold text-slate-800">Sobre a empresa</p>
+                  <p className="text-sm font-semibold text-slate-800">{t("companyProfile.about")}</p>
                   <p className="mt-2 text-sm text-muted">{profileQuery.data.companyDescription}</p>
                 </div>
               ) : null}
 
               {profileQuery.data.services ? (
                 <div className="mt-4">
-                  <p className="text-sm font-semibold text-slate-800">Servicos</p>
+                  <p className="text-sm font-semibold text-slate-800">{t("companyProfile.services")}</p>
                   <p className="mt-2 text-sm text-muted">{profileQuery.data.services}</p>
                 </div>
               ) : null}
 
               {profileQuery.data.servicesTags?.length ? (
                 <div className="mt-4">
-                  <p className="text-sm font-semibold text-slate-800">Especialidades</p>
+                  <p className="text-sm font-semibold text-slate-800">{t("companyProfile.specialties")}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {profileQuery.data.servicesTags.map((tag) => (
                       <span key={tag} className="chip-neutral">
@@ -104,13 +106,15 @@ export default function CompanyProfilePage() {
               ) : null}
 
               {profileQuery.data.companyHours ? (
-                <p className="mt-4 text-sm text-muted">Horario: {profileQuery.data.companyHours}</p>
+                <p className="mt-4 text-sm text-muted">
+                  {t("companyProfile.hours", { value: profileQuery.data.companyHours })}
+                </p>
               ) : null}
               {profileQuery.data.companyIsOnline ? (
-                <p className="mt-2 text-sm text-muted">Atendimento online</p>
+                <p className="mt-2 text-sm text-muted">{t("companyProfile.online")}</p>
               ) : null}
               {profileQuery.data.companyIsPhysical ? (
-                <p className="mt-1 text-sm text-muted">Atendimento presencial</p>
+                <p className="mt-1 text-sm text-muted">{t("companyProfile.physical")}</p>
               ) : null}
 
               {profileQuery.data.companyPhotos?.length ? (
@@ -123,9 +127,9 @@ export default function CompanyProfilePage() {
             </div>
 
             <aside className="card">
-              <h2 className="heading-lg">Contato</h2>
+              <h2 className="heading-lg">{t("companyProfile.contactTitle")}</h2>
               <p className="mt-2 text-sm text-muted">
-                Converse diretamente com a empresa para tirar duvidas ou solicitar um orcamento.
+                {t("companyProfile.contactSubtitle")}
               </p>
               <button
                 className="btn-primary mt-4"
@@ -136,33 +140,45 @@ export default function CompanyProfilePage() {
                     return;
                   }
                   if (user.id === companyId) {
-                    setChatError("Voce nao pode abrir chat com sua propria empresa.");
+                    setChatError(t("companyProfile.contactSelf"));
                     return;
                   }
                   conversationMutation.mutate();
                 }}
                 disabled={conversationMutation.isPending}
               >
-                {conversationMutation.isPending ? "Abrindo chat..." : "Falar com a empresa"}
+                {conversationMutation.isPending
+                  ? t("companyProfile.contactOpening")
+                  : t("companyProfile.contactButton")}
               </button>
               {!user || loginWarning ? (
-                <p className="mt-2 text-xs text-slate-500">Faca login para iniciar conversa.</p>
+                <p className="mt-2 text-xs text-slate-500">{t("companyProfile.contactLogin")}</p>
               ) : null}
               {chatError ? (
                 <p className="mt-2 text-xs text-rose-600">{chatError}</p>
               ) : null}
 
               <div className="mt-6 grid gap-2 text-sm text-slate-700">
-                {profileQuery.data.companyEmail ? <p>Email: {profileQuery.data.companyEmail}</p> : null}
-                {profileQuery.data.companyWhatsapp ? <p>WhatsApp: {profileQuery.data.companyWhatsapp}</p> : null}
-                {profileQuery.data.companyInstagram ? <p>Instagram: {profileQuery.data.companyInstagram}</p> : null}
-                {profileQuery.data.companyWebsite ? <p>Site: {profileQuery.data.companyWebsite}</p> : null}
-                {profileQuery.data.companyAddress ? <p>Endereco: {profileQuery.data.companyAddress}</p> : null}
+                {profileQuery.data.companyEmail ? (
+                  <p>{t("companyProfile.contactEmail", { value: profileQuery.data.companyEmail })}</p>
+                ) : null}
+                {profileQuery.data.companyWhatsapp ? (
+                  <p>{t("companyProfile.contactWhatsapp", { value: profileQuery.data.companyWhatsapp })}</p>
+                ) : null}
+                {profileQuery.data.companyInstagram ? (
+                  <p>{t("companyProfile.contactInstagram", { value: profileQuery.data.companyInstagram })}</p>
+                ) : null}
+                {profileQuery.data.companyWebsite ? (
+                  <p>{t("companyProfile.contactWebsite", { value: profileQuery.data.companyWebsite })}</p>
+                ) : null}
+                {profileQuery.data.companyAddress ? (
+                  <p>{t("companyProfile.contactAddress", { value: profileQuery.data.companyAddress })}</p>
+                ) : null}
               </div>
             </aside>
           </div>
         ) : (
-          <div className="card">Perfil nao encontrado.</div>
+          <div className="card">{t("companyProfile.notFound")}</div>
         )}
       </section>
     </main>
