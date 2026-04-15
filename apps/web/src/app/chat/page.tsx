@@ -58,23 +58,23 @@ export default function ChatListPage() {
               const other =
                 user?.id === conversation.client.id ? conversation.freelancer : conversation.client;
               return (
-                <div key={conversation.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                <div key={conversation.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-4" id="cth">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold">{conversation.company.name}</p>
+                    <div >
+                      <p  id="pe" className="text-sm font-semibold">{conversation.company.name}</p>
                       {conversation.company.location ? (
                         <p className="mt-1 text-xs text-muted">{conversation.company.location}</p>
                       ) : null}
-                      <p className="mt-2 text-sm text-slate-700">
+                      <p className="mt-2 text-sm">
                         {conversation.client.name} · {conversation.freelancer.name}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div  className="flex items-center gap-2">
                       <div className="chip-neutral">{other.name}</div>
                     </div>
                   </div>
                   {conversation.lastMessage ? (
-                    <p className="mt-3 text-xs text-slate-500">
+                    <p id="pe" className="mt-3 text-xs text-slate-500">
                       {t("chat.list.lastMessage", { message: conversation.lastMessage.body })}
                     </p>
                   ) : (

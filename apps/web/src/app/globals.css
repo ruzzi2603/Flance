@@ -68,10 +68,12 @@ body {
   /* ── Layout shells ── */
   .page-shell {
     @apply min-h-[calc(100vh-130px)] bg-[#001621];
+    background: linear-gradient(90deg, #0c1024 0%, #000000 50%, #0c1024 100%);
   }
 
   .section-shell {
     @apply mx-auto w-full max-w-6xl px-6 py-14;
+     
 
   }
 
@@ -152,7 +154,7 @@ body {
 
   .card {
     @apply rounded-2xl   p-6;
-    background-color: #1f2232;
+    background-color: #0f1017;
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--duration) var(--ease-out),
                 transform   var(--duration) var(--ease-out);
@@ -162,14 +164,32 @@ body {
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
   }
+ .cardC {
+    @apply rounded-2xl   p-6;
+    background-color: #000000;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--duration) var(--ease-out),
+                transform   var(--duration) var(--ease-out);
+  }
 
+  .cardC:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
   .card-lg {
-    @apply rounded-3xl border border-[#e8edf6]  p-8;
+    @apply rounded-3xl border border-[#000000]  p-8;
     background-color: #000000;
     color: #FF4103;
     box-shadow: var(--shadow-md);
   }
+  #chatEnv{
+    background-color: #1c1c1c;
+    color: #f7f7f7;
+  }
 #p{
+  color: #f7f7f7
+}
+#ttx{
   color: #f7f7f7
 }
   /* ── Typography ── */
@@ -207,7 +227,7 @@ body {
   }
 
   .input {
-    @apply w-full rounded-xl border border-[#dde4f0] bg-white px-4 py-3
+    @apply w-full rounded-xl border border-[#000000] bg-white px-4 py-3
            text-sm text-[#ffffff] outline-none
            transition-all placeholder:text-[#9aabca]
            focus:border-[#FF4103] focus:ring-2 focus:ring-[#FF4103]/15;
@@ -251,14 +271,22 @@ body {
   /* ── Buttons ── */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
-           rounded-xl bg-[#FF4103] px-5 py-3
-           text-sm font-semibold text-white
+           rounded-xl bg-[#f7f4f4] px-5 py-3
+           text-sm font-semibold 
            transition-all duration-200;
     box-shadow: 0 1px 3px rgba(15,31,61,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+    color: var(--red-600);
   }
-
+#cth{
+  background-color: #1a1a1a;
+  color: white;
+  border: #000000;
+}
+#pe{
+  color: white;
+}
   .btn-primary:hover {
-    background-color: rgb(7, 16, 75);
+    background-color: rgb(4, 4, 4);
     box-shadow: 0 4px 12px rgba(233,9,9,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
     transform: translateY(-1px);
   }
@@ -299,14 +327,20 @@ body {
 
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2
-           rounded-xl border border-[#dde4f0] bg-white px-5 py-2.5
-           text-sm font-semibold text-[#29416c]
+           rounded-xl  bg-white px-5 py-2.5
+           text-sm font-semibold 
            transition-all duration-200;
+            background-color: #ff2f00;
+            color: #fefefe;
   }
-
+#chatcd{
+  background-color: #1a1a1a;
+  color: white;
+  border: none;
+}
   .btn-outline:hover {
-    border-color: #bccce8;
-    background-color: var(--navy-50);
+    border-color: #ff2f00;
+    background-color: #fefefe;
     color: var(--navy-950);
   }
 
@@ -366,10 +400,9 @@ body {
 
   .hero-root {
     @apply min-h-[calc(110vh-130px)] grid place-items-center px-5 py-10;
-    background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(201, 214, 252, 0.1) 0%, transparent 70%),
-                linear-gradient(160deg, #001621 0%, #001621 100%);
+   background: linear-gradient(90deg, #0c1024 0%, #000000 50%, #0c1024 100%);
   }
-
+ 
   .home-hero {
     min-height: 100vh;
   }
@@ -380,14 +413,7 @@ body {
            p-[clamp(28px,4vw,60px)];
   }
   /* subtle noise texture overlay */
-  .hero-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-    border-radius: inherit;
-    pointer-events: none;
-  }
+  
 
   .hero-eyebrow {
     @apply m-0 text-sm font-bold uppercase tracking-[0.35em];
@@ -426,7 +452,7 @@ body {
   /* ── Footer ── */
   .app-footer {
     @apply border-t-0 bg-[#FF4103];
-    background: linear-gradient(90deg, #b70707 0%, #e90909 50%, #b70707 100%);
+    background: linear-gradient(90deg, #000000 0%, #0c1024 50%, #000000 100%);
   }
 
   .app-footer-inner {
@@ -489,8 +515,8 @@ body {
   /* ── Navbar ── */
   .nav-root {
     @apply sticky top-0 z-50 border-b border-[#c5080832];
-    background: linear-gradient(90deg, #100e0d 0%, #000000 50%, #000000 100%);
-    box-shadow: 0 2px 12px rgba(233,9,9,0.25);
+    background: linear-gradient(90deg, #000000 0%, #0c1024 50%, #000000 100%);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     transition: transform 500ms ease;
@@ -564,7 +590,67 @@ body {
     @apply grid gap-12 md:grid-cols-3 justify-items-center;
     justify-content: center;
   }
+/* From Uiverse.io by PriyanshuGupta28 */ 
+.marquee {
+  overflow: hidden;
+  /* hide the scrolling overflow */
+  width: 100%;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
+.marquee_header {
+  font-size: 35px;
+  font-weight: 800;
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+.marquee__inner {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
 
+.marquee__group {
+  display: flex;
+  margin-bottom: 50px;
+}
+
+.marquee__group span {
+  margin: 0 1.5rem;
+  white-space: nowrap;
+  background: #000000;
+  color: white;
+  width: 230px;
+  height: 300px;
+  padding: 4px 16px 4px 12px;
+  border-radius: 6px;
+  font-size: 1.2rem;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+#cardInfo{
+  margin-left: 20px
+}
   .company-list {
     @apply grid gap-8;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -968,7 +1054,7 @@ body {
   .nav-cta {
     @apply rounded-xl px-4 py-2 text-sm font-bold no-underline
            transition-all duration-200;
-    background: rgba(0,0,0,0.25);
+    background: rgb(0, 0, 0);
     color: #FF4103;
     border: 1px solid rgba(255,255,255,0.2);
   }
@@ -1091,12 +1177,12 @@ body {
 
   .avatar-option:hover {
     background: var(--navy-50);
-    border-color: #c7d7fa;
+    border-color: #09132b;
   }
 
   .avatar-option.is-active {
     border-color: var(--red-600);
-    background: var(--red-50);
+    background: black;
   }
 
   .avatar-swatch {
@@ -1382,6 +1468,30 @@ body {
     justify-content: flex-start;
     gap: 6px;
   }
+  #txt1{
+  
+  margin-left: 10px;
+}
+ .word{
+
+  margin-right:  150px;
+  
+
+  }
+  .words {
+ margin-top: 0px;
+
+ height: 43px;
+
+}
+  .loadere {
+
+ 
+  height:fit-content;
+  display: grid;
+
+ 
+}
 }
 
 @media (max-width: 480px) {
@@ -1390,9 +1500,10 @@ body {
     margin-top: 40px;
   }
 .words {
+ margin-top: 0px;
 
-  margin-right: 10px;
-  top: 86%;
+ height: 43px;
+
 }
   .heading-xl {
     font-size: 1.75rem;
@@ -1400,19 +1511,22 @@ body {
   }
   .loadere {
 
-  display: flex;
-  height:40px;
+ 
+  height:fit-content;
+  display: grid;
 
  
 }
+#txt1{
+  margin-left: 6px;
+}
     .word{
- 
-  padding-left: 0px;
+margin-top: 1px;
+  margin-right:  150px;
   
-  margin-right: 140px;
 
   }
- 
+
 
   .image-hero { display: none; }
 

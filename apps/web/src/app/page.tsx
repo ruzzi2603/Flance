@@ -21,7 +21,7 @@ export default function HomePage() {
 
 <div className="cardT">
   <div className="loadere">
-    <p>Aqui você encontra</p>
+    <p id="txt1">Aqui você encontra</p>
     <div className="words">
       <span className="word">serviços.</span>
       <span className="word">soluções.</span>

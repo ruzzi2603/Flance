@@ -207,9 +207,9 @@ export default function ChatPage() {
           <p className="mt-1 text-muted">{t("chat.subtitle")}</p>
         </header>
 
-        <div className="card">
+        <div className="cardC">
           {conversationInfo && user?.id ? (
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+            <div id="chatcd" className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
               {user.id === conversationInfo.client.id ? (
                 <button
                   type="button"
@@ -375,8 +375,8 @@ export default function ChatPage() {
             </div>
           )}
 
-          <form className="mt-6 grid gap-3" onSubmit={handleSend}>
-            <textarea
+          <form className="mt-6 grid gap-3" id="ttx" onSubmit={handleSend}>
+            <textarea id="chatEnv"
               className="textarea"
               placeholder={t("chat.placeholder")}
               value={message}
