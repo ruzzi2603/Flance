@@ -36,145 +36,130 @@ export default function PlansPage() {
   return (
     <main className="page-shell">
       <section className="section-shell">
-        <header className="mb-10">
-          <h1 className="heading-xl">{t("plans.title")}</h1>
-          <p className="mt-2 text-muted" id="p">
-            {t("plans.subtitle")}
-          </p>
-        </header>
+        
     
 <div className="marquee">
-  <div className="marquee_header">Foco em resultados</div>
+  <div className="heading-xl" id="ttplans">Foco em resultados</div>
   <div className="marquee__inner">
     <div className="marquee__group">
     <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
 >
   <div>
     <h1 className="text-[2em] font-medium">Melhore seus resultados</h1>
     <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
     </p>
   </div>
 
   
 </div>
-     <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+    <div id="cardInfo"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
 >
   <div>
     <h1 className="text-[2em] font-medium">Aumente sua visibilidade</h1>
     <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
-    </p>
-  </div>
-
-  
-</div>
-    <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
->
-  <div>
-    <h1 className="text-[2em] font-medium">Aumento de renda</h1>
-    <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
-    </p>
-  </div>
-
-  
-</div>
-    <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
->
-  <div>
-    <h1 className="text-[2em] font-medium">Potencialize seus ganhos</h1>
-    <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
-    </p>
-  </div>
-
-  
-</div>
-    <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
->
-  <div>
-    <h1 className="text-[2em] font-medium">Ganhe novos clientes</h1>
-    <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
-    </p>
-  </div>
-
-  
-</div>
-    </div>
-
-    <div className="marquee__group">
-      <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
->
-  <div>
-    <h1 className="text-[2em] font-medium">Expanda seu negócio</h1>
-    <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
+      Melhore sua visibilidade e alcance mais clientes com nosso plano PRO, projetado para destacar seu perfil.
     </p>
   </div>
 
   
 </div>
    <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+>
+  <div>
+    <h1 className="text-[2em] font-medium">Aumento de renda</h1>
+    <p className="text-[0.85em]">
+      Aumente sua renda com a visibilidade do nosso plano PRO, projetado para maximizar seus lucros.
+    </p>
+  </div>
+
+  
+</div>
+    <div id="cardInfo"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+>
+  <div>
+    <h1 className="text-[2em] font-medium">Potencialize seus ganhos</h1>
+    <p className="text-[0.85em]">
+      Melhore seus ganhos com nossos planos, projetados para impulsionar seu sucesso.
+    </p>
+  </div>
+
+  
+</div>
+    <div id="cardInfo"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+>
+  <div>
+    <h1 className="text-[2em] font-medium">Ganhe novos clientes</h1>
+    <p className="text-[0.85em]">
+      Converta novos clientes com nossos planos, projetados para destacar seu perfil e atrair mais oportunidades.
+    </p>
+  </div>
+
+  
+</div>
+    </div>
+
+    <div className="marquee__group">
+     <div id="cardInfo"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+>
+  <div>
+    <h1 className="text-[2em] font-medium">Expanda seu negócio</h1>
+    <p className="text-[0.85em]">
+      Aumente seu negócio com nosso plano PRO, projetado para impulsionar seu crescimento.
+    </p>
+  </div>
+
+  
+</div>
+    <div id="cardInfo"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
 >
   <div>
     <h1 className="text-[2em] font-medium">Desenvolva seu marketing</h1>
     <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
+      Desenvolva seu marketing com nosso plano PRO, projetado para destacar seu perfil e atrair mais clientes.
     </p>
   </div>
 
   
 </div>
-     <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+    <div id="cardInfo"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
 >
   <div>
     <h1 className="text-[2em] font-medium">Ganhe reconhecimento</h1>
     <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
+      Ganhe reconhecimento na sua região com nosso plano PRO, projetado para destacar seu perfil e atrair mais clientes.
     </p>
   </div>
 
   
 </div>
      <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+  className="h-[16em] w-[18em] border-[rgba(0,0,0,0)] rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
 >
   <div>
-    <h1 className="text-[2em] font-medium">Cresca no mercado</h1>
+    <h1 className="text-[2em] font-medium ">Cresca no mercado</h1>
     <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
+      Cresca dentro da sua área impulsioanndo sua visibilidade e atraindo mais clientes com nosso plano PRO, projetado para destacar seu perfil e atrair mais oportunidades.
     </p>
   </div>
 
   
 </div>
-     <div id="cardInfo"
-  className="h-[16em] w-[18em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
+    <div id="cardInfo"
+  className="h-[16em] w-[18em]  rounded-[1.5em]   font-nunito p-[1em] flex justify-center items-left flex-col gap-[0.75em] backdrop-blur-[12px]"
 >
   <div>
     <h1 className="text-[2em] font-medium">Aumenta suas vendas</h1>
     <p className="text-[0.85em]">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero dolorum
-      blanditiis pariatur sequi magni.
+      Aumente suas vendas com nosso plano PRO, projetado para maximizar seus lucros.
     </p>
   </div>
 
@@ -183,7 +168,10 @@ export default function PlansPage() {
     </div>
   </div>
 </div>
-<div className="marquee_header">Conheça nossos planos</div>
+<h1 className="heading-xl" id="ttplans">{t("plans.title")}</h1>
+          <p className="mt-2 text-muted" id="ttplanssub">
+            {t("plans.subtitle")}
+          </p>
         <div className="plans-grid">
           {plans.map((plan) => (
             <div key={plan.id} className="card-container">

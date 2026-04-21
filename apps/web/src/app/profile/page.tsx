@@ -18,7 +18,7 @@ function ProfilePageInner() {
       { id: "FREE", label: t("plans.free.title"), price: 0, limit: 1 },
       { id: "BASIC", label: t("plans.essential.title"), price: 29.99, limit: 2 },
       { id: "PRO", label: t("plans.professional.title"), price: 39.99, limit: 5 },
-      { id: "PREMIUM", label: t("plans.premium.title"), price: 59.99, limit: 10 },
+      
     ],
     [t],
   );
@@ -379,7 +379,7 @@ function ProfilePageInner() {
           <h2 className="heading-lg">{t("profile.company.sectionTitle")}</h2>
           <p className="mt-2 text-muted">{t("profile.company.sectionSubtitle")}</p>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
             {plans.map((plan) => (
               <button
                 key={plan.id}

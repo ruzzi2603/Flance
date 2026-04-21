@@ -4,11 +4,16 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { messages } from "./messages";
 import type { Locale } from "./locales";
 import { defaultLocale, normalizeLocale } from "./locales";
+import {
+  canPersistPreferences,
+  readStoredPreference,
+  writeStoredPreference,
+} from "../lib/cookie-consent";
 
 type I18nContextValue = {
   locale: Locale;
   t: (key: string, vars?: Record<string, string | number>) => string;
-  formatCurrency: (value: number, currencyOverride?: "BRL" | "USD") => string;
+  formatCurrency: (value: number, currencyOverride?: "BRL" | "USD" | "EUR") => string;
   currency: "BRL" | "USD" | "EUR";
   setCurrency: (value: "BRL" | "USD" | "EUR") => void;
 };
@@ -38,10 +43,10 @@ export function LocaleProvider({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const cached = window.localStorage.getItem("flance_currency");
-    const cachedAt = window.localStorage.getItem("flance_currency_at");
+    const cached = readStoredPreference("flance_currency");
+    const cachedAt = readStoredPreference("flance_currency_at");
     const isFresh = cachedAt ? Date.now() - Number(cachedAt) < 1000 * 60 * 60 * 24 : false;
-    const isOverride = window.localStorage.getItem("flance_currency_override") === "true";
+    const isOverride = readStoredPreference("flance_currency_override") === "true";
     if (cached === "USD" || cached === "BRL" || cached === "EUR") {
       if (isFresh) {
         setCurrencyState(cached);
@@ -78,9 +83,9 @@ export function LocaleProvider({
                 ? "USD"
                 : "BRL";
         setCurrencyState(nextCurrency);
-        window.localStorage.setItem("flance_currency", nextCurrency);
-        window.localStorage.setItem("flance_currency_override", "false");
-        window.localStorage.setItem("flance_currency_at", String(Date.now()));
+        writeStoredPreference("flance_currency", nextCurrency);
+        writeStoredPreference("flance_currency_override", "false");
+        writeStoredPreference("flance_currency_at", String(Date.now()));
       })
       .catch(() => {
         const fallback = locale === "en-US" ? "USD" : "BRL";
@@ -90,8 +95,8 @@ export function LocaleProvider({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const cachedRates = window.localStorage.getItem("flance_fx_rates");
-    const cachedRatesAt = window.localStorage.getItem("flance_fx_rates_at");
+    const cachedRates = readStoredPreference("flance_fx_rates");
+    const cachedRatesAt = readStoredPreference("flance_fx_rates_at");
     const isFresh = cachedRatesAt ? Date.now() - Number(cachedRatesAt) < 1000 * 60 * 60 * 6 : false;
     if (cachedRates && isFresh) {
       try {
@@ -107,8 +112,10 @@ export function LocaleProvider({
       .then((data: { rates?: Record<string, number> } | null) => {
         if (!data?.rates) return;
         setRates(data.rates);
-        window.localStorage.setItem("flance_fx_rates", JSON.stringify(data.rates));
-        window.localStorage.setItem("flance_fx_rates_at", String(Date.now()));
+        if (canPersistPreferences()) {
+          writeStoredPreference("flance_fx_rates", JSON.stringify(data.rates));
+          writeStoredPreference("flance_fx_rates_at", String(Date.now()));
+        }
       })
       .catch(() => null);
   }, []);
@@ -146,12 +153,22 @@ export function LocaleProvider({
 
   const setCurrency = useCallback((value: "BRL" | "USD" | "EUR") => {
     setCurrencyState(value);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("flance_currency", value);
-      window.localStorage.setItem("flance_currency_override", "true");
-      window.localStorage.setItem("flance_currency_at", String(Date.now()));
-    }
+    writeStoredPreference("flance_currency", value);
+    writeStoredPreference("flance_currency_override", "true");
+    writeStoredPreference("flance_currency_at", String(Date.now()));
   }, []);
+
+  useEffect(() => {
+    function handleConsentUpdated() {
+      if (!canPersistPreferences()) return;
+      writeStoredPreference("flance_currency", currency);
+      writeStoredPreference("flance_currency_override", "true");
+      writeStoredPreference("flance_currency_at", String(Date.now()));
+    }
+    window.addEventListener("flance:cookie-consent-updated", handleConsentUpdated as EventListener);
+    return () =>
+      window.removeEventListener("flance:cookie-consent-updated", handleConsentUpdated as EventListener);
+  }, [currency]);
 
   const contextValue = useMemo(
     () => ({ locale, t, formatCurrency, currency, setCurrency }),

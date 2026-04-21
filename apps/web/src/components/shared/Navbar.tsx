@@ -8,6 +8,7 @@ import { logout } from "../../services/auth";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "../../i18n/useI18n";
+import { canPersistPreferences, readStoredPreference, writeStoredPreference } from "../../lib/cookie-consent";
 
 export function Navbar() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function Navbar() {
   const [indicatorStyle, setIndicatorStyle] = useState<{ width: number; left: number }>({ width: 0, left: 0 });
   const [isHidden, setIsHidden] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
@@ -97,6 +99,29 @@ export function Navbar() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [visibleLinks, pathname]);
+
+  useEffect(() => {
+    const savedTheme = readStoredPreference("flance_theme");
+    const initialTheme: "dark" | "light" = savedTheme === "light" ? "light" : "dark";
+    setTheme(initialTheme);
+    document.documentElement.setAttribute("data-theme", initialTheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    writeStoredPreference("flance_theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    function handleConsentUpdated() {
+      if (canPersistPreferences()) {
+        writeStoredPreference("flance_theme", theme);
+      }
+    }
+    window.addEventListener("flance:cookie-consent-updated", handleConsentUpdated as EventListener);
+    return () =>
+      window.removeEventListener("flance:cookie-consent-updated", handleConsentUpdated as EventListener);
+  }, [theme]);
 
   useEffect(() => {
     function updateVisibility() {
@@ -231,6 +256,16 @@ export function Navbar() {
               </button>
             </div>
           </div>
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
+            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+            title={theme === "dark" ? "Tema claro" : "Tema escuro"}
+          >
+            <span aria-hidden>{theme === "dark" ? "☀️" : "🌙"}</span>
+            <span className="theme-toggle-label">{theme === "dark" ? "White" : "Dark"}</span>
+          </button>
 
           {isLoading ? null : user ? (
             <>

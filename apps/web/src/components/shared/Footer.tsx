@@ -6,6 +6,11 @@ export function Footer() {
   const { t } = useI18n();
   const year = new Date().getFullYear();
 
+  function handleManageCookies() {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(new Event("flance:open-cookie-settings"));
+  }
+
   return (
     <footer className="app-footer">
       <div className="app-footer-inner">
@@ -24,9 +29,12 @@ export function Footer() {
             <a href="https://github.com/ruzzi2603/Flance" target="_blank" rel="noreferrer" className="footer-link">
               {t("footer.repo")}
             </a>
+            <button type="button" className="footer-link footer-link-button" onClick={handleManageCookies}>
+              {t("footer.manageCookies")}
+            </button>
           </div>
           <div className="footer-social">
-            <a
+            <a 
               href="https://instagram.com/FlanceOfc"
               target="_blank"
               rel="noreferrer"

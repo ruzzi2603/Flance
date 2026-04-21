@@ -142,6 +142,7 @@ export interface ProposalSummary {
  */
 export interface ConversationSummary {
   id: string;
+  company: { id: string; name: string; location?: string | null };
   jobId?: string;
   clientId: string;
   freelancerId: string;

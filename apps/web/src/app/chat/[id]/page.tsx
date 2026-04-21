@@ -314,6 +314,7 @@ export default function ChatPage() {
                   </button>
                   {editBidOpen ? (
                     <form
+                   
                       className="mt-3 flex flex-wrap items-end gap-3"
                       onSubmit={(event) => {
                         event.preventDefault();
@@ -322,7 +323,7 @@ export default function ChatPage() {
                         updateBidMutation.mutate(nextValue);
                       }}
                     >
-                      <label className="form-label">
+                      <label className="form-label" >
                         {t("chat.proposalNewValue")}
                         <input
                           className="input"
@@ -332,8 +333,8 @@ export default function ChatPage() {
                           min={1}
                           step={1}
                         />
-                      </label>
-                      <button className="btn-success" type="submit" disabled={updateBidMutation.isPending}>
+                      </label >
+                      <button  className="btn-success" type="submit" disabled={updateBidMutation.isPending}>
                         {updateBidMutation.isPending ? t("chat.proposalSaving") : t("chat.proposalSave")}
                       </button>
                     </form>
@@ -350,9 +351,9 @@ export default function ChatPage() {
           ) : orderedMessages.length === 0 ? (
             <p className="text-sm text-muted">{t("chat.empty")}</p>
           ) : (
-            <div className="chat-thread">
+            <div className="chat-thread" >
               {sortedMessages.map((item) => (
-                <div
+                <div 
                   key={item.id}
                   className={`rounded-2xl px-4 py-3 text-sm ${
                     item.senderId === user?.id
@@ -360,13 +361,13 @@ export default function ChatPage() {
                       : "chat-message chat-message-other chat-message-left"
                   }`}
                 >
-                  <p className={`text-xs font-semibold ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
+                  <p  className={`text-xs font-semibold ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
                     {item.senderId === user?.id
                       ? t("chat.you")
                       : participantNames[item.senderId] ?? t("chat.other")}
                   </p>
-                  <p className="whitespace-pre-line">{item.body}</p>
-                  <p className={`mt-2 text-xs ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
+                  <p  className="whitespace-pre-line">{item.body}</p>
+                  <p  className={`mt-2 text-xs ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
                     {new Date(item.createdAt).toLocaleString()}
                   </p>
                 </div>

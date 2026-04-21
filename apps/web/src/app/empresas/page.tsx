@@ -48,8 +48,11 @@ export default function CompaniesPage() {
               const photos = company.companyPhotos?.filter(Boolean) ?? [];
               const visiblePhotos = photos.slice(0, 1);
               return (
+                
                 <article key={company.id} className="company-card">
+                  
                   <div className="company-card-photos">
+           
                     {visiblePhotos.length ? (
                       visiblePhotos.map((photo) => (
                         <img key={photo} src={photo} alt="Foto da empresa" />
@@ -61,13 +64,10 @@ export default function CompaniesPage() {
                   <div className="company-card-main">
                  
                     <div className="company-card-meta">
-                      {company.avatarUrl ? (
-                        <img className="avatar-image" src={company.avatarUrl} alt={company.name} />
-                      ) : (
-                        <div className="avatar-fallback">{company.name.slice(0, 2).toUpperCase()}</div>
-                      )}
+                    
                       <div>
                         <h2 className="heading-lg">{company.companyName || company.name}</h2>
+                         
                         {company.companyLocation ? (
                           <p className="text-sm text-muted" id="descE">{company.companyLocation}</p>
                         ) : null}
