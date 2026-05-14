@@ -12,7 +12,7 @@
 
 ```bash
 # 1. Clone e instale dependências
-git clone https://github.com/seu-usuario/flance.git
+git clone https://github.com/ruzzi2603/flance.git
 cd flance
 npm install
 

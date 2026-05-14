@@ -187,14 +187,14 @@ export default function TermsPage() {
     <main className="page-shell">
       <section className="section-shell-sm">
         <header className="card">
-          <h1 className="heading-xl">{content.pageTitle}</h1>
+          <h1 className="heading-xl" id="headind-x2">{content.pageTitle}</h1>
           <p className="mt-2 text-sm text-muted">{content.updatedAt}</p>
           <p className="mt-4 text-muted">{content.intro}</p>
         </header>
 
         {content.sections.map((section) => (
           <article key={section.title} className="card">
-            <h2 className="text-xl font-bold text-[#ffffff]">{section.title}</h2>
+            <h2 id="headind-x2" className="text-xl font-bold text-[#ffffff]">{section.title}</h2>
             <div className="mt-3 grid gap-3">
               {section.paragraphs.map((paragraph) => (
                 <p key={paragraph} className="text-muted">
@@ -206,7 +206,7 @@ export default function TermsPage() {
         ))}
 
         <article className="card">
-          <h2 className="text-xl font-bold text-[#d6d6d6]">{content.rightsTitle}</h2>
+          <h2 id="headind-x2" className="text-xl font-bold text-[#d6d6d6]">{content.rightsTitle}</h2>
           <div className="mt-3 grid gap-3">
             {content.rightsParagraphs.map((paragraph) => (
               <p key={paragraph} className="text-muted">
@@ -217,7 +217,7 @@ export default function TermsPage() {
         </article>
 
         <article className="card">
-          <h2 className="text-xl font-bold text-[#64380c]">{content.contactTitle}</h2>
+          <h2 id="headind-x2" className="text-xl font-bold text-[#64380c]">{content.contactTitle}</h2>
           <p className="mt-3 text-muted">{content.contactText}</p>
         </article>
       </section>

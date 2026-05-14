@@ -4,13 +4,18 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useApiHealth } from "../hooks/useApiHealth";
 import { useAuth } from "../hooks/useAuth";
+import Splash from "./Splash";
 
 export default function HomePage() {
   const { data, isLoading, isError } = useApiHealth();
   const { isAuthenticated } = useAuth();
 
   return (
+     <>
+    {/* Splash aparece primeiro */}
+    <Splash />
     <main className="hero-root">
+      
       <motion.section
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -74,7 +79,52 @@ export default function HomePage() {
             </>
           
         </div>
+        <div className="heroB">
+          <div className="imgs">
+            <Link href="/" className="imghero" aria-label="Flance">
+          <img className="image" src="/plans.webp" alt="Flance" />
+        <div>
+    <h1 className="text-[2em] font-medium" id="herotxtT">Melhore seus resultados</h1>
+    <p className="text-[0.85em]" id="herotxt">
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+    </p>
+  </div>
+        </Link>
+        
+
+          </div>
+           <Link href="/" className="imghero" aria-label="Flance">
+         
+        <div>
+    <h1 className="text-[2em] font-medium" id="herotxtT">Aumente sua visibilidade</h1>
+    <p className="text-[0.85em]" id="herotxt">
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+    </p>
+  </div>
+   <img className="image" src="/fundo.jpg" alt="Flance" />
+        </Link>
+        <Link href="/" className="imghero" aria-label="Flance">
+         <img className="image" src="/fundo.jpg" alt="Flance" />
+        <div>
+    <h1 className="text-[2em] font-medium" id="herotxtT">Alcance suas metas</h1>
+    <p className="text-[0.85em]" id="herotxt">
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
+    </p>
+  </div>
+   
+        </Link>
+        </div>
+  
+
       </motion.section>
+      
     </main>
+      </>
   );
 }

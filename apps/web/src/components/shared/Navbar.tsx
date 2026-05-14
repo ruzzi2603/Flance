@@ -10,6 +10,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "../../i18n/useI18n";
 import { canPersistPreferences, readStoredPreference, writeStoredPreference } from "../../lib/cookie-consent";
 
+const MOBILE_MENU_BREAKPOINT_QUERY = "(max-width: 480px)";
+
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -24,6 +26,7 @@ export function Navbar() {
   const [indicatorStyle, setIndicatorStyle] = useState<{ width: number; left: number }>({ width: 0, left: 0 });
   const [isHidden, setIsHidden] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuMode, setIsMobileMenuMode] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
@@ -124,6 +127,26 @@ export function Navbar() {
   }, [theme]);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_MENU_BREAKPOINT_QUERY);
+    const applyMode = () => {
+      const isMobile = mediaQuery.matches;
+      setIsMobileMenuMode(isMobile);
+      if (isMobile) {
+        setIsHidden(false);
+      }
+    };
+
+    applyMode();
+    mediaQuery.addEventListener("change", applyMode);
+    return () => mediaQuery.removeEventListener("change", applyMode);
+  }, []);
+
+  useEffect(() => {
+    if (isMobileMenuMode) {
+      setIsHidden(false);
+      return;
+    }
+
     function updateVisibility() {
       const currentY = window.scrollY || 0;
       if (currentY <= 0) {
@@ -146,7 +169,7 @@ export function Navbar() {
     lastScrollY.current = window.scrollY || 0;
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobileMenuMode]);
 
   return (
     <header className={`nav-root ${isHidden ? "nav-root-hidden" : ""}`}>

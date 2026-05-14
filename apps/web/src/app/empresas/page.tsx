@@ -20,7 +20,7 @@ export default function CompaniesPage() {
     <main className="page-shell">
       <section className="section-shell">
         <header className="mb-8">
-          <h1 className="heading-xl">{t("companies.title")}</h1>
+          <h1 className="heading-xl" id="headind-x2">{t("companies.title")}</h1>
           <p className="mt-2 text-muted" id="p">
             {t("companies.subtitle")}
           </p>
