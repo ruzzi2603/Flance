@@ -89,7 +89,7 @@ export default function RegisterPage() {
       <section className="section-shell">
         <div className="card-lg">
           <h1 className="heading-xl">{t("auth.register.title")}</h1>
-          <p className="mt-2 text-muted">{t("auth.register.subtitle")}</p>
+          <p className="mt-2 text-muted" id="pop">{t("auth.register.subtitle")}</p>
 
           <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
             <label className="form-label">

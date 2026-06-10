@@ -67,7 +67,7 @@ html[data-theme="light"] {
 body {
   
   font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
-  background-color:#001621;
+  background-color:#000000;
   color: var(--navy-950);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -79,7 +79,7 @@ body {
   /* ── Layout shells ── */
   .page-shell {
     @apply min-h-[calc(100vh-130px)] bg-[#001621];
-    background: linear-gradient(90deg, #0c1024 0%, #000000 50%, #0c1024 100%);
+    background: linear-gradient(90deg, #000000 0%, #000000 50%, #000000 100%);
   }
 
   .section-shell {
@@ -177,7 +177,7 @@ body {
   }
  .cardC {
     @apply rounded-2xl   p-6;
-     background: linear-gradient(90deg, #00ff95 0%, #00ff95 50%, #00ff95 100%);
+     background: linear-gradient(90deg, #000000 0%, #000000 50%, #000000 100%);
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--duration) var(--ease-out),
                 transform   var(--duration) var(--ease-out);
@@ -189,8 +189,9 @@ body {
   }
   .card-lg {
     @apply rounded-3xl border border-[#000000]  p-8;
-    background-color: #000000;
-    color: #FF4103;
+  background: linear-gradient(to bottom, #0066ff, #ffffff, #0066ff);
+    color: #fffefe;
+    border: 1px solid #4b4b4b;
     box-shadow: var(--shadow-md);
   }
   #chatEnv{
@@ -219,7 +220,7 @@ body {
   color: #ada5a2
  }
   .heading-lg {
-    @apply text-lg font-semibold text-[#faf6f5];
+    @apply text-lg font-semibold text-[#3e13ff];
     letter-spacing: -0.01em;
     font-weight: 300;
     font-size: 30px
@@ -288,8 +289,8 @@ body {
            text-sm font-semibold 
            transition-all duration-200;
     box-shadow: 0 1px 3px rgba(15,31,61,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
-    color: rgb(4, 255, 117);
-    background-color: #000000;
+    color: rgb(0, 0, 0);
+    background-color: #a5a9ff;
   }
 #cth{
   background-color: #1a1a1a;
@@ -300,9 +301,10 @@ body {
   color: white;
 }
   .btn-primary:hover {
-    background-color: rgb(4, 4, 4);
-    box-shadow: 0 4px 12px rgba(233,9,9,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+    background-color: rgb(18, 7, 39);
+    box-shadow: 0 4px 5px rgba(30, 0, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
     transform: translateY(-1px);
+    color: #ffffff;
   }
 
   .btn-primary:active { transform: translateY(0); }
@@ -344,7 +346,7 @@ body {
            rounded-xl  bg-white px-5 py-2.5
            text-sm font-semibold 
            transition-all duration-200;
-            background-color: #00ff95;
+            background-color: #363636;
             color: #fefefe;
   }
 #chatcd{
@@ -415,7 +417,7 @@ body {
   .hero-root {
     
     @apply min-h-[calc(110vh-130px)] grid place-items-center px-5 py-10;
-   background: linear-gradient(90deg, #0c1024 0%, #000000 50%,#000000 75%, #000000 85%,#05170f 100%);
+   background: linear-gradient(90deg, #111111 0%, #111111 50%,#111111 75%, #111111 85%,#111111 100%);
   }
  
   .home-hero {
@@ -506,7 +508,7 @@ body {
   /* ── Footer ── */
   .app-footer {
     @apply border-t-0 bg-[#FF4103];
-    background: linear-gradient(to bottom, #04301c9d 0%,#0c1024   10%,#0c1024 20%, #0c1024 35%,#0c1024 50%, #000000 100%);
+    background: linear-gradient(to bottom, #191919 0%, #000000 100%);
   }
 
   .app-footer-inner {
@@ -672,7 +674,7 @@ body {
   /* ── Navbar ── */
   .nav-root {
     @apply sticky top-0 z-50 border-b border-[#c5080832];
-    background: linear-gradient(90deg, #003433 0%, #0c1024 50%, #003433 100%);
+    background-color: #0084ff;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
@@ -820,7 +822,8 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    background-color: #0a090b;
+    background-color: #111112;
+    border: 1px solid #4c4c4c;
     gap: 18px;
   }
   #btnEmp{
@@ -829,8 +832,8 @@ body {
   }
   #ttplans{
     justify-self:center;
-    font-weight: 800;
-  color:  #00ff95;
+    font-weight: 400;
+  color:  #4b72ff;
   }
   #ttplanssub{
     justify-self:center;
@@ -949,9 +952,9 @@ body {
   .card-container .card-content {
     width: 100%;
     height: 100%;
-    background-color: #00ff95;
+    background-color: #ffffff;
     border-radius: 20px;
-    color: #f0e9e9;
+    color: #000000;
     font-size: 12px;
     padding: 18px;
     display: flex;
@@ -996,7 +999,7 @@ body {
     color: #000000;
 
     transform: scale(1.03);
-    box-shadow: 0 0 10px #00ff2f;
+    box-shadow: 0 0 10px #0044ff;
   }
 
   .card-container .card-content .card-btn:active {
@@ -1214,10 +1217,12 @@ body {
     
     background: rgba(255, 255, 255, 0.1);
   }
-
+#pop{
+  color: rgb(0, 0, 0)
+}
   .nav-link-active {
     @apply font-bold;
-       color: #08ff83;
+       color: #001d47;
     background: rgba(255, 255, 255, 0.15);
   }
 
@@ -1232,7 +1237,7 @@ body {
     @apply rounded-xl px-4 py-2 text-sm font-bold no-underline
            transition-all duration-200;
     background: rgb(0, 0, 0);
-    color: #03ff5f;
+    color: #0044ff;
     border: 1px solid rgba(255,255,255,0.2);
   }
 
@@ -1560,7 +1565,7 @@ body {
   display: block;
   height: 100%;
   padding-left: 6px;
-  color:  #00ff95;
+  color:  #0077ff;
   animation: spin_4995 5s infinite;
 }
 
@@ -1752,11 +1757,11 @@ body {
 }
  #ttplans{
     justify-self:center;
-    color: #00ff5e;
+   
   }
   #ttplanssub{
     justify-self:center;
-    color: #00ff5e;
+    color: #0044ff;
     margin-bottom: 30px;
   }
 #txt1{
@@ -1861,8 +1866,8 @@ margin-top: 1px;
   background-color: inherit;
   border-radius: 100px;
   font-weight: 600;
-  color: #00ff95;
-  box-shadow: 0 0 0 2px #00ff95;
+  color: #ffffff;
+  box-shadow: 0 0 0 2px #0084ff;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
@@ -1871,7 +1876,7 @@ margin-top: 1px;
 .animated-button svg {
   position: absolute;
   width: 24px;
-  fill: #00ff95;
+  fill: #4a4a4a;
   z-index: 9;
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -1891,7 +1896,7 @@ margin-top: 1px;
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  background-color: #00ff95;
+  background-color: #0084ff;
   border-radius: 50%;
   opacity: 0;
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
@@ -1962,12 +1967,12 @@ margin-top: 1px;
 }
 #herotxtT{
   font-weight: 800;
-  color:  #00ff95;
+  color:  #424242;
   
 }
 #headind-x2{
-    font-weight: 800;
-  color:  #00ff95;
+  font-weight: 400;
+  color:  #4b72ff;
 }
 .marketing-loader {
   display: flex;
@@ -2062,7 +2067,7 @@ html[data-theme="light"] body {
 
 html[data-theme="light"] .page-shell,
 html[data-theme="light"] .hero-root {
-  background: linear-gradient(90deg, #e4ffe8 0%, #f6f7ff 50%, #f3fffa 75%,#defff1 100%);
+  background: linear-gradient(90deg, #ffffff 0%,#ffffff 100%);
  }
 
 html[data-theme="light"] .card,
@@ -2093,30 +2098,35 @@ html[data-theme="light"] #chatEnv {
 }
 
 html[data-theme="light"] .company-card {
-  background-color: rgb(253, 253, 253);
-   border: 1px solid #dbe3f0;
+  background-color: rgb(255, 255, 255);
+   border: 1px solid #000000;
   color: #1f2f4a;
 
 }
 
 
 html[data-theme="light"] .card-content {
-    background-color: #00ff95;
+    background-color: #ffffff;
     color: #000000;
 }
 
 html[data-theme="light"] .nav-link-active {
-  color: #00ff51;
+  color: #001d47;
   background: rgba(20, 3, 255, 0.1);
 }
 html[data-theme="light"] #cardInfo {
   color: #000000;
  
 }
+ html[data-theme="light"] .nav-root{
+  background-color: #0084ff;
+  color: #0f172a;
 
+}
 
 html[data-theme="light"] .nav-cta,
 html[data-theme="light"] .currency-button,
+
 html[data-theme="light"] .theme-toggle {
   background: #ffffff;
   color: #0f172a;
@@ -2171,7 +2181,7 @@ html[data-theme="light"] #ttplanssub {
 }
 
 html[data-theme="light"] .card-lg {
-  background-color: #19233c;
+  background: linear-gradient(to bottom, #0066ff, #ffffff, #0066ff);
 }
 
 html[data-theme="light"] #herotxt

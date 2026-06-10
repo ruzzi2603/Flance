@@ -234,61 +234,8 @@ export function Navbar() {
             style={{ width: indicatorStyle.width, transform: `translateX(${indicatorStyle.left}px)` }}
           />
 
-          <div className="currency-switch">
-            <button
-              type="button"
-              className="currency-button"
-              aria-haspopup="listbox"
-              aria-label="Selecionar moeda"
-            >
-              <span className="currency-flag" aria-hidden>
-                {currency === "USD" ? "🇺🇸" : currency === "EUR" ? "🇪🇺" : "🇧🇷"}
-              </span>
-              <span className="currency-code">{currency}</span>
-            </button>
-            <div className="currency-menu" role="listbox">
-              <button
-                type="button"
-                className={`currency-option ${currency === "BRL" ? "is-active" : ""}`}
-                onClick={() => setCurrency("BRL")}
-              >
-                <span className="currency-flag" aria-hidden>
-                  🇧🇷
-                </span>
-                BRL
-              </button>
-              <button
-                type="button"
-                className={`currency-option ${currency === "USD" ? "is-active" : ""}`}
-                onClick={() => setCurrency("USD")}
-              >
-                <span className="currency-flag" aria-hidden>
-                  🇺🇸
-                </span>
-                USD
-              </button>
-              <button
-                type="button"
-                className={`currency-option ${currency === "EUR" ? "is-active" : ""}`}
-                onClick={() => setCurrency("EUR")}
-              >
-                <span className="currency-flag" aria-hidden>
-                  🇪🇺
-                </span>
-                EUR
-              </button>
-            </div>
-          </div>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
-            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
-            title={theme === "dark" ? "Tema claro" : "Tema escuro"}
-          >
-            <span aria-hidden>{theme === "dark" ? "☀️" : "🌙"}</span>
-            <span className="theme-toggle-label">{theme === "dark" ? "White" : "Dark"}</span>
-          </button>
+          
+        
 
           {isLoading ? null : user ? (
             <>
@@ -309,6 +256,16 @@ export function Navbar() {
               {t("nav.start")}
             </Link>
           )}
+            <button
+            type="button"
+            className="theme-toggle"
+            onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
+            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+            title={theme === "dark" ? "Tema claro" : "Tema escuro"}
+          >
+            <span aria-hidden>{theme === "dark" ? "☀️" : "🌙"}</span>
+            <span className="theme-toggle-label">{theme === "dark" ? "White" : "Dark"}</span>
+          </button>
         </div>
       </nav>
     </header>
