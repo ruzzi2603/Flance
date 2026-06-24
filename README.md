@@ -17,20 +17,6 @@
 - Sistema de gamificação (badges, ratings)
 - Busca avançada com filtros
 
-### 💼 Projetos (Jobs)
-- Criação e gerenciamento de projetos por clientes
-- Categorização e tagging automáticos
-- Ciclo de vida completo (rascunho → aberto → finalizado)
-- Orçamento com suporte a tipos (horário, fixo, intervalo)
-- Histórico e auditoria
-
-### 🎯 Proposals (Ofertas)
-- Sistema bidirecional: freelancers fazem ofertas OU clientes convidam
-- Matching inteligente baseado em skills/histórico
-- Negociação de termos (preço, timeline)
-- Decisão automática com SLA de 7 dias
-- Histórico de propostas com feedback
-
 ### 💬 Chat em Tempo Real
 - Comunicação websocket de baixa latência
 - Histórico persistente em banco de dados
