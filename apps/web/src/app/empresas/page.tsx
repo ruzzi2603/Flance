@@ -26,14 +26,20 @@ export default function CompaniesPage() {
           </p>
           <div className="mt-4 max-w-xl">
             <input
-              className="input"
+              className="input" id="pesq"
               placeholder={t("companies.search")}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
         </header>
+        <Link href="/planos" >
+<div className="separ">
 
+<img src="/imganun.png" alt="banner anucie aqui!" id="ftan"/>
+
+</div>
+</Link>
         {companiesQuery.isLoading ? (
           <div className="card">
             <div className="loader-wrap">

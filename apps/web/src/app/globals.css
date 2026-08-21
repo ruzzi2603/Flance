@@ -177,7 +177,7 @@ body {
   }
  .cardC {
     @apply rounded-2xl   p-6;
-     background: linear-gradient(90deg, #000000 0%, #000000 50%, #000000 100%);
+     background: linear-gradient(90deg, #ffffff 0%, #fff8f8 50%, #ffffff 100%);
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--duration) var(--ease-out),
                 transform   var(--duration) var(--ease-out);
@@ -189,13 +189,13 @@ body {
   }
   .card-lg {
     @apply rounded-3xl border border-[#000000]  p-8;
-  background: linear-gradient(to bottom, #0066ff, #ffffff, #0066ff);
+  background: linear-gradient(to bottom, #f7f7f7, #ffffff, #f3f3f3);
     color: #fffefe;
     border: 1px solid #4b4b4b;
     box-shadow: var(--shadow-md);
   }
   #chatEnv{
-    background-color: #1c1c1c;
+    background-color: #ffffff;
     color: #f7f7f7;
   }
 #p{
@@ -206,11 +206,13 @@ body {
 }
   /* ── Typography ── */
   .heading-xl {
-    @apply text-3xl font-bold text-[#ffffff];
+  
+    color: #ffffff;
     font-family: 'Sora', sans-serif;
     letter-spacing: -0.03em;
     line-height: 1.15;
     font-weight: 100;
+    font-size: 1.75rem;
   }
  #desc{
   color: #dbc8c8;
@@ -220,8 +222,9 @@ body {
   color: #ada5a2
  }
   .heading-lg {
-    @apply text-lg font-semibold text-[#3e13ff];
+  
     letter-spacing: -0.01em;
+    color: #ffffff;
     font-weight: 300;
     font-size: 30px
   }
@@ -243,7 +246,7 @@ body {
   .input {
     @apply w-full rounded-xl border border-[#000000] bg-white px-4 py-3
            text-sm text-[#ffffff] outline-none
-           transition-all placeholder:text-[#9aabca]
+           transition-all placeholder:text-[white]
            focus:border-[#FF4103] focus:ring-2 focus:ring-[#FF4103]/15;
            background-color: #1f2232;
   }
@@ -289,8 +292,8 @@ body {
            text-sm font-semibold 
            transition-all duration-200;
     box-shadow: 0 1px 3px rgba(15,31,61,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
-    color: rgb(0, 0, 0);
-    background-color: #a5a9ff;
+    color: rgb(255, 255, 255);
+    background-color: #ff0000;
   }
 #cth{
   background-color: #1a1a1a;
@@ -302,7 +305,7 @@ body {
 }
   .btn-primary:hover {
     background-color: rgb(18, 7, 39);
-    box-shadow: 0 4px 5px rgba(30, 0, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
     transform: translateY(-1px);
     color: #ffffff;
   }
@@ -350,14 +353,14 @@ body {
             color: #fefefe;
   }
 #chatcd{
-  background-color: #1a1a1a;
+  background-color: #ff0000;
   color: white;
   border: none;
 }
   .btn-outline:hover {
     border-color: #ff2f00;
-    background-color: #fefefe;
-    color: var(--navy-950);
+    background-color: #fa0202;
+    color: white;
   }
 
   /* ── CTA Buttons (hero) ── */
@@ -674,7 +677,7 @@ body {
   /* ── Navbar ── */
   .nav-root {
     @apply sticky top-0 z-50 border-b border-[#c5080832];
-    background-color: #0084ff;
+    background-color: #ff0000;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
@@ -822,8 +825,8 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    background-color: #111112;
-    border: 1px solid #4c4c4c;
+    background-color: #12121a;
+    border: 1px solid #032eeb00;
     gap: 18px;
   }
   #btnEmp{
@@ -833,7 +836,7 @@ body {
   #ttplans{
     justify-self:center;
     font-weight: 400;
-  color:  #4b72ff;
+  color:  #f3eeee;
   }
   #ttplanssub{
     justify-self:center;
@@ -976,10 +979,10 @@ body {
   .card-container .card-content .card-btn {
     background: linear-gradient(
       4deg,
-      #f7f7f7,
+      #c9c9c9,
       #ffffff 40%,
       #ffffff 70%,
-      #ffffff 100%
+      #cec9c9 100%
     );
     padding: 8px;
     border: none;
@@ -999,7 +1002,7 @@ body {
     color: #000000;
 
     transform: scale(1.03);
-    box-shadow: 0 0 10px #0044ff;
+    box-shadow: 0 0 10px #000000;
   }
 
   .card-container .card-content .card-btn:active {
@@ -1222,8 +1225,8 @@ body {
 }
   .nav-link-active {
     @apply font-bold;
-       color: #001d47;
-    background: rgba(255, 255, 255, 0.15);
+       color: #522424;
+   
   }
 
   .nav-indicator {
@@ -1311,20 +1314,15 @@ body {
     align-items: center;
     gap: 8px;
     padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background: rgba(0, 0, 0, 0.25);
     color: #fff;
     font-size: 12px;
+    height: 40px;
     font-weight: 700;
     cursor: pointer;
     transition: all 180ms ease;
   }
 
-  .theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.5);
-  }
+
 
   .theme-toggle-label {
     line-height: 1;
@@ -1337,15 +1335,16 @@ body {
   }
 
   .nav-logout {
-    @apply cursor-pointer rounded-xl border border-white/30 bg-transparent
+    @apply cursor-pointer rounded-xl bg-transparent
            px-3.5 py-2 text-sm font-bold
            transition-all duration-200;
-    color: #ff0000;
+    color: #ffffff;
+    background-color: #383434;
   }
 
   .nav-logout:hover {
     background: rgba(255,255,255,0.15);
-    border-color: rgba(255,255,255,0.5);
+    border-color: rgba(255, 255, 255, 0.199);
   }
 
   /* ── Profile / Avatar ── */
@@ -1373,6 +1372,12 @@ body {
   .avatar-grid {
     @apply mt-2 grid grid-cols-3 gap-3 sm:grid-cols-6;
   }
+#pesq{
+  background-color: #ff0000;
+
+  color: white;
+}
+
 
   .avatar-option {
     @apply flex flex-col items-center gap-2 rounded-xl border-2 border-transparent
@@ -1426,16 +1431,32 @@ body {
   }
 
   .nav-profile {
-    @apply flex items-center gap-2 rounded-full border border-white/25 bg-white/15
+    @apply flex items-center gap-2 rounded-full 
            px-3 py-1.5 text-sm font-semibold text-white no-underline
            transition-all duration-200 backdrop-blur-sm;
   }
 
   .nav-profile:hover {
-    background: rgba(255,255,255,0.25);
-    border-color: rgba(255,255,255,0.4);
+    background: rgba(32, 12, 122, 0.233);
+ 
   }
+  #ftan{
+    width: 300px;
 
+
+  }
+.separ{
+  background-color: #ff0000;
+  width: 100%;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
+  height: 100px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 90px 6px 90px 6px;
+}
   /* ── Chat ── */
 .chat-thread {
   @apply mt-2 grid max-h-[520px] gap-3 overflow-y-auto pr-2;
@@ -1565,7 +1586,7 @@ body {
   display: block;
   height: 100%;
   padding-left: 6px;
-  color:  #0077ff;
+  color:  #ff0000;
   animation: spin_4995 5s infinite;
 }
 
@@ -1657,10 +1678,7 @@ body {
     padding-top: 40px;
     padding-bottom: 40px;
   }
- #ttplans{
-    justify-self:center;
-  
-  }
+
   #ttplanssub{
     justify-self:center;
    
@@ -1743,10 +1761,7 @@ body {
  height: 43px;
 
 }
-  .heading-xl {
-    font-size: 1.75rem;
-    letter-spacing: -0.02em;
-  }
+ 
   .loadere {
 
  
@@ -1755,10 +1770,7 @@ body {
 
  
 }
- #ttplans{
-    justify-self:center;
-   
-  }
+
   #ttplanssub{
     justify-self:center;
     color: #0044ff;
@@ -1867,7 +1879,7 @@ margin-top: 1px;
   border-radius: 100px;
   font-weight: 600;
   color: #ffffff;
-  box-shadow: 0 0 0 2px #0084ff;
+  box-shadow: 0 0 0 2px #ff0000;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
@@ -1896,7 +1908,7 @@ margin-top: 1px;
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  background-color: #0084ff;
+  background-color: #ff0000;
   border-radius: 50%;
   opacity: 0;
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
@@ -1933,11 +1945,12 @@ margin-top: 1px;
 
 .animated-button:active {
   scale: 0.95;
-  box-shadow: 0 0 0 4px #005eff;
+  box-shadow: 0 0 0 4px #ff0000;
 }
 
 .animated-button:hover .circle {
   width: 220px;
+  
   height: 220px;
   opacity: 1;
 }
@@ -1970,10 +1983,7 @@ margin-top: 1px;
   color:  #424242;
   
 }
-#headind-x2{
-  font-weight: 400;
-  color:  #4b72ff;
-}
+
 .marketing-loader {
   display: flex;
   justify-content: center;
@@ -2090,16 +2100,15 @@ html[data-theme="light"] #Remember {
 }
 
 html[data-theme="light"] .input,
-html[data-theme="light"] #cth,
-html[data-theme="light"] #chatEnv {
-  background-color: #ffffff;
+html[data-theme="light"] #cth {
+  background-color: #f1ecec;
   color: #1f2937;
   border-color: #cbd5e1;
 }
 
 html[data-theme="light"] .company-card {
-  background-color: rgb(255, 255, 255);
-   border: 1px solid #000000;
+  background-color: rgb(253, 253, 253);
+   border: 1px solid #bad5ff;
   color: #1f2f4a;
 
 }
@@ -2110,16 +2119,22 @@ html[data-theme="light"] .card-content {
     color: #000000;
 }
 
-html[data-theme="light"] .nav-link-active {
-  color: #001d47;
-  background: rgba(20, 3, 255, 0.1);
-}
 html[data-theme="light"] #cardInfo {
   color: #000000;
  
 }
+
+html[data-theme="light"] .heading-lg  {
+  color: #000000;
+ 
+}
+
+html[data-theme="light"] .heading-xl  {
+  color: #000000;
+ 
+}
  html[data-theme="light"] .nav-root{
-  background-color: #0084ff;
+  background-color: #ff0000;
   color: #0f172a;
 
 }
@@ -2128,9 +2143,9 @@ html[data-theme="light"] .nav-cta,
 html[data-theme="light"] .currency-button,
 
 html[data-theme="light"] .theme-toggle {
-  background: #ffffff;
+ 
   color: #0f172a;
-  border-color: #cbd5e1;
+ 
 }
 html[data-theme="light"] .loadere {
  color: #1a1a1a;
@@ -2176,10 +2191,12 @@ html[data-theme="light"] .cookie-consent-item {
 html[data-theme="light"] .cookie-consent-link {
   color: #0f172a;
 }
-html[data-theme="light"] #ttplanssub {
+html[data-theme="light"] #ttplanssub{
   color: #101728;
 }
-
+html[data-theme="light"] #ttplans{
+  color: #101728;
+}
 html[data-theme="light"] .card-lg {
   background: linear-gradient(to bottom, #0066ff, #ffffff, #0066ff);
 }

@@ -245,11 +245,9 @@ export function Navbar() {
                 ) : (
                   <span className={`nav-avatar ${avatarValue}`}>{initials}</span>
                 )}
-                {t("nav.profile")}
+               
               </Link>
-              <button type="button" onClick={handleLogout} className="nav-logout">
-                {t("nav.logout")}
-              </button>
+           
             </>
           ) : (
             <Link href="/register" className="nav-cta">
@@ -263,9 +261,12 @@ export function Navbar() {
             aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
             title={theme === "dark" ? "Tema claro" : "Tema escuro"}
           >
-            <span aria-hidden>{theme === "dark" ? "☀️" : "🌙"}</span>
+          
             <span className="theme-toggle-label">{theme === "dark" ? "White" : "Dark"}</span>
           </button>
+          <button type="button" onClick={handleLogout} className="nav-logout">
+                {t("nav.logout")}
+              </button>
         </div>
       </nav>
     </header>

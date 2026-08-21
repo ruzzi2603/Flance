@@ -2,7 +2,7 @@ import type { Locale } from "./locales";
 
 export const messages: Record<Locale, Record<string, string>> = {
   "pt-BR": {
-    "nav.companies": "Empresas",
+    "nav.companies": "Serviços",
     "nav.plans": "Planos",
     "nav.chat": "Chat",
     "nav.login": "Login",
