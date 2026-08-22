@@ -79,6 +79,8 @@ body {
   /* ── Layout shells ── */
   .page-shell {
     @apply min-h-[calc(100vh-130px)] bg-[#001621];
+    justify-content: center;
+    justify-items: center;
     background: linear-gradient(90deg, #000000 0%, #000000 50%, #000000 100%);
   }
 
@@ -188,10 +190,15 @@ body {
     transform: translateY(-1px);
   }
   .card-lg {
-    @apply rounded-3xl border border-[#000000]  p-8;
-  background: linear-gradient(to bottom, #f7f7f7, #ffffff, #f3f3f3);
+    @apply rounded-3xl   p-8;
+ background-color: #000;
     color: #fffefe;
     border: 1px solid #4b4b4b;
+
+
+   box-sizing: border-box;
+max-width: 70%;
+margin-left: 15%;
     box-shadow: var(--shadow-md);
   }
   #chatEnv{
@@ -246,7 +253,7 @@ body {
   .input {
     @apply w-full rounded-xl border border-[#000000] bg-white px-4 py-3
            text-sm text-[#ffffff] outline-none
-           transition-all placeholder:text-[white]
+           transition-all placeholder:text-[black]
            focus:border-[#FF4103] focus:ring-2 focus:ring-[#FF4103]/15;
            background-color: #1f2232;
   }
@@ -979,17 +986,17 @@ body {
   .card-container .card-content .card-btn {
     background: linear-gradient(
       4deg,
-      #c9c9c9,
-      #ffffff 40%,
-      #ffffff 70%,
-      #cec9c9 100%
+      #f80000,
+      #f90000 40%,
+      #fd3333 70%,
+      #fd0101 100%
     );
     padding: 8px;
     border: none;
-    font-weight: 400;
+    font-weight: 700;
     width: 100%;
     border-radius: 8px;
-    color: rgba(7, 3, 3, 0.993);
+    color: rgba(255, 253, 253, 0.993);
     font-size: 12px;
     text-align: center;
     transition: all 0.3s ease-in-out;
@@ -999,10 +1006,16 @@ body {
   }
 
   .card-container .card-content .card-btn:hover {
-    color: #000000;
-
-    transform: scale(1.03);
-    box-shadow: 0 0 10px #000000;
+    color: #faf8f8;
+  background: linear-gradient(
+      4deg,
+      #ff4d4d,
+      #ff5050 40%,
+      #ff5252 70%,
+      #ff4747 100%
+    );
+    transform: scale(1.01);
+    box-shadow: 0 0 10px #fdf7f7;
   }
 
   .card-container .card-content .card-btn:active {
@@ -1239,8 +1252,8 @@ body {
   .nav-cta {
     @apply rounded-xl px-4 py-2 text-sm font-bold no-underline
            transition-all duration-200;
-    background: rgb(0, 0, 0);
-    color: #0044ff;
+    background: rgba(113, 2, 2, 0.51);
+    color: #fafafb;
     border: 1px solid rgba(255,255,255,0.2);
   }
 
@@ -1313,6 +1326,8 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    justify-items: center;
+    justify-content: center;
     padding: 6px 10px;
     color: #fff;
     font-size: 12px;
@@ -1373,9 +1388,10 @@ body {
     @apply mt-2 grid grid-cols-3 gap-3 sm:grid-cols-6;
   }
 #pesq{
-  background-color: #ff0000;
-
-  color: white;
+  background-color: #ffffff;
+border: solid rgb(255, 0, 0);
+border-width: 2px;
+  color: rgb(4, 4, 4);
 }
 
 
@@ -1872,14 +1888,14 @@ margin-top: 1px;
   width: fit-content;
   margin-top: 3%;
   padding: 10px 26px;
-  border: 4px solid;
-  border-color: transparent;
+  border: 2px solid;
+  border-color: rgb(249, 246, 246);
   font-size: 16px;
-  background-color: inherit;
+  background-color: #ff0000;
   border-radius: 100px;
   font-weight: 600;
   color: #ffffff;
-  box-shadow: 0 0 0 2px #ff0000;
+  box-shadow: 0 0 0 2px #ffffff00;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
@@ -1888,7 +1904,7 @@ margin-top: 1px;
 .animated-button svg {
   position: absolute;
   width: 24px;
-  fill: #4a4a4a;
+  fill: #f8f5f5;
   z-index: 9;
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -1908,22 +1924,24 @@ margin-top: 1px;
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  background-color: #ff0000;
+  background-color: #000000;
   border-radius: 50%;
   opacity: 0;
+  color: white;
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .animated-button .text {
   position: relative;
   z-index: 1;
+    color: white;
   transform: translateX(-12px);
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .animated-button:hover {
   box-shadow: 0 0 0 12px transparent;
-  color: #212121;
+  color: #ffffff;
   border-radius: 12px;
 }
 
@@ -1940,7 +1958,7 @@ margin-top: 1px;
 }
 
 .animated-button:hover svg {
-  fill: #212121;
+  fill: #fffefe;
 }
 
 .animated-button:active {
@@ -2139,7 +2157,7 @@ html[data-theme="light"] .heading-xl  {
 
 }
 
-html[data-theme="light"] .nav-cta,
+
 html[data-theme="light"] .currency-button,
 
 html[data-theme="light"] .theme-toggle {
@@ -2165,6 +2183,7 @@ html[data-theme="light"] .hero-eyebrow   {
 
 html[data-theme="light"] .animated-button  {
  color: #0e0f0e;
+ border-color: #0e0f0e; 
  
  
 }
@@ -2198,8 +2217,7 @@ html[data-theme="light"] #ttplans{
   color: #101728;
 }
 html[data-theme="light"] .card-lg {
-  background: linear-gradient(to bottom, #0066ff, #ffffff, #0066ff);
-}
+background-color: white;}
 
 html[data-theme="light"] #herotxt
 {
