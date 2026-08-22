@@ -1,17 +1,63 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listCompanies } from "../../services/companies";
 import { useI18n } from "../../i18n/useI18n";
+
+const images = [
+  "https://tse2.mm.bing.net/th/id/OIP.1svq8zLTXg13HkMgOosLtgHaE8?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+  "../Design sem nome.jpg",
+  "../Design sem nome (1).jpg",
+];
+
+export const InfiniteCarousel: React.FC = () => {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    let position = 0;
+    const step = 1; // pixels por frame
+    const interval = setInterval(() => {
+      position -= step;
+      if (Math.abs(position) >= track.scrollWidth / 2) {
+        position = 0; // reinicia sem corte
+      }
+      track.style.transform = `translateX(${position}px)`;
+    }, 16); // ~60fps
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div  id="imgk" style={{ width: "600px", overflow: "hidden" }}>
+      <div
+        ref={trackRef}
+        style={{
+          display: "flex",
+          whiteSpace: "nowrap",
+          willChange: "transform",
+        }}
+      >
+        {[...images, ...images].map((src, i) => (
+          <img key={i} src={src} alt={`Slide ${i}`} width="600" height="300" />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default function CompaniesPage() {
   const [search, setSearch] = useState("");
   const { t } = useI18n();
   const companiesQuery = useInfiniteQuery({
     queryKey: ["companies", search],
-    queryFn: ({ pageParam = 0 }) => listCompanies({ query: search, limit: 40, offset: pageParam }),
-    getNextPageParam: (lastPage, allPages) => (lastPage.length === 40 ? allPages.length * 40 : undefined),
+    queryFn: ({ pageParam = 0 }) =>
+      listCompanies({ query: search, limit: 40, offset: pageParam }),
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === 40 ? allPages.length * 40 : undefined,
     initialPageParam: 0,
   });
   const companies = companiesQuery.data?.pages.flat() ?? [];
@@ -20,26 +66,33 @@ export default function CompaniesPage() {
     <main className="page-shell">
       <section className="section-shell">
         <header className="mb-8">
-          <h1 className="heading-xl" id="headind-x2">{t("companies.title")}</h1>
+          <h1 className="heading-xl" id="headind-x2">
+            {t("companies.title")}
+          </h1>
           <p className="mt-2 text-muted" id="p">
             {t("companies.subtitle")}
           </p>
           <div className="mt-4 max-w-xl">
             <input
-              className="input" id="pesq"
+              className="input"
+              id="pesq"
               placeholder={t("companies.search")}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
+          {/* Carrossel infinito */}
+          <div className="mt-6 flex justify-center" id="carrossel">
+            <InfiniteCarousel />
+          </div>
         </header>
-        <Link href="/planos" >
-<div className="separ">
 
-<img src="/imganun.png" alt="banner anucie aqui!" id="ftan"/>
+        <Link href="/planos">
+          <div className="separ">
+            <img src="/imganun.png" alt="banner anucie aqui!" id="ftan" />
+          </div>
+        </Link>
 
-</div>
-</Link>
         {companiesQuery.isLoading ? (
           <div className="card">
             <div className="loader-wrap">
@@ -54,36 +107,40 @@ export default function CompaniesPage() {
               const photos = company.companyPhotos?.filter(Boolean) ?? [];
               const visiblePhotos = photos.slice(0, 1);
               return (
-                
                 <article key={company.id} className="company-card">
-                  
                   <div className="company-card-photos">
-           
                     {visiblePhotos.length ? (
                       visiblePhotos.map((photo) => (
                         <img key={photo} src={photo} alt="Foto da empresa" />
                       ))
                     ) : (
-                      <div className="text-sm text-muted">{t("companies.noPhotos")}</div>
+                      <div className="text-sm text-muted">
+                        {t("companies.noPhotos")}
+                      </div>
                     )}
                   </div>
                   <div className="company-card-main">
-                 
                     <div className="company-card-meta">
-                    
                       <div>
-                        <h2 className="heading-lg">{company.companyName || company.name}</h2>
-                         
+                        <h2 className="heading-lg">
+                          {company.companyName || company.name}
+                        </h2>
                         {company.companyLocation ? (
-                          <p className="text-sm text-muted" id="descE">{company.companyLocation}</p>
+                          <p className="text-sm text-muted" id="descE">
+                            {company.companyLocation}
+                          </p>
                         ) : null}
                       </div>
                     </div>
 
                     {company.companyDescription ? (
-                      <p className="text-sm text-muted" id="desc">{company.companyDescription}</p>
+                      <p className="text-sm text-muted" id="desc">
+                        {company.companyDescription}
+                      </p>
                     ) : company.services ? (
-                      <p className="text-sm text-muted" id="desc">{company.services}</p>
+                      <p className="text-sm text-muted" id="desc">
+                        {company.services}
+                      </p>
                     ) : null}
 
                     {company.servicesTags?.length ? (
@@ -96,20 +153,28 @@ export default function CompaniesPage() {
                       </div>
                     ) : null}
 
-                   <Link href={`/empresas/${company.id}`} className="animated-button" id="btnEmp">
-          <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-          <span className="text">Ver empresa</span>
-          <span className="circle"></span>
-          <svg viewBox="0 0 24 24" className="arr-1" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-        </Link>
+                    <Link
+                      href={`/empresas/${company.id}`}
+                      className="animated-button"
+                      id="btnEmp"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="arr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+                      </svg>
+                      <span className="text">Ver empresa</span>
+                      <span className="circle"></span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="arr-1"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+                      </svg>
+                    </Link>
                   </div>
                 </article>
               );
@@ -118,6 +183,7 @@ export default function CompaniesPage() {
         ) : (
           <div className="card">{t("companies.empty")}</div>
         )}
+
         {companiesQuery.hasNextPage ? (
           <div className="mt-6 flex justify-center">
             <button

@@ -78,10 +78,10 @@ body {
 
   /* ── Layout shells ── */
   .page-shell {
-    @apply min-h-[calc(100vh-130px)] bg-[#001621];
+    @apply min-h-[calc(100vh-130px)] bg-[#061d28];
     justify-content: center;
     justify-items: center;
-    background: linear-gradient(90deg, #000000 0%, #000000 50%, #000000 100%);
+    background-color: rgb(17, 17, 20);
   }
 
   .section-shell {
@@ -511,7 +511,7 @@ margin-left: 15%;
 
   /* ── App shell ── */
   .app-body {
-    @apply m-0 bg-[#001621] text-[#0f1f3d];
+    @apply m-0 bg-[#01121b] text-[#0f1f3d];
     font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
   }
 
@@ -1321,7 +1321,19 @@ margin-left: 15%;
     background: #fff5f1;
     color: #ff4103;
   }
+#carrossel{
+  width: 300px;
+  float: right;
+  margin-top: -16%;
+  margin-bottom:1%;
+  border-radius: 23px;
+  border: solid rgba(0, 0, 0, 0);
 
+}
+#imgk{
+  
+border-radius: 20px;
+}
   .theme-toggle {
     display: inline-flex;
     align-items: center;
@@ -1683,7 +1695,13 @@ border-width: 2px;
 @media (max-width: 1124px) {
   .image-hero { display: none; }
 }
+@media (max-width: 945px) {
+ 
+  #carrossel{
+ display: none;
 
+}
+}
 @media (max-width: 768px) {
   .section-shell,
   .section-shell-md,
