@@ -11,120 +11,131 @@ export default function HomePage() {
   const { isAuthenticated } = useAuth();
 
   return (
-     <>
-    {/* Splash aparece primeiro 
+    <>
+      {/* Splash aparece primeiro 
     <Splash />*/}
-    <main className="hero-root">
-      
-      <motion.section
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: "easeOut" }}
-        className="hero-card"
-      >
-        <p className="hero-eyebrow">flance</p>
+      <main className="hero-root">
+        <motion.section
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="hero-card"
+        >
+          <p className="hero-eyebrow">flance</p>
 
-<div className="cardT">
-  <div className="loadere">
-    <p id="txt1">Aqui você encontra</p>
-    <div className="words">
-      <span className="word">serviços.</span>
-      <span className="word">soluções.</span>
-      <span className="word">projetos.</span>
-      <span className="word">cultura.</span>
-      <span className="word">tudo.</span>
-    </div>
-  </div>
-</div>
-
-        
-        <p className="hero-subtitle">
-          Encontre empresas e prestadores de servico confiaveis, com contato direto e perfis completos.
-          Para quem presta servico, destaque sua empresa com planos pensados para crescer sua visibilidade.
-        </p>
-        <Link href="/empresas" className="animated-button">
-          <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-          <span className="text">Conhecer empresas</span>
-          <span className="circle"></span>
-          <svg viewBox="0 0 24 24" className="arr-1" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-        </Link>
-
-        <div className="hero-actions">
-        
-            <>
-              
-              <Link href="/planos" className="animated-button" id="divulgar-empresa">
-          <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-          <span className="text">Quero divulgar minha empresa</span>
-          <span className="circle" id="circleEmpresas"></span>
-          <svg viewBox="0 0 24 24" className="arr-1" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-        </Link>
-          
-            </>
-          
-        </div>
-        <div className="heroB">
-          <div className="imgs">
-            <Link href="/" className="imghero" aria-label="Flance">
-        
-        <div>
-    <h1 className="text-[2em] font-medium" id="herotxtT">Melhore seus resultados</h1>
-    <p className="text-[0.85em]" id="herotxt">
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-    </p>
-  </div>
-        </Link>
-        
-
+          <div className="cardT">
+            <div className="loadere">
+              <p id="txt1">Aqui você encontra</p>
+              <div className="words">
+                <span className="word">serviços.</span>
+                <span className="word">soluções.</span>
+                <span className="word">projetos.</span>
+                <span className="word">cultura.</span>
+                <span className="word">tudo.</span>
+              </div>
+            </div>
           </div>
-           <Link href="/" className="imghero" aria-label="Flance">
-         
-        <div>
-    <h1 className="text-[2em] font-medium" id="herotxtT">Aumente sua visibilidade</h1>
-    <p className="text-[0.85em]" id="herotxt">
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-    </p>
-  </div>
 
-        </Link>
-        <Link href="/" className="imghero" aria-label="Flance">
-   
-        <div>
-    <h1 className="text-[2em] font-medium" id="herotxtT">Alcance suas metas</h1>
-    <p className="text-[0.85em]" id="herotxt">
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-      Aumente seus resultados com nosso plano PRO, projetado para impulsionar seu sucesso.
-    </p>
-  </div>
-   
-        </Link>
-        </div>
-  
+          <p className="hero-subtitle">
+            Encontre empresas e prestadores de servico confiaveis, com contato
+            direto e perfis completos. Para quem presta servico, destaque sua
+            empresa com planos pensados para crescer sua visibilidade.
+          </p>
+          <Link href="/empresas" className="animated-button">
+            <svg
+              viewBox="0 0 24 24"
+              className="arr-2"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+            </svg>
+            <span className="text">Conhecer empresas</span>
+            <span className="circle"></span>
+            <svg
+              viewBox="0 0 24 24"
+              className="arr-1"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+            </svg>
+          </Link>
 
-      </motion.section>
-      
-    </main>
-      </>
+          <div className="hero-actions">
+            <>
+              <Link
+                href="/planos"
+                className="animated-button"
+                id="divulgar-empresa"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="arr-2"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+                </svg>
+                <span className="text">Quero divulgar minha empresa</span>
+                <span className="circle" id="circleEmpresas"></span>
+                <svg
+                  viewBox="0 0 24 24"
+                  className="arr-1"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+                </svg>
+              </Link>
+            </>
+          </div>
+          <div className="heroB"> 
+            <div className="subAll">      
+              <div className="subD">
+                <h1 className="text-[2em] font-medium" >
+                  Melhore seus resultados
+                </h1>
+                <p className="text-[0.85em]" id="herotxt">
+                  Aumente seus resultados com nosso plano PRO, projetado para
+                  impulsionar seu sucesso. Aumente seus resultados com nosso
+                  plano PRO, projetado para impulsionar seu sucesso. Aumente
+                  seus resultados com nosso plano PRO, projetado para
+                  impulsionar seu sucesso.
+                </p>
+            </div>
+             <img className="image" src="/imgfir3-removebg-preview.png" alt="Flance" />
+            </div> 
+              <div className="subAll">  
+                <img className="image" src="/imgfir4-removebg-preview.png" alt="Flance" /> 
+               <div className="subD" id="subD2">
+              <h1 className="text-[2em] font-medium" >
+                Aumente sua visibilidade
+              </h1>
+              <p className="text-[0.85em]" id="herotxt">
+                Aumente seus resultados com nosso plano PRO, projetado para
+                impulsionar seu sucesso. Aumente seus resultados com nosso plano
+                PRO, projetado para impulsionar seu sucesso. Aumente seus
+                resultados com nosso plano PRO, projetado para impulsionar seu
+                sucesso.
+              </p>
+            </div>
+             
+              </div>
+              <div className="subAll">   
+               <div className="subD">
+              <h1 className="text-[2em] font-medium" >
+                Alcance suas metas
+              </h1>
+              <p className="text-[0.85em]" id="herotxt">
+                Aumente seus resultados com nosso plano PRO, projetado para
+                impulsionar seu sucesso. Aumente seus resultados com nosso plano
+                PRO, projetado para impulsionar seu sucesso. Aumente seus
+                resultados com nosso plano PRO, projetado para impulsionar seu
+                sucesso.
+              </p>
+            </div>
+             <img className="image" src="/imgfir5-removebg-preview.png" alt="Flance" /> 
+              </div>
+          </div>
+        </motion.section>
+      </main>
+    </>
   );
 }

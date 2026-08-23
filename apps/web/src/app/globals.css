@@ -1907,7 +1907,7 @@ margin-top: 1px;
   margin-top: 3%;
   padding: 10px 26px;
   border: 2px solid;
-  border-color: rgb(249, 246, 246);
+  border-color: rgba(249, 246, 246, 0);
   font-size: 16px;
   background-color: #ff0000;
   border-radius: 100px;
@@ -1990,19 +1990,28 @@ margin-top: 1px;
   height: 220px;
   opacity: 1;
 }
-.heroB{
-  height: 120vh;
-  width: 100%;
-}
-.imgs{
-  margin-top: 20%;
+.subAll{
   display: flex;
-  
-  background-color: #00000000;
+  margin-top: 7%;
+}
+.heroB{
+
+  margin-top: 20%;
+  width: 100%;   
+
+}
+.subD{
+top: 15%;
+  width: 50%;
+  margin: 20px;
+}
+#subD2{
+  float: right;
 }
 .imghero {
-    @apply flex items-center no-underline justify-between gap-3;
-    margin-top: 20px
+ 
+    margin-top: 20px;
+  
   }
 .image{
   width: 400px;
@@ -2014,11 +2023,7 @@ margin-top: 1px;
   color: #edeff1;
   
 }
-#herotxtT{
-  font-weight: 800;
-  color:  #424242;
-  
-}
+
 
 .marketing-loader {
   display: flex;
@@ -2201,7 +2206,7 @@ html[data-theme="light"] .hero-eyebrow   {
 
 html[data-theme="light"] .animated-button  {
  color: #0e0f0e;
- border-color: #0e0f0e; 
+ border-color: #0e0f0e00; 
  
  
 }
