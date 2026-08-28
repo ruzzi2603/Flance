@@ -89,7 +89,7 @@ export default function HomePage() {
           <div className="heroB"> 
             <div className="subAll">      
               <div className="subD">
-                <h1 className="text-[2em] font-medium" >
+                <h1 className="text-[2em] font-medium" id="txtTit">
                   Melhore seus resultados
                 </h1>
                 <p className="text-[0.85em]" id="herotxt">
@@ -102,13 +102,13 @@ export default function HomePage() {
             </div>
              <img className="image" src="/imgfir3-removebg-preview.png" alt="Flance" />
             </div> 
-              <div className="subAll">  
+              <div className="subAll" id="subD6">  
                 <img className="image" src="/imgfir4-removebg-preview.png" alt="Flance" /> 
                <div className="subD" id="subD2">
-              <h1 className="text-[2em] font-medium" >
+              <h1 className="text-[2em] font-medium" id="txtTit1">
                 Aumente sua visibilidade
               </h1>
-              <p className="text-[0.85em]" id="herotxt">
+              <p className="text-[0.85em]" id="herotxt1">
                 Aumente seus resultados com nosso plano PRO, projetado para
                 impulsionar seu sucesso. Aumente seus resultados com nosso plano
                 PRO, projetado para impulsionar seu sucesso. Aumente seus
@@ -120,7 +120,7 @@ export default function HomePage() {
               </div>
               <div className="subAll">   
                <div className="subD">
-              <h1 className="text-[2em] font-medium" >
+              <h1 className="text-[2em] font-medium" id="txtTit">
                 Alcance suas metas
               </h1>
               <p className="text-[0.85em]" id="herotxt">

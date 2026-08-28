@@ -72,7 +72,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+#aside{
+  z-index: 1;
+background-color: rgb(255, 0, 0);
+margin-left: -150px;
+margin-right: -10px;
+color: white;
+border-radius: 30px 0px 0px 30px;
+border: none;
+}
 /* ─── Components ─────────────────────────────────────────────────── */
 @layer components {
 
@@ -86,10 +94,12 @@ body {
 
   .section-shell {
     @apply mx-auto w-full max-w-6xl px-6 py-14;
-     
+   
 
   }
-
+#porranenhuma{
+  display: flex;
+}
   .section-shell-md {
     @apply mx-auto flex w-full max-w-5xl flex-col gap-7 px-6 py-14;
   }
@@ -177,18 +187,19 @@ body {
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
   }
- .cardC {
-    @apply rounded-2xl   p-6;
-     background: linear-gradient(90deg, #ffffff 0%, #fff8f8 50%, #ffffff 100%);
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow var(--duration) var(--ease-out),
-                transform   var(--duration) var(--ease-out);
+  .cardC {
+    @apply rounded-2xl p-6;
+    background-image: url("../../public/FLANCE.png");
+    background-size: cover;       /* ajusta a imagem para cobrir toda a div */
+    background-position: center;  /* centraliza a imagem */
+    background-repeat: no-repeat; /* evita repetição da imagem */
+    z-index: 5;
+  width: 100%;
+    height: 90vh;
+ 
   }
-
-  .cardC:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
-  }
+  
+  
   .card-lg {
     @apply rounded-3xl   p-8;
  background-color: #000;
@@ -203,13 +214,13 @@ margin-left: 15%;
   }
   #chatEnv{
     background-color: #ffffff;
-    color: #f7f7f7;
+    color: #000000;
   }
 #p{
   color: #f7f7f7
 }
 #ttx{
-  color: #f7f7f7
+  color: #ffffff
 }
   /* ── Typography ── */
   .heading-xl {
@@ -247,15 +258,16 @@ margin-left: 15%;
 
   /* ── Forms ── */
   .form-label {
-    @apply grid gap-1.5 text-sm font-medium text-[#29416c];
+    @apply grid gap-1.5 text-sm font-medium text-[white];
   }
 
   .input {
     @apply w-full rounded-xl border border-[#000000] bg-white px-4 py-3
            text-sm text-[#ffffff] outline-none
-           transition-all placeholder:text-[black]
-           focus:border-[#FF4103] focus:ring-2 focus:ring-[#FF4103]/15;
+           transition-all placeholder:text-[white]
+           focus:border-[#FF4103] focus:ring-2 focus:ring-[red]/15;
            background-color: #1f2232;
+   
   }
 
   .input:hover:not(:focus) {
@@ -287,9 +299,9 @@ margin-left: 15%;
 
   .textarea {
     @apply min-h-[120px] w-full resize-y rounded-xl border border-[#dde4f0] bg-white
-           px-4 py-3 text-sm text-[#0f1f3d] outline-none leading-relaxed
-           transition-all placeholder:text-[#9aabca]
-           focus:border-[#FF4103] focus:ring-2 focus:ring-[#FF4103]/15;
+           px-4 py-3 text-sm text-[black] outline-none leading-relaxed
+           transition-all placeholder:text-[black]
+           focus:border-[black] ;
   }
 
   /* ── Buttons ── */
@@ -300,7 +312,7 @@ margin-left: 15%;
            transition-all duration-200;
     box-shadow: 0 1px 3px rgba(15,31,61,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
     color: rgb(255, 255, 255);
-    background-color: #ff0000;
+    background-color: #000000;
   }
 #cth{
   background-color: #1a1a1a;
@@ -310,13 +322,28 @@ margin-left: 15%;
 #pe{
   color: white;
 }
+#txtTit{
+  color: rgb(255, 0, 0);
+}
   .btn-primary:hover {
-    background-color: rgb(18, 7, 39);
+    background-color: rgb(45, 41, 53);
     box-shadow: 0 4px 5px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
     transform: translateY(-1px);
-    color: #ffffff;
+    color: #cccccc;
   }
-
+#fndhead{
+  background-color: rgb(43, 43, 43);
+  border-radius: 30px 0px 30px 0px;
+  justify-content: center;
+  justify-items: center;
+  height: 40px;
+  align-items: center;
+  align-content: center;
+  color: white;
+}
+#tiu{
+  color: white;
+}
   .btn-primary:active { transform: translateY(0); }
 
 
@@ -360,8 +387,8 @@ margin-left: 15%;
             color: #fefefe;
   }
 #chatcd{
-  background-color: #ff0000;
-  color: white;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
   border: none;
 }
   .btn-outline:hover {
@@ -885,13 +912,22 @@ margin-left: 15%;
     border-radius: 14px;
     border: 1px solid #e2e8f000;
   }
-
+#btnn{
+  display: none;
+}
   .company-card h2,
   .company-card p,
   .company-card .heading-lg {
     word-break: break-word;
   }
 
+  @media (max-width: 1536px) {
+   
+    #aside{
+   display: none;
+    }
+
+  }
   @media (max-width: 1200px) {
     .company-list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -902,6 +938,7 @@ margin-left: 15%;
     .company-card-photos img {
       height: 180px;
     }
+  
   }
 
   @media (max-width: 768px) {
@@ -2007,6 +2044,22 @@ top: 15%;
 }
 #subD2{
   float: right;
+ 
+}
+#subD6 {
+  background: linear-gradient(
+    to right,
+    rgb(255, 0, 0) 0%,
+    rgb(255, 0, 0) 50%,
+    rgb(255, 0, 0) 100%
+  );
+  border-radius: 40px 40px 40px 40px;
+}
+#txtTit1{
+  color: white;
+}
+#herotxt1{
+  color: white;
 }
 .imghero {
  
@@ -2245,4 +2298,10 @@ background-color: white;}
 html[data-theme="light"] #herotxt
 {
   color: #19233c;
+}
+html[data-theme="light"] .form-label{
+  color: #000000;
+}
+html[data-theme="light"] .input::placeholder {
+  color: rgb(36, 36, 36);
 }

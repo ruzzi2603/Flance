@@ -10,6 +10,11 @@ import { useAuth } from "../../../hooks/useAuth";
 import { getSocket } from "../../../services/realtime";
 import type { MessageEntity } from "@flance/types";
 import { useI18n } from "../../../i18n/useI18n";
+import Sidebar from "../../../components/Sidebar";
+
+
+
+
 
 export default function ChatPage() {
   const params = useParams();
@@ -199,14 +204,42 @@ export default function ChatPage() {
     }
   }
 
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+    const conversations = [
+      { id: "1", title: "Chat com João" },
+      { id: "2", title: "Suporte Técnico" },
+      { id: "3", title: "Projeto Flance" },
+    ];
   return (
     <main className="page-shell">
+      
       <section className="section-shell">
-        <header className="mb-6">
-          <h1 className="heading-xl">{t("chat.title")}</h1>
-          <p className="mt-1 text-muted">{t("chat.subtitle")}</p>
-        </header>
+      <div id="porranenhuma">
+      {/* Botão para abrir/fechar no mobile */}
+      <button id="btnn"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="p-2 m-2 bg-red-500 text-white rounded 2xl:hidden"
+      >
+        {sidebarOpen ? "Fechar" : "Abrir"}
+      </button>
 
+      {/* Overlay escuro no mobile */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black bg-opacity-50 md:hidden"
+        />
+      )}
+
+      {/* Barra lateral */}
+      <div id="aside"
+        className={`fixed top-0 left-0 h-full w-64 bg-transparent border-r p-4 transform transition-transform duration-300 
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+          2xl:translate-x-0 2xl:static`}
+      >
+        <Sidebar conversations={conversations} />
+      </div>
         <div className="cardC">
           {conversationInfo && user?.id ? (
             <div id="chatcd" className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
@@ -389,7 +422,9 @@ export default function ChatPage() {
             </button>
           </form>
         </div>
+        </div>
       </section>
     </main>
   );
 }
+
