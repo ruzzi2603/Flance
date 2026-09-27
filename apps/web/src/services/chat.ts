@@ -4,6 +4,8 @@ import type { ConversationSummary, MessageEntity } from "@flance/types";
 
 const conversationSchema = z.object({
   id: z.string(),
+  clientId: z.string(),
+  freelancerId: z.string(),
   company: z.object({
     id: z.string(),
     name: z.string(),
@@ -28,6 +30,7 @@ const conversationSchema = z.object({
     })
     .optional()
     .nullable(),
+  updatedAt: z.string(),
 });
 
 const messageSchema = z.object({

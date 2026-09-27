@@ -12,7 +12,7 @@
  */
 
 import { Injectable } from "@nestjs/common";
-import { ThrottlerGuard, ThrottlerLimitDetail } from "@nestjs/throttler";
+import { ThrottlerGuard } from "@nestjs/throttler";
 import { ExecutionContext } from "@nestjs/common";
 
 @Injectable()
@@ -50,33 +50,4 @@ export class CustomThrottlerGuard extends ThrottlerGuard {
     return `throttle:${limitName}:${identifier}`;
   }
 
-  /**
-   * Configurar limites específicos por endpoint
-   * Permite diferentes limites para login, propostas, mensagens, etc
-   */
-  protected getLimit(context: ExecutionContext): ThrottlerLimitDetail {
-    const request = context.switchToHttp().getRequest();
-    const path = request.path;
-    const method = request.method;
-
-    // IMPORTANTE: Limites mais baixos para ações sensíveis
-    if (method === "POST" && path.includes("/auth/login")) {
-      return { limit: 5, ttl: 60_000 }; // 5 tentativas/min
-    }
-
-    if (method === "POST" && path.includes("/auth/register")) {
-      return { limit: 3, ttl: 60_000 }; // 3 registros/min
-    }
-
-    if (method === "POST" && path.includes("/proposals")) {
-      return { limit: 10, ttl: 60_000 }; // 10 propostas/min
-    }
-
-    if (method === "POST" && path.includes("/conversations") && path.includes("/messages")) {
-      return { limit: 30, ttl: 60_000 }; // 30 mensagens/min
-    }
-
-    // Padrão global: 60 req/min
-    return { limit: 60, ttl: 60_000 };
-  }
 }

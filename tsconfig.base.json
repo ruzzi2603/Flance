@@ -10,9 +10,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
-      "@flance/types": ["packages/types/src/index.ts"]
+      "@flance/types": ["./packages/types/src/index.ts"]
     }
   }
 }

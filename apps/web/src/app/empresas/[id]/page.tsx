@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getCompany } from "../../../services/companies";
+import { getCompany, listCompanyReviews, reviewCompany } from "../../../services/companies";
 import { createDirectConversation } from "../../../services/chat";
 import { useAuth } from "../../../hooks/useAuth";
 import { useState } from "react";
@@ -17,11 +17,30 @@ export default function CompanyProfilePage() {
   const { t } = useI18n();
   const [loginWarning, setLoginWarning] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   const profileQuery = useQuery({
     queryKey: ["company", companyId],
     queryFn: () => getCompany(companyId),
     enabled: Boolean(companyId),
+  });
+
+  const reviewsQuery = useQuery({
+    queryKey: ["company-reviews", companyId],
+    queryFn: () => listCompanyReviews(companyId),
+    enabled: Boolean(companyId),
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: () => reviewCompany(companyId, { rating, comment: comment.trim() || undefined }),
+    onSuccess: async () => {
+      setReviewError(null);
+      setComment("");
+      await Promise.all([reviewsQuery.refetch(), profileQuery.refetch()]);
+    },
+    onError: () => setReviewError(t("companyProfile.reviewError")),
   });
 
   const conversationMutation = useMutation({
@@ -63,7 +82,16 @@ export default function CompanyProfilePage() {
           <div className="card">{t("companyProfile.loadError")}</div>
         ) : profileQuery.data ? (
           <div className="grid-2-1">
-            <div className="card" >
+            <div className="card company-profile-medal-anchor" >
+              {profileQuery.data.reviewMedal ? (
+                <span
+                  className={`company-medal company-medal-${profileQuery.data.reviewMedal}`}
+                  title={t(`companyProfile.medal.${profileQuery.data.reviewMedal}`, { count: profileQuery.data.qualifiedReviewCount })}
+                  aria-label={t(`companyProfile.medal.${profileQuery.data.reviewMedal}`, { count: profileQuery.data.qualifiedReviewCount })}
+                >
+                  {profileQuery.data.reviewMedal === "gold" ? "🥇" : profileQuery.data.reviewMedal === "silver" ? "🥈" : "🥉"}
+                </span>
+              ) : null}
               <div className="flex items-center gap-4" >
                 {profileQuery.data.avatarUrl ? (
                   <img className="avatar-image" src={profileQuery.data.avatarUrl} alt={profileQuery.data.name} />
@@ -120,6 +148,68 @@ export default function CompanyProfilePage() {
                   {t("companyProfile.physical")}
                 </p>
               ) : null}
+
+              <div className="mt-6 border-t border-slate-200 pt-5">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="heading-lg">{t("companyProfile.reviewsTitle")}</h2>
+                  <span className="text-amber-500" aria-label={`${profileQuery.data.averageRating} de 5 estrelas`}>
+                    {"★".repeat(Math.round(profileQuery.data.averageRating))}{"☆".repeat(5 - Math.round(profileQuery.data.averageRating))}
+                  </span>
+                  <span className="text-sm text-muted">
+                    {profileQuery.data.averageRating > 0 ? profileQuery.data.averageRating.toFixed(1) : "-"} ({profileQuery.data.reviewCount})
+                  </span>
+                  {profileQuery.data.isTrusted ? <span className="chip-neutral">{t("companyProfile.trusted")}</span> : null}
+                </div>
+
+                {user ? (
+                  <form
+                    className="mt-4 grid gap-3"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      if (rating > 0) reviewMutation.mutate();
+                    }}
+                  >
+                    <div className="flex gap-1" aria-label={t("companyProfile.chooseRating")}>
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <button
+                          key={value}
+                          type="button"
+                          className="text-2xl text-amber-500"
+                          aria-label={`${value} estrelas`}
+                          onClick={() => setRating(value)}
+                        >
+                          {value <= rating ? "★" : "☆"}
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      className="input min-h-24"
+                      placeholder={t("companyProfile.commentPlaceholder")}
+                      value={comment}
+                      onChange={(event) => setComment(event.target.value)}
+                      maxLength={1000}
+                    />
+                    <button className="btn-primary w-fit" type="submit" disabled={rating === 0 || reviewMutation.isPending}>
+                      {reviewMutation.isPending ? t("companyProfile.reviewSaving") : t("companyProfile.reviewSubmit")}
+                    </button>
+                    {reviewError ? <p className="text-xs text-rose-600">{reviewError}</p> : null}
+                  </form>
+                ) : (
+                  <p className="mt-3 text-sm text-muted">{t("companyProfile.reviewLogin")}</p>
+                )}
+
+                <div className="mt-5 grid gap-4">
+                  {reviewsQuery.data?.length ? reviewsQuery.data.map((review) => (
+                    <article key={review.id} className="border-b border-slate-100 pb-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <strong className="text-sm text-slate-800">{review.author.name}</strong>
+                        <span className="text-sm text-amber-500">{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span>
+                      </div>
+                      {review.comment ? <p className="mt-1 text-sm text-muted">{review.comment}</p> : null}
+                    </article>
+                  )) : <p className="text-sm text-muted">{t("companyProfile.noReviews")}</p>}
+                </div>
+              </div>
 
               {profileQuery.data.companyPhotos?.length ? (
               <div className="fotosCarrosel">

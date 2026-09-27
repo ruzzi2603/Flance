@@ -107,7 +107,17 @@ export default function CompaniesPage() {
               const photos = company.companyPhotos?.filter(Boolean) ?? [];
               const visiblePhotos = photos.slice(0, 1);
               return (
-                <article key={company.id} className="company-card">
+                <article key={company.id} className="company-card company-card-medal-anchor" id="cardE">
+                  {company.reviewMedal ? (
+                    <span
+                      className={`company-medal company-medal-${company.reviewMedal}`}
+                      title={t(`companies.medal.${company.reviewMedal}`, { count: company.qualifiedReviewCount })}
+                      
+                      aria-label={t(`companies.medal.${company.reviewMedal}`, { count: company.qualifiedReviewCount })}
+                    >
+                      {company.reviewMedal === "gold" ? "🥇" : company.reviewMedal === "silver" ? "🥈" : "🥉"}
+                    </span>
+                  ) : null}
                   <div className="company-card-photos">
                     {visiblePhotos.length ? (
                       visiblePhotos.map((photo) => (
@@ -120,11 +130,13 @@ export default function CompaniesPage() {
                     )}
                   </div>
                   <div className="company-card-main">
+                
                     <div className="company-card-meta">
                       <div>
                         <h2 className="heading-lg">
                           {company.companyName || company.name}
                         </h2>
+                          <div id="linz"></div>
                         {company.companyLocation ? (
                           <p className="text-sm text-muted" id="descE">
                             {company.companyLocation}
@@ -152,6 +164,16 @@ export default function CompaniesPage() {
                         ))}
                       </div>
                     ) : null}
+
+                    <div className="mt-3 flex items-center gap-2 text-sm">
+                      <span className="text-amber-500" aria-label={`${company.averageRating} de 5 estrelas`}>
+                        {"★".repeat(Math.round(company.averageRating))}{"☆".repeat(5 - Math.round(company.averageRating))}
+                      </span>
+                      <span className="text-muted">
+                        {company.averageRating > 0 ? company.averageRating.toFixed(1) : "-"} ({company.reviewCount})
+                      </span>
+                      {company.isTrusted ? <span className="chip-neutral">{t("companies.trusted")}</span> : null}
+                    </div>
 
                     <Link
                       href={`/empresas/${company.id}`}

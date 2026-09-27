@@ -101,6 +101,8 @@ model User {
   // === Relacionamentos ===
   postedJobs Job[] @relation("ClientJobs")
   proposals Proposal[] @relation("FreelancerProposals")
+  receivedCompanyReviews CompanyReview[] @relation("CompanyReviewsReceived")
+  authoredCompanyReviews CompanyReview[] @relation("CompanyReviewsAuthored")
   badges Badge[]
   refreshTokens RefreshToken[]
   passwordResets PasswordReset[]
@@ -114,6 +116,23 @@ model User {
   @@index([role]) // Listar freelancers/clientes
   @@index([companyEnabled]) // Filtrar empresas
   @@index([createdAt]) // Ordenar por data
+}
+
+model CompanyReview {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  companyId String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company User @relation("CompanyReviewsReceived", fields: [companyId], references: [id], onDelete: Cascade)
+  author  User @relation("CompanyReviewsAuthored", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, authorId])
+  @@index([companyId, createdAt])
+  @@index([authorId])
 }
 
 

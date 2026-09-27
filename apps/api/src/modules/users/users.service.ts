@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import bcrypt from "bcryptjs";
 import type { Role } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import type { CompanyReviewInput } from "./schemas/company-review.schema";
 
 export interface UserEntity {
   id: string;
@@ -73,6 +74,19 @@ export interface PublicCompanyProfile {
   companyIsPhysical?: boolean;
   companyViews?: number;
   planTier?: string;
+  averageRating: number;
+  reviewCount: number;
+  qualifiedReviewCount: number;
+  isTrusted: boolean;
+  reviewMedal: "bronze" | "silver" | "gold" | null;
+}
+
+export interface CompanyReviewSummary {
+  id: string;
+  rating: number;
+  comment?: string;
+  author: { id: string; name: string; avatarUrl?: string };
+  createdAt: string;
 }
 
 export interface PublicUserProfile {
@@ -682,6 +696,7 @@ export class UsersService {
           },
         });
 
+    const summaries = await this.getReviewSummaries(users.map((user) => user.id));
     return users.map((user) => ({
       id: user.id,
       ownerId: user.id,
@@ -707,7 +722,12 @@ export class UsersService {
       companyIsPhysical: user.companyIsPhysical ?? undefined,
       companyViews: user.companyViews ?? undefined,
       planTier: user.planTier ?? undefined,
-    }));
+      ...(summaries.get(user.id) ?? { averageRating: 0, reviewCount: 0, qualifiedReviewCount: 0, isTrusted: false, reviewMedal: null }),
+    })).sort((left, right) =>
+      Number(right.isTrusted) - Number(left.isTrusted) ||
+      right.averageRating - left.averageRating ||
+      right.reviewCount - left.reviewCount,
+    );
   }
 
   async getCompanyById(id: string): Promise<PublicCompanyProfile | null> {
@@ -742,6 +762,14 @@ export class UsersService {
 
     if (!user) return null;
 
+    const summary = (await this.getReviewSummaries([user.id])).get(user.id) ?? {
+      averageRating: 0,
+      reviewCount: 0,
+      qualifiedReviewCount: 0,
+      isTrusted: false,
+      reviewMedal: null,
+    };
+
     return {
       id: user.id,
       ownerId: user.id,
@@ -767,7 +795,107 @@ export class UsersService {
       companyIsPhysical: user.companyIsPhysical ?? undefined,
       companyViews: user.companyViews ?? undefined,
       planTier: user.planTier ?? undefined,
+      ...summary,
     };
+  }
+
+  async listCompanyReviews(companyId: string): Promise<CompanyReviewSummary[]> {
+    const company = await this.prisma.user.findFirst({ where: { id: companyId, companyEnabled: true }, select: { id: true } });
+    if (!company) throw new NotFoundException("Company not found");
+
+    const reviews = await this.prisma.companyReview.findMany({
+      where: { companyId },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, rating: true, comment: true, createdAt: true, author: { select: { id: true, name: true, avatarUrl: true } } },
+    });
+    return reviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment ?? undefined,
+      author: { id: review.author.id, name: review.author.name, avatarUrl: review.author.avatarUrl ?? undefined },
+      createdAt: review.createdAt.toISOString(),
+    }));
+  }
+
+  async upsertCompanyReview(companyId: string, authorId: string, input: CompanyReviewInput) {
+    const company = await this.prisma.user.findFirst({ where: { id: companyId, companyEnabled: true }, select: { id: true } });
+    if (!company) throw new NotFoundException("Company not found");
+    if (companyId === authorId) throw new ForbiddenException("You cannot review your own company");
+
+    const review = await this.prisma.companyReview.upsert({
+      where: { companyId_authorId: { companyId, authorId } },
+      create: { companyId, authorId, rating: input.rating, comment: input.comment || null },
+      update: { rating: input.rating, comment: input.comment || null },
+      select: { id: true, rating: true, comment: true, createdAt: true, author: { select: { id: true, name: true, avatarUrl: true } } },
+    });
+    return {
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment ?? undefined,
+      author: { id: review.author.id, name: review.author.name, avatarUrl: review.author.avatarUrl ?? undefined },
+      createdAt: review.createdAt.toISOString(),
+    };
+  }
+
+  private async getReviewSummaries(companyIds: string[]) {
+    const summaries = new Map<string, {
+      averageRating: number;
+      reviewCount: number;
+      qualifiedReviewCount: number;
+      isTrusted: boolean;
+      reviewMedal: "bronze" | "silver" | "gold" | null;
+    }>();
+    if (!companyIds.length) return summaries;
+    try {
+      const [aggregates, qualifiedAggregates] = await Promise.all([
+        this.prisma.companyReview.groupBy({
+          by: ["companyId"],
+          where: { companyId: { in: companyIds } },
+          _avg: { rating: true },
+          _count: { _all: true },
+        }),
+        this.prisma.companyReview.groupBy({
+          by: ["companyId"],
+          where: { companyId: { in: companyIds, }, rating: { gte: 3 } },
+          _count: { _all: true },
+        }),
+      ]);
+      const qualifiedByCompany = new Map(qualifiedAggregates.map((aggregate) => [aggregate.companyId, aggregate._count._all]));
+      for (const aggregate of aggregates) {
+        const reviewCount = aggregate._count._all;
+        const qualifiedReviewCount = qualifiedByCompany.get(aggregate.companyId) ?? 0;
+        const averageRating = Number((aggregate._avg.rating ?? 0).toFixed(1));
+        const reviewMedal = qualifiedReviewCount >= 300 ? "gold" : qualifiedReviewCount >= 100 ? "silver" : qualifiedReviewCount > 0 ? "bronze" : null;
+        summaries.set(aggregate.companyId, {
+          averageRating,
+          reviewCount,
+          qualifiedReviewCount,
+          isTrusted: reviewCount >= 3 && averageRating >= 4,
+          reviewMedal,
+        });
+      }
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
+        return new Map(companyIds.map((companyId) => [companyId, {
+          averageRating: 0,
+          reviewCount: 0,
+          qualifiedReviewCount: 0,
+          isTrusted: false,
+          reviewMedal: null,
+        }]));
+      }
+      throw error;
+    }
+    for (const companyId of companyIds) {
+      if (!summaries.has(companyId)) summaries.set(companyId, {
+        averageRating: 0,
+        reviewCount: 0,
+        qualifiedReviewCount: 0,
+        isTrusted: false,
+        reviewMedal: null,
+      });
+    }
+    return summaries;
   }
 
   async getPublicProfileById(id: string): Promise<PublicUserProfile | null> {

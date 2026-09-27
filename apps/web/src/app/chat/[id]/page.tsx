@@ -261,7 +261,7 @@ export default function ChatPage() {
                   <div>
                     <p className="text-sm font-semibold">{conversationInfo.company.name}</p>
                     {conversationInfo.company.location ? (
-                      <p className="text-xs text-muted">{conversationInfo.company.location}</p>
+                      <p className="text-xs text-muted" id="pes">{conversationInfo.company.location}</p>
                     ) : null}
                   </div>
                 </button>
@@ -286,7 +286,7 @@ export default function ChatPage() {
                   </div>
                 </button>
               )}
-              <span className="text-xs text-slate-500">{t("chat.profileHint")}</span>
+              <span className="text-xs text-slate-100">{t("chat.profileHint")}</span>
             </div>
           ) : null}
           {proposalQuery.data ? (

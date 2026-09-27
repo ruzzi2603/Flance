@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UseGuards, UsePipes, UnauthorizedException, Req, Query, Param, NotFoundException } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, UseGuards, UsePipes, UnauthorizedException, Req, Query, Param, NotFoundException } from "@nestjs/common";
 import type { Request } from "express";
 import { JwtService } from "@nestjs/jwt";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -6,6 +6,7 @@ import { CurrentUser, type JwtUserPayload } from "../../common/decorators/curren
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
 import { updateProfileSchema, type UpdateProfileInput } from "./schemas/update-profile.schema";
 import { UsersService } from "./users.service";
+import { companyReviewSchema, type CompanyReviewInput } from "./schemas/company-review.schema";
 
 @Controller("users")
 export class UsersController {
@@ -58,6 +59,23 @@ export class UsersController {
     if (!data) {
       throw new NotFoundException("Company not found");
     }
+    return { success: true, data, timestamp: new Date().toISOString() };
+  }
+
+  @Get("companies/:id/reviews")
+  async listCompanyReviews(@Param("id") id: string) {
+    const data = await this.usersService.listCompanyReviews(id);
+    return { success: true, data, timestamp: new Date().toISOString() };
+  }
+
+  @Post("companies/:id/reviews")
+  @UseGuards(JwtAuthGuard)
+  async reviewCompany(
+    @Param("id") companyId: string,
+    @Body(new ZodValidationPipe(companyReviewSchema)) body: CompanyReviewInput,
+    @CurrentUser() user: JwtUserPayload,
+  ) {
+    const data = await this.usersService.upsertCompanyReview(companyId, user.sub, body);
     return { success: true, data, timestamp: new Date().toISOString() };
   }
 

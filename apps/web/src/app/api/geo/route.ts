@@ -6,7 +6,7 @@ export async function GET() {
       headers: {
         "user-agent": "flance-geo",
       },
-      next: { revalidate: 3600 },
+      cache: "no-store",
     });
     if (!response.ok) {
       return NextResponse.json({ countryCode: null, currency: null }, { status: 200 });

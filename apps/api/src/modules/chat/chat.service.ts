@@ -5,9 +5,12 @@ import { RealtimeService } from "./realtime.service";
 export interface ConversationSummary {
   id: string;
   company: { id: string; name: string; location?: string | null };
+  clientId: string;
+  freelancerId: string;
   client: { id: string; name: string; avatarUrl?: string | null };
   freelancer: { id: string; name: string; avatarUrl?: string | null };
   lastMessage?: { id: string; body: string; createdAt: string; senderId: string } | null;
+  updatedAt: string;
 }
 
 export interface MessageEntity {
@@ -37,12 +40,17 @@ export class ChatService {
 
   private toSummary(conversation: {
     id: string;
+    clientId: string;
+    freelancerId: string;
+    updatedAt: Date;
     client: { id: string; name: string; avatarUrl?: string | null };
     freelancer: { id: string; name: string; avatarUrl?: string | null; companyName?: string | null; companyLocation?: string | null };
     messages?: { id: string; body: string; createdAt: Date; senderId: string }[];
   }): ConversationSummary {
     return {
       id: conversation.id,
+      clientId: conversation.clientId,
+      freelancerId: conversation.freelancerId,
       company: {
         id: conversation.freelancer.id,
         name: conversation.freelancer.companyName || conversation.freelancer.name,
@@ -66,6 +74,7 @@ export class ChatService {
             senderId: conversation.messages[0].senderId,
           }
         : null,
+      updatedAt: conversation.updatedAt.toISOString(),
     };
   }
 

@@ -143,14 +143,17 @@ export interface ProposalSummary {
 export interface ConversationSummary {
   id: string;
   company: { id: string; name: string; location?: string | null };
-  jobId?: string;
   clientId: string;
   freelancerId: string;
   client: { id: string; name: string; avatarUrl?: string | null };
   freelancer: { id: string; name: string; avatarUrl?: string | null };
-  lastMessage?: MessageEntity | null;
+  lastMessage?: {
+    id: string;
+    body: string;
+    createdAt: string;
+    senderId: string;
+  } | null;
   updatedAt: string;
-  proposalId?: string;
 }
 
 /**
