@@ -7,6 +7,11 @@ import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
 import { updateProfileSchema, type UpdateProfileInput } from "./schemas/update-profile.schema";
 import { UsersService } from "./users.service";
 import { companyReviewSchema, type CompanyReviewInput } from "./schemas/company-review.schema";
+import {
+  companyShareSchema,
+  companyVisitDurationSchema,
+  companyVisitSchema,
+} from "./schemas/company-analytics.schema";
 
 @Controller("users")
 export class UsersController {
@@ -59,6 +64,41 @@ export class UsersController {
     if (!data) {
       throw new NotFoundException("Company not found");
     }
+    return { success: true, data, timestamp: new Date().toISOString() };
+  }
+
+  @Post("companies/:id/analytics/views")
+  async recordCompanyView(
+    @Param("id") companyId: string,
+    @Body(new ZodValidationPipe(companyVisitSchema)) body: { sessionId: string },
+  ) {
+    const data = await this.usersService.recordCompanyView(companyId, body.sessionId);
+    return { success: true, data, timestamp: new Date().toISOString() };
+  }
+
+  @Post("companies/:id/analytics/views/:visitId/duration")
+  async updateCompanyViewDuration(
+    @Param("id") companyId: string,
+    @Param("visitId") visitId: string,
+    @Body(new ZodValidationPipe(companyVisitDurationSchema)) body: { durationSeconds: number },
+  ) {
+    await this.usersService.updateCompanyViewDuration(companyId, visitId, body.durationSeconds);
+    return { success: true, data: { updated: true }, timestamp: new Date().toISOString() };
+  }
+
+  @Post("companies/:id/analytics/shares")
+  async recordCompanyShare(
+    @Param("id") companyId: string,
+    @Body(new ZodValidationPipe(companyShareSchema)) body: { sessionId: string; source: string },
+  ) {
+    const data = await this.usersService.recordCompanyShare(companyId, body.sessionId, body.source);
+    return { success: true, data, timestamp: new Date().toISOString() };
+  }
+
+  @Get("companies/:id/analytics")
+  @UseGuards(JwtAuthGuard)
+  async getCompanyAnalytics(@Param("id") companyId: string, @CurrentUser() user: JwtUserPayload) {
+    const data = await this.usersService.getCompanyAnalytics(companyId, user.sub);
     return { success: true, data, timestamp: new Date().toISOString() };
   }
 

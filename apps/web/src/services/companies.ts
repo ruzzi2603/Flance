@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { API_BASE_URL, api } from "./api";
 
 export interface CompanyProfile {
   id: string;
@@ -40,6 +40,17 @@ export interface CompanyReview {
   createdAt: string;
 }
 
+export interface CompanyAnalytics {
+  periodDays: number;
+  views: number;
+  averageDurationSeconds: number;
+  messages: number;
+  peopleContacted: number;
+  shares: number;
+  shareSources: Array<{ source: string; count: number }>;
+  daily: Array<{ date: string; views: number; messages: number; shares: number }>;
+}
+
 export async function listCompanies(params: { query?: string; limit?: number; offset?: number }) {
   const response = await api.get("/users/companies", {
     params: {
@@ -67,5 +78,33 @@ export async function reviewCompany(id: string, input: { rating: number; comment
     ...(input.comment ? { comment: input.comment } : {}),
   });
   return response.data?.data as CompanyReview;
+}
+
+export async function recordCompanyView(id: string, sessionId: string): Promise<{ id: string }> {
+  const response = await api.post(`/users/companies/${id}/analytics/views`, { sessionId });
+  return response.data.data as { id: string };
+}
+
+export async function recordCompanyViewDuration(id: string, visitId: string, durationSeconds: number) {
+  await fetch(`${API_BASE_URL}/v1/users/companies/${id}/analytics/views/${visitId}/duration`, {
+    method: "POST",
+    keepalive: true,
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ durationSeconds }),
+  });
+}
+
+export async function recordCompanyShare(
+  id: string,
+  sessionId: string,
+  source: "native" | "copy" | "whatsapp" | "facebook" | "x" | "email",
+) {
+  await api.post(`/users/companies/${id}/analytics/shares`, { sessionId, source });
+}
+
+export async function getCompanyAnalytics(id: string): Promise<CompanyAnalytics> {
+  const response = await api.get(`/users/companies/${id}/analytics`);
+  return response.data.data as CompanyAnalytics;
 }
 

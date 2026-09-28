@@ -817,6 +817,163 @@ export class UsersService {
     }));
   }
 
+  async recordCompanyView(companyId: string, sessionId: string) {
+    await this.ensureCompanyExists(companyId);
+    const visit = await this.prisma.companyAnalyticsEvent.upsert({
+      where: {
+        companyId_sessionId_eventType_source: {
+          companyId,
+          sessionId,
+          eventType: "VIEW",
+          source: "profile",
+        },
+      },
+      create: { companyId, sessionId, eventType: "VIEW", source: "profile" },
+      update: {},
+      select: { id: true },
+    });
+    return visit;
+  }
+
+  async updateCompanyViewDuration(companyId: string, visitId: string, durationSeconds: number) {
+    await this.prisma.companyAnalyticsEvent.updateMany({
+      where: { id: visitId, companyId, eventType: "VIEW" },
+      data: { durationSeconds: Math.min(Math.max(durationSeconds, 0), 86_400) },
+    });
+  }
+
+  async recordCompanyShare(companyId: string, sessionId: string, source: string) {
+    await this.ensureCompanyExists(companyId);
+    return this.prisma.companyAnalyticsEvent.upsert({
+      where: {
+        companyId_sessionId_eventType_source: {
+          companyId,
+          sessionId,
+          eventType: "SHARE",
+          source,
+        },
+      },
+      create: { companyId, sessionId, eventType: "SHARE", source },
+      update: {},
+      select: { id: true },
+    });
+  }
+
+  async getCompanyAnalytics(companyId: string, requesterId: string) {
+    if (companyId !== requesterId) {
+      throw new ForbiddenException("Only the company owner can view analytics");
+    }
+    await this.ensureCompanyExists(companyId);
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const startDate = new Date(today);
+    startDate.setUTCDate(startDate.getUTCDate() - 29);
+
+    const eventRows = await this.prisma.$queryRaw<Array<{
+      day: Date;
+      eventType: string;
+      source: string;
+      total: bigint;
+      averageDuration: number | null;
+    }>>(Prisma.sql`
+      SELECT
+        date_trunc('day', "createdAt")::date AS day,
+        "eventType"::text AS "eventType",
+        source,
+        count(*)::bigint AS total,
+        avg("durationSeconds") FILTER (WHERE "eventType" = 'VIEW') AS "averageDuration"
+      FROM "CompanyAnalyticsEvent"
+      WHERE "companyId" = ${companyId} AND "createdAt" >= ${startDate}
+      GROUP BY 1, 2, 3
+      ORDER BY 1 ASC
+    `);
+
+    const messageRows = await this.prisma.$queryRaw<Array<{
+      day: Date;
+      total: bigint;
+    }>>(Prisma.sql`
+      SELECT
+        date_trunc('day', message."createdAt")::date AS day,
+        count(*)::bigint AS total
+      FROM "Message" AS message
+      INNER JOIN "Conversation" AS conversation ON conversation.id = message."conversationId"
+      WHERE conversation."freelancerId" = ${companyId}
+        AND conversation."jobId" IS NULL
+        AND message."senderId" <> ${companyId}
+        AND message."createdAt" >= ${startDate}
+      GROUP BY 1
+      ORDER BY 1 ASC
+    `);
+    const contactRows = await this.prisma.$queryRaw<Array<{ people: bigint }>>(Prisma.sql`
+      SELECT count(DISTINCT message."senderId")::bigint AS people
+      FROM "Message" AS message
+      INNER JOIN "Conversation" AS conversation ON conversation.id = message."conversationId"
+      WHERE conversation."freelancerId" = ${companyId}
+        AND conversation."jobId" IS NULL
+        AND message."senderId" <> ${companyId}
+        AND message."createdAt" >= ${startDate}
+    `);
+
+    const daily = new Map<string, { date: string; views: number; messages: number; shares: number }>();
+    for (let dayOffset = 0; dayOffset < 30; dayOffset += 1) {
+      const date = new Date(startDate);
+      date.setUTCDate(startDate.getUTCDate() + dayOffset);
+      const key = date.toISOString().slice(0, 10);
+      daily.set(key, { date: key, views: 0, messages: 0, shares: 0 });
+    }
+
+    let views = 0;
+    let shares = 0;
+    let durationTotal = 0;
+    let durationVisits = 0;
+    const shareSources = new Map<string, number>();
+    for (const row of eventRows) {
+      const key = new Date(row.day).toISOString().slice(0, 10);
+      const point = daily.get(key);
+      const count = Number(row.total);
+      if (row.eventType === "VIEW") {
+        views += count;
+        durationTotal += (row.averageDuration ?? 0) * count;
+        durationVisits += count;
+        if (point) point.views += count;
+      } else {
+        shares += count;
+        shareSources.set(row.source, (shareSources.get(row.source) ?? 0) + count);
+        if (point) point.shares += count;
+      }
+    }
+
+    let messages = 0;
+    for (const row of messageRows) {
+      const point = daily.get(new Date(row.day).toISOString().slice(0, 10));
+      const count = Number(row.total);
+      messages += count;
+      if (point) point.messages += count;
+    }
+    const peopleContacted = Number(contactRows[0]?.people ?? 0);
+
+    return {
+      periodDays: 30,
+      views,
+      averageDurationSeconds: durationVisits ? Math.round(durationTotal / durationVisits) : 0,
+      messages,
+      peopleContacted,
+      shares,
+      shareSources: Array.from(shareSources, ([source, count]) => ({ source, count })),
+      daily: Array.from(daily.values()),
+    };
+  }
+
+  private async ensureCompanyExists(companyId: string) {
+    const company = await this.prisma.user.findFirst({
+      where: { id: companyId, companyEnabled: true },
+      select: { id: true },
+    });
+    if (!company) throw new NotFoundException("Company not found");
+    return company;
+  }
+
   async upsertCompanyReview(companyId: string, authorId: string, input: CompanyReviewInput) {
     const company = await this.prisma.user.findFirst({ where: { id: companyId, companyEnabled: true }, select: { id: true } });
     if (!company) throw new NotFoundException("Company not found");

@@ -143,6 +143,11 @@ function ProfilePageInner() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (isLoading || searchParams.get("edit") !== "company") return;
+    document.getElementById("company-ad-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [isLoading, searchParams]);
+
   async function handleSaveProfile() {
     setSaveError(null);
     setSaveSuccess(null);
@@ -375,7 +380,7 @@ function ProfilePageInner() {
           </div>
         </div>
 
-        <div className="card mt-8">
+        <div className="card mt-8" id="company-ad-form">
           <h2 className="heading-lg">{t("profile.company.sectionTitle")}</h2>
           <p className="mt-2 text-muted">{t("profile.company.sectionSubtitle")}</p>
 

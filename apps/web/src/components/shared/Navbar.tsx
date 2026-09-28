@@ -55,6 +55,9 @@ export function Navbar() {
     ];
     if (!isLoading && user) {
       links.push({ key: "chat", href: "/chat", label: t("nav.chat") });
+      if (user.role === "FREELANCER" || user.companyEnabled) {
+        links.push({ key: "myAds", href: "/meus-anuncios", label: t("nav.myAds") });
+      }
     } else if (!isLoading) {
       links.push({ key: "login", href: "/login", label: t("nav.login") });
     }

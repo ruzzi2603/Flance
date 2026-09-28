@@ -50,6 +50,11 @@ enum PlanTier {
   PREMIUM
 }
 
+enum CompanyAnalyticsEventType {
+  VIEW
+  SHARE
+}
+
 // ============= MODELS =============
 
 
@@ -103,6 +108,7 @@ model User {
   proposals Proposal[] @relation("FreelancerProposals")
   receivedCompanyReviews CompanyReview[] @relation("CompanyReviewsReceived")
   authoredCompanyReviews CompanyReview[] @relation("CompanyReviewsAuthored")
+  analyticsEvents CompanyAnalyticsEvent[]
   badges Badge[]
   refreshTokens RefreshToken[]
   passwordResets PasswordReset[]
@@ -133,6 +139,22 @@ model CompanyReview {
   @@unique([companyId, authorId])
   @@index([companyId, createdAt])
   @@index([authorId])
+}
+
+model CompanyAnalyticsEvent {
+  id              String                     @id @default(cuid())
+  companyId       String
+  eventType       CompanyAnalyticsEventType
+  sessionId       String
+  source          String         @default("profile")
+  durationSeconds Int                        @default(0)
+  createdAt       DateTime                   @default(now())
+
+  company User @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, eventType, createdAt])
+  @@index([companyId, createdAt])
+  @@unique([companyId, sessionId, eventType, source])
 }
 
 
