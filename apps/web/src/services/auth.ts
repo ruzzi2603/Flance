@@ -6,7 +6,7 @@ import type { AppUser } from "../types/auth";
 const authUserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
-  role: z.enum(["CLIENT", "FREELANCER"]),
+  role: z.enum(["CLIENT", "FREELANCER", "ADMIN"]),
   name: z.string().optional(),
   avatarUrl: z.string().optional(),
   headline: z.string().optional(),
@@ -42,6 +42,12 @@ const authResponseSchema = z.object({
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type AuthResponse = z.infer<typeof authResponseSchema>;
 
+export interface RegistrationResponse {
+  verificationRequired: true;
+  email: string;
+  resendAfterSeconds: number;
+}
+
 export async function login(input: { email: string; password: string }): Promise<AuthResponse> {
   const response = await api.post("/auth/login", input);
   const parsed = authResponseSchema.parse(response.data);
@@ -53,10 +59,23 @@ export async function register(input: {
   email: string;
   password: string;
   avatarUrl?: string;
-}): Promise<AuthResponse> {
+}): Promise<RegistrationResponse> {
   const response = await api.post("/auth/register", input);
-  const parsed = authResponseSchema.parse(response.data);
-  return parsed;
+  return z.object({
+    verificationRequired: z.literal(true),
+    email: z.string().email(),
+    resendAfterSeconds: z.number().int().nonnegative(),
+  }).parse(response.data);
+}
+
+export async function verifyRegistrationEmail(input: { email: string; code: string }): Promise<AuthResponse> {
+  const response = await api.post("/auth/register/verify", input);
+  return authResponseSchema.parse(response.data);
+}
+
+export async function resendRegistrationCode(email: string): Promise<{ sent: boolean; resendAfterSeconds: number }> {
+  const response = await api.post("/auth/register/resend", { email });
+  return z.object({ sent: z.boolean(), resendAfterSeconds: z.number().int().nonnegative() }).parse(response.data);
 }
 
 export async function logout(): Promise<void> {

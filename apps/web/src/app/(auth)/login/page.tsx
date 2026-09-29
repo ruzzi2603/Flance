@@ -2,8 +2,9 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { loginSchema } from "../../../services/schemas";
-import { login } from "../../../services/auth";
+import { login, resendRegistrationCode, verifyRegistrationEmail } from "../../../services/auth";
 import { useAuthStore } from "../../../store/useAuthStore";
 import { useAuth } from "../../../hooks/useAuth";
 import { useI18n } from "../../../i18n/useI18n";
@@ -16,11 +17,22 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const timer = window.setTimeout(() => setResendCountdown((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendCountdown]);
 
   useEffect(() => {
     if (isLoading) return;
     if (isAuthenticated && user) {
-      router.replace("/profile");
+      router.replace(user.role === "ADMIN" ? "/admin" : "/profile");
     }
   }, [isLoading, isAuthenticated, user, router]);
 
@@ -53,11 +65,52 @@ export default function LoginPage() {
     try {
       const result = await login(parsed.data);
       setUser(result.user);
-      router.push("/profile");
+      router.push(result.user.role === "ADMIN" ? "/admin" : "/profile");
     } catch (error) {
+      const responseData = axios.isAxiosError(error)
+        ? error.response?.data as { message?: string; resendAfterSeconds?: number } | undefined
+        : undefined;
+      if (responseData?.message === "Email verification required") {
+        setVerificationEmail(parsed.data.email);
+        setResendCountdown(responseData.resendAfterSeconds ?? 60);
+        setFormError(t("auth.login.verifySent"));
+        setIsSubmitting(false);
+        return;
+      }
       setFormError(t("auth.login.error"));
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleVerifyEmail(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!verificationEmail) return;
+    setFormError(null);
+    setIsVerifying(true);
+    try {
+      const result = await verifyRegistrationEmail({ email: verificationEmail, code: verificationCode.trim() });
+      setUser(result.user);
+      router.push(result.user.role === "ADMIN" ? "/admin" : "/profile");
+    } catch {
+      setFormError(t("auth.register.verifyError"));
+    } finally {
+      setIsVerifying(false);
+    }
+  }
+
+  async function handleResendCode() {
+    if (!verificationEmail || resendCountdown > 0) return;
+    setFormError(null);
+    setIsResending(true);
+    try {
+      const result = await resendRegistrationCode(verificationEmail);
+      setResendCountdown(result.resendAfterSeconds);
+      setFormError(t("auth.register.codeResent"));
+    } catch {
+      setFormError(t("auth.register.resendError"));
+    } finally {
+      setIsResending(false);
     }
   }
 
@@ -65,9 +118,28 @@ export default function LoginPage() {
     <main className="page-shell">
       <section className="section-shell-md">
         <div className="card-lg">
-          <h1 className="heading-xl">{t("auth.login.title")}</h1>
-          <p className="mt-2 text-muted">{t("auth.login.subtitle")}</p>
+          <h1 className="heading-xl">{verificationEmail ? t("auth.register.verifyTitle") : t("auth.login.title")}</h1>
+          <p className="mt-2 text-muted">
+            {verificationEmail ? t("auth.register.verifySubtitle", { email: verificationEmail }) : t("auth.login.subtitle")}
+          </p>
 
+          {verificationEmail ? (
+            <form className="mt-8 grid gap-5" onSubmit={handleVerifyEmail}>
+              <label className="form-label">
+                {t("auth.register.verificationCode")}
+                <input className="input" name="verificationCode" value={verificationCode}
+                  onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                  inputMode="numeric" autoComplete="one-time-code" placeholder="000000" required minLength={6} maxLength={6} />
+              </label>
+              {formError ? <div className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{formError}</div> : null}
+              <button type="submit" className="btn-primary" disabled={isVerifying || verificationCode.length !== 6}>
+                {isVerifying ? t("auth.register.verifying") : t("auth.register.verifyButton")}
+              </button>
+              <button type="button" className="btn-outline" disabled={isResending || resendCountdown > 0} onClick={() => void handleResendCode()}>
+                {isResending ? t("auth.register.resending") : resendCountdown > 0 ? t("auth.register.resendCountdown", { seconds: resendCountdown }) : t("auth.register.resendCode")}
+              </button>
+            </form>
+          ) : (
           <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
             <label className="form-label">
               {t("auth.login.email")}
@@ -104,6 +176,7 @@ export default function LoginPage() {
               {isSubmitting ? t("auth.login.loading") : t("auth.login.button")}
             </button>
           </form>
+          )}
 
           <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted">
             <a className="text-slate-900 underline" href="/register" id="Remember">

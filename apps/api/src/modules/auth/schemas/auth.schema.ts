@@ -12,6 +12,15 @@ export const registerSchema = z.object({
   avatarUrl: z.string().min(3).max(3000000).optional(),
 });
 
+export const verifyRegistrationEmailSchema = z.object({
+  email: z.string().email(),
+  code: z.string().regex(/^\d{6}$/),
+});
+
+export const resendRegistrationEmailSchema = z.object({
+  email: z.string().email(),
+});
+
 export const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });
@@ -28,6 +37,8 @@ export const verifyResetCodeSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type VerifyRegistrationEmailInput = z.infer<typeof verifyRegistrationEmailSchema>;
+export type ResendRegistrationEmailInput = z.infer<typeof resendRegistrationEmailSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>;

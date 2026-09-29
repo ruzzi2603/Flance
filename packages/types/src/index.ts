@@ -17,7 +17,7 @@
 
 // ============= AUTH & USER =============
 
-export type UserRole = "CLIENT" | "FREELANCER";
+export type UserRole = "CLIENT" | "FREELANCER" | "ADMIN";
 
 /**
  * Usuário autenticado (retornado por /auth/me)

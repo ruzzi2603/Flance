@@ -11,6 +11,9 @@ export interface UserEntity {
   passwordHash: string;
   name: string;
   role: Role;
+  bannedAt?: Date | null;
+  banReason?: string | null;
+  emailVerifiedAt?: Date | null;
   bio?: string;
   avatarUrl?: string;
   headline?: string;
@@ -218,6 +221,9 @@ export class UsersService {
         password: true,
         name: true,
         role: true,
+        bannedAt: true,
+        banReason: true,
+        emailVerifiedAt: true,
         bio: true,
         avatarUrl: true,
         headline: true,
@@ -254,6 +260,9 @@ export class UsersService {
       passwordHash: user.password,
       name: user.name,
       role: user.role,
+      bannedAt: user.bannedAt,
+      banReason: user.banReason,
+      emailVerifiedAt: user.emailVerifiedAt,
       bio: user.bio ?? undefined,
       avatarUrl: user.avatarUrl ?? undefined,
       headline: user.headline ?? undefined,
@@ -292,6 +301,9 @@ export class UsersService {
         password: true,
         name: true,
         role: true,
+        bannedAt: true,
+        banReason: true,
+        emailVerifiedAt: true,
         bio: true,
         avatarUrl: true,
         headline: true,
@@ -328,6 +340,9 @@ export class UsersService {
       passwordHash: user.password,
       name: user.name,
       role: user.role,
+      bannedAt: user.bannedAt,
+      banReason: user.banReason,
+      emailVerifiedAt: user.emailVerifiedAt,
       bio: user.bio ?? undefined,
       avatarUrl: user.avatarUrl ?? undefined,
       headline: user.headline ?? undefined,
@@ -357,8 +372,14 @@ export class UsersService {
     };
   }
 
-  toPublicUser(user: UserEntity): Omit<UserEntity, "passwordHash"> {
-    const { passwordHash: _passwordHash, ...publicUser } = user;
+  toPublicUser(user: UserEntity): Omit<UserEntity, "passwordHash" | "bannedAt" | "banReason" | "emailVerifiedAt"> {
+    const {
+      passwordHash: _passwordHash,
+      bannedAt: _bannedAt,
+      banReason: _banReason,
+      emailVerifiedAt: _emailVerifiedAt,
+      ...publicUser
+    } = user;
     return publicUser;
   }
 

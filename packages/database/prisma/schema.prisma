@@ -16,6 +16,22 @@ datasource db {
 enum Role {
   CLIENT
   FREELANCER
+  ADMIN
+}
+
+enum AdminActionType {
+  USER_ALERTED
+  AD_REMOVED
+  AD_RESTORED
+  USER_BANNED
+  USER_UNBANNED
+  USER_DELETED
+}
+
+enum AdminNotificationStatus {
+  PENDING
+  SENT
+  FAILED
 }
 
 enum JobStatus {
@@ -64,6 +80,9 @@ model User {
   password  String // Hash bcryptjs
   name      String
   role      Role
+  bannedAt  DateTime?
+  banReason String?
+  emailVerifiedAt DateTime?
   bio       String?
   avatarUrl String?
   headline  String?
@@ -122,6 +141,38 @@ model User {
   @@index([role]) // Listar freelancers/clientes
   @@index([companyEnabled]) // Filtrar empresas
   @@index([createdAt]) // Ordenar por data
+}
+
+model EmailVerificationCode {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  avatarUrl    String?
+  codeHash     String
+  attempts     Int      @default(0)
+  expiresAt    DateTime
+  lastSentAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([expiresAt])
+}
+
+model AdminAuditLog {
+  id                 String                  @id @default(cuid())
+  adminId            String
+  targetUserId       String?
+  targetEmail        String
+  targetName         String
+  action             AdminActionType
+  reason             String
+  notificationStatus AdminNotificationStatus @default(PENDING)
+  createdAt          DateTime                @default(now())
+
+  @@index([createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([adminId, createdAt])
 }
 
 model CompanyReview {

@@ -1,7 +1,7 @@
 export type AppUser = {
   id: string;
   email: string;
-  role: "CLIENT" | "FREELANCER";
+  role: "CLIENT" | "FREELANCER" | "ADMIN";
   name?: string;
   avatarUrl?: string;
   headline?: string;

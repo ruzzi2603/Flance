@@ -28,6 +28,7 @@ import { ChatModule } from "./modules/chat/chat.module";
 import { LoggerModule } from "./common/logger/logger.module";
 import { CustomThrottlerGuard } from "./common/guards/custom-throttler.guard";
 import { RequestLoggerMiddleware } from "./common/middleware/request-logger.middleware";
+import { AdminModule } from "./modules/admin/admin.module";
 
 @Module({
   controllers: [AppController],
@@ -83,6 +84,7 @@ import { RequestLoggerMiddleware } from "./common/middleware/request-logger.midd
     PaymentsModule,
     AiModule,
     ChatModule,
+    AdminModule,
   ],
   providers: [
     /**

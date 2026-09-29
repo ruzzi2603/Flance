@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { registerSchema } from "../../../services/schemas";
-import { register } from "../../../services/auth";
+import { register, resendRegistrationCode, verifyRegistrationEmail } from "../../../services/auth";
 import { useAuthStore } from "../../../store/useAuthStore";
 import { useI18n } from "../../../i18n/useI18n";
 
@@ -16,8 +16,19 @@ export default function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [avatarUrl, setAvatarUrl] = useState("avatar-sky");
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   const avatarIsImage = avatarUrl.startsWith("data:") || avatarUrl.startsWith("http");
+
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const timer = window.setTimeout(() => setResendCountdown((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendCountdown]);
 
   function handleAvatarUpload(file: File | null) {
     if (!file) return;
@@ -70,8 +81,8 @@ export default function RegisterPage() {
 
     try {
       const result = await register(parsed.data);
-      setUser(result.user);
-      router.push("/planos");
+      setVerificationEmail(result.email);
+      setResendCountdown(result.resendAfterSeconds);
     } catch (error) {
       const message =
         typeof error === "object" && error && "response" in error
@@ -84,14 +95,78 @@ export default function RegisterPage() {
     }
   }
 
+  async function handleVerifyEmail(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!verificationEmail) return;
+    setFormError(null);
+    setIsVerifying(true);
+    try {
+      const result = await verifyRegistrationEmail({ email: verificationEmail, code: verificationCode.trim() });
+      setUser(result.user);
+      router.push("/planos");
+    } catch (error) {
+      const message =
+        typeof error === "object" && error && "response" in error
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (error as any).response?.data?.message
+          : null;
+      setFormError(Array.isArray(message) ? message[0] : message || t("auth.register.verifyError"));
+    } finally {
+      setIsVerifying(false);
+    }
+  }
+
+  async function handleResendCode() {
+    if (!verificationEmail || resendCountdown > 0) return;
+    setFormError(null);
+    setIsResending(true);
+    try {
+      const result = await resendRegistrationCode(verificationEmail);
+      setResendCountdown(result.resendAfterSeconds);
+      setFormError(result.sent ? t("auth.register.codeResent") : t("auth.register.verifyError"));
+    } catch {
+      setFormError(t("auth.register.resendError"));
+    } finally {
+      setIsResending(false);
+    }
+  }
+
   return (
     <main className="page-shell">
       <section className="section-shell">
         <div className="card-lg">
-          <h1 className="heading-xl">{t("auth.register.title")}</h1>
-          <p className="mt-2 text-muted" id="pop">{t("auth.register.subtitle")}</p>
+          <h1 className="heading-xl">{verificationEmail ? t("auth.register.verifyTitle") : t("auth.register.title")}</h1>
+          <p className="mt-2 text-muted" id="pop">
+            {verificationEmail ? t("auth.register.verifySubtitle", { email: verificationEmail }) : t("auth.register.subtitle")}
+          </p>
 
-          <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
+          {verificationEmail ? (
+            <form key="email-verification-form" className="mt-8 grid gap-5" onSubmit={handleVerifyEmail}>
+              <label className="form-label">
+                {t("auth.register.verificationCode")}
+                <input
+                  className="input"
+                  name="verificationCode"
+                  value={verificationCode}
+                  onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="000000"
+                  required
+                  minLength={6}
+                  maxLength={6}
+                />
+              </label>
+              {formError ? <div className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700" role="status">{formError}</div> : null}
+              <button type="submit" className="btn-primary" disabled={isVerifying || verificationCode.length !== 6}>
+                {isVerifying ? t("auth.register.verifying") : t("auth.register.verifyButton")}
+              </button>
+              <button type="button" className="btn-outline" disabled={isResending || resendCountdown > 0} onClick={() => void handleResendCode()}>
+                {isResending ? t("auth.register.resending") : resendCountdown > 0 ? t("auth.register.resendCountdown", { seconds: resendCountdown }) : t("auth.register.resendCode")}
+              </button>
+            </form>
+          ) : (
+          <form key="registration-form" className="mt-8 grid gap-5" onSubmit={handleSubmit}>
             <label className="form-label">
               {t("auth.register.name")}
               <input className="input" name="name" placeholder={t("auth.register.namePlaceholder")} />
@@ -156,6 +231,7 @@ export default function RegisterPage() {
               {isSubmitting ? t("auth.register.creating") : t("auth.register.create")}
             </button>
           </form>
+          )}
         </div>
       </section>
     </main>

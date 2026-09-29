@@ -9,11 +9,15 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   verifyResetCodeSchema,
+  verifyRegistrationEmailSchema,
+  resendRegistrationEmailSchema,
   type LoginInput,
   type RegisterInput,
   type ForgotPasswordInput,
   type ResetPasswordInput,
   type VerifyResetCodeInput,
+  type VerifyRegistrationEmailInput,
+  type ResendRegistrationEmailInput,
 } from "./schemas/auth.schema";
 import { AuthService } from "./auth.service";
 import { UsersService } from "../users/users.service";
@@ -27,11 +31,26 @@ export class AuthController {
 
   @Post("register")
   @UsePipes(new ZodValidationPipe(registerSchema))
-  async register(@Body() body: RegisterInput, @Res({ passthrough: true }) response: Response) {
-    const result = await this.authService.register(body);
+  async register(@Body() body: RegisterInput) {
+    return this.authService.register(body);
+  }
+
+  @Post("register/verify")
+  @UsePipes(new ZodValidationPipe(verifyRegistrationEmailSchema))
+  async verifyRegistrationEmail(
+    @Body() body: VerifyRegistrationEmailInput,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.verifyRegistrationCode(body);
     this.setAuthCookie(response, result.accessToken);
     this.setRefreshCookie(response, result.refreshToken);
     return { accessToken: result.accessToken, user: result.user };
+  }
+
+  @Post("register/resend")
+  @UsePipes(new ZodValidationPipe(resendRegistrationEmailSchema))
+  async resendRegistrationEmail(@Body() body: ResendRegistrationEmailInput) {
+    return this.authService.resendRegistrationCode(body.email);
   }
 
   @Post("login")

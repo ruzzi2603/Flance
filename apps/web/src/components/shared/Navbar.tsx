@@ -58,6 +58,9 @@ export function Navbar() {
       if (user.role === "FREELANCER" || user.companyEnabled) {
         links.push({ key: "myAds", href: "/meus-anuncios", label: t("nav.myAds") });
       }
+      if (user.role === "ADMIN") {
+        links.push({ key: "admin", href: "/admin", label: t("nav.admin") });
+      }
     } else if (!isLoading) {
       links.push({ key: "login", href: "/login", label: t("nav.login") });
     }

@@ -84,7 +84,7 @@ const authMeSchema = z.object({
   data: z.object({
     id: z.string(),
     email: z.string().email(),
-    role: z.enum(["CLIENT", "FREELANCER"]),
+    role: z.enum(["CLIENT", "FREELANCER", "ADMIN"]),
     name: z.string().optional(),
     avatarUrl: z.string().optional(),
     headline: z.string().optional(),
