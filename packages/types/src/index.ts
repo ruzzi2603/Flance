@@ -282,9 +282,84 @@ export interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
-// ============= SUBSCRIPTION PLANS =============
+// ============= SUBSCRIPTION PLANS & PAYMENTS =============
 
-export type PlanTier = "FREE" | "BASIC" | "PRO" | "PREMIUM";
+export type PlanTier = "FREE" | "BASIC" | "PRO" | "PREMIUM" | "PROFESSIONAL" | "PROFESSIONAL_PLUS";
+
+export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "CANCELED" | "EXPIRED" | "REFUNDED";
+export type PaymentProvider = "ASAAS";
+export type SubscriptionStatus = "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELED";
+
+export interface PlanConfig {
+  key: "FREE" | "PROFESSIONAL" | "PROFESSIONAL_PLUS";
+  name: string;
+  price: number;
+  durationDays: number;
+  maxAds: number;
+  maxPhotos: number;
+  analytics: "BASIC" | "FULL" | "ADVANCED";
+  featuredAds: number;
+  prioritySearch: boolean;
+  description: string;
+}
+
+export interface PaymentEntity {
+  id: string;
+  userId: string;
+  subscriptionId?: string | null;
+  plan: PlanTier;
+  amount: number;
+  provider: PaymentProvider;
+  providerPaymentId?: string | null;
+  status: PaymentStatus;
+  dueDate?: string | null;
+  paidAt?: string | null;
+  pixQrCode?: string | null;
+  pixCopyPaste?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscriptionEntity {
+  id: string;
+  userId: string;
+  plan: PlanTier;
+  status: SubscriptionStatus;
+  startedAt?: string | null;
+  expiresAt?: string | null;
+  daysRemaining?: number;
+  isExpiringSoon?: boolean;
+  renewalReminderSentAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePaymentDto {
+  plan: "PROFESSIONAL" | "PROFESSIONAL_PLUS";
+  name: string;
+  email: string;
+  cpf: string;
+}
+
+export interface CreatePaymentResponse {
+  paymentId: string;
+  status: PaymentStatus;
+  amount: number;
+  plan: PlanTier;
+  pixQrCode: string;
+  pixCopyPaste: string;
+  dueDate?: string;
+}
+
+export interface ActivateSubscriptionDto {
+  paymentId: string;
+  code: string;
+}
+
+export interface ActivateSubscriptionResponse {
+  subscription: SubscriptionEntity;
+  message: string;
+}
 
 export interface PlanDetails {
   tier: PlanTier;

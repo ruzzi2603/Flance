@@ -65,6 +65,11 @@ export const envSchema = z.object({
   STRIPE_CONNECT_CLIENT_ID: z.string().optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 
+  // === ASAAS (PAGAMENTOS PIX) ===
+  ASAAS_API_KEY: z.string().optional(),
+  ASAAS_BASE_URL: z.string().url().default("https://sandbox.asaas.com/api/v3"),
+  ASAAS_WEBHOOK_TOKEN: z.string().optional(),
+
   OPENAI_API_KEY: z.string().optional(),
 });
 

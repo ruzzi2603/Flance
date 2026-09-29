@@ -137,7 +137,7 @@ export class UsersService {
     companyPhotos?: string[];
     companyIsOnline?: boolean;
     companyIsPhysical?: boolean;
-    planTier?: "FREE" | "BASIC" | "PRO" | "PREMIUM";
+    planTier?: "FREE" | "BASIC" | "PRO" | "PREMIUM" | "PROFESSIONAL" | "PROFESSIONAL_PLUS";
   }): Promise<Omit<UserEntity, "passwordHash">> {
     const passwordHash = await bcrypt.hash(input.password, 12);
     const normalizedTags = this.normalizeTags(input.servicesTags);
@@ -410,7 +410,7 @@ export class UsersService {
       companyPhotos?: string[];
       companyIsOnline?: boolean;
       companyIsPhysical?: boolean;
-      planTier?: "FREE" | "BASIC" | "PRO" | "PREMIUM";
+      planTier?: "FREE" | "BASIC" | "PRO" | "PREMIUM" | "PROFESSIONAL" | "PROFESSIONAL_PLUS";
     },
   ): Promise<Omit<UserEntity, "passwordHash">> {
     const current = await this.prisma.user.findUnique({
@@ -466,7 +466,10 @@ export class UsersService {
         companyPhotos: normalizedPhotos,
         companyIsOnline: input.companyIsOnline ?? undefined,
         companyIsPhysical: input.companyIsPhysical ?? undefined,
-        planTier: input.planTier ?? undefined,
+        planTier:
+          input.planTier === "FREE"
+            ? "FREE"
+            : undefined,
       },
     });
 
@@ -557,12 +560,12 @@ export class UsersService {
     return trimmed.length > 0 ? trimmed : null;
   }
 
-  private maxPhotosForPlan(plan?: "FREE" | "BASIC" | "PRO" | "PREMIUM") {
+  private maxPhotosForPlan(plan?: string) {
     if (!plan) return undefined;
     if (plan === "FREE") return 3;
-    if (plan === "BASIC") return 6;
-    if (plan === "PRO") return 10;
-    return 20;
+    if (plan === "PROFESSIONAL" || plan === "BASIC") return 10;
+    if (plan === "PROFESSIONAL_PLUS" || plan === "PRO" || plan === "PREMIUM") return 20;
+    return 3;
   }
 
   private async ensureCompanyDataUnique(

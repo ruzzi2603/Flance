@@ -25,7 +25,7 @@ export const updateProfileSchema = z.object({
   companyPhotos: z.array(z.string().min(4).max(4000000)).max(8).optional(),
   companyIsOnline: z.boolean().optional(),
   companyIsPhysical: z.boolean().optional(),
-  planTier: z.enum(["FREE", "BASIC", "PRO", "PREMIUM"]).optional(),
+  planTier: z.enum(["FREE", "BASIC", "PRO", "PREMIUM", "PROFESSIONAL", "PROFESSIONAL_PLUS"]).optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

@@ -64,6 +64,28 @@ enum PlanTier {
   BASIC
   PRO
   PREMIUM
+  PROFESSIONAL
+  PROFESSIONAL_PLUS
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELED
+  EXPIRED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  ASAAS
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELED
 }
 
 enum CompanyAnalyticsEventType {
@@ -114,6 +136,10 @@ model User {
   planStartedAt DateTime?
   planRenewsAt DateTime?
 
+  // === Asaas / Pagamentos ===
+  asaasCustomerId String? @unique
+  cpf             String?
+
   // === Gamificação ===
   xp        Int      @default(0)
   level     Int      @default(1)
@@ -134,6 +160,9 @@ model User {
   conversationsAsClient Conversation[] @relation("ClientConversations")
   conversationsAsFreelancer Conversation[] @relation("FreelancerConversations")
   messages Message[]
+  subscriptions Subscription[]
+  payments      Payment[]
+  activationCodes PaymentActivationCode[]
 
   // === INDEXES ===
   // IMPORTANTE: Indexes para queries frequentes
@@ -385,4 +414,69 @@ model PasswordReset {
   // === INDEXES ===
   @@index([userId]) // Listar resets de usuário
   @@index([expiresAt]) // Remover resets expirados
+}
+
+model Subscription {
+  id                    String             @id @default(cuid())
+  userId                String
+  plan                  PlanTier
+  status                SubscriptionStatus @default(PENDING)
+  startedAt             DateTime?
+  expiresAt             DateTime?
+  renewalReminderSentAt DateTime?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments              Payment[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model Payment {
+  id                String                 @id @default(cuid())
+  userId            String
+  subscriptionId    String?
+  plan              PlanTier
+  amount            Decimal                @db.Decimal(10, 2)
+  provider          PaymentProvider        @default(ASAAS)
+  providerPaymentId String?                @unique
+  status            PaymentStatus          @default(PENDING)
+  dueDate           DateTime?
+  paidAt            DateTime?
+  pixQrCode         String?                @db.Text
+  pixCopyPaste      String?                @db.Text
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  user              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription      Subscription?          @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  activationCode    PaymentActivationCode?
+
+  @@index([userId])
+  @@index([providerPaymentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PaymentActivationCode {
+  id         String    @id @default(cuid())
+  userId     String
+  paymentId  String    @unique
+  plan       PlanTier
+  codeHash   String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment    Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([paymentId])
+  @@index([expiresAt])
 }

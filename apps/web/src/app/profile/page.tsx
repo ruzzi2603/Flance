@@ -16,9 +16,8 @@ function ProfilePageInner() {
   const plans = useMemo(
     () => [
       { id: "FREE", label: t("plans.free.title"), price: 0, limit: 1 },
-      { id: "BASIC", label: t("plans.essential.title"), price: 29.99, limit: 2 },
-      { id: "PRO", label: t("plans.professional.title"), price: 39.99, limit: 5 },
-      
+      { id: "PROFESSIONAL", label: t("plans.professional.title"), price: 29.99, limit: 5 },
+      { id: "PROFESSIONAL_PLUS", label: t("plans.professionalPlus.title"), price: 39.99, limit: 15 },
     ],
     [t],
   );
@@ -54,10 +53,9 @@ function ProfilePageInner() {
 
   const avatarIsImage = avatarUrl.startsWith("data:") || avatarUrl.startsWith("http");
   const maxPhotos = useMemo(() => {
-    if (selectedPlan === "FREE" || !selectedPlan) return 3;
-    if (selectedPlan === "BASIC") return 6;
-    if (selectedPlan === "PRO") return 10;
-    return 20;
+    if (selectedPlan === "PROFESSIONAL") return 10;
+    if (selectedPlan === "PROFESSIONAL_PLUS") return 20;
+    return 3; // FREE or null
   }, [selectedPlan]);
 
   function handleAvatarUpload(file: File | null) {
@@ -200,7 +198,7 @@ function ProfilePageInner() {
     try {
       const enableCompany = companyEnabled || selectedPlan === "FREE";
       const updated = await updateProfile({
-        planTier: selectedPlan as "FREE" | "BASIC" | "PRO" | "PREMIUM",
+        planTier: selectedPlan as "FREE" | "PROFESSIONAL" | "PROFESSIONAL_PLUS",
         companyEnabled: enableCompany,
         companyName: companyName.trim(),
         companyCnpj: companyCnpj.trim() || undefined,
@@ -408,18 +406,27 @@ function ProfilePageInner() {
                       <span className="separate" />
                     </div>
                     <div className="card-list-features">
-                      <div className="option">
-                        <span>-</span>
-                        <span>{t("plans.free.feature1")}</span>
-                      </div>
-                      <div className="option">
-                        <span>-</span>
-                        <span>{t("plans.free.feature2")}</span>
-                      </div>
-                      <div className="option">
-                        <span>-</span>
-                        <span>{t("plans.free.feature3")}</span>
-                      </div>
+                      {plan.id === "FREE" && (
+                        <>
+                          <div className="option"><span>-</span><span>{t("plans.free.feature1")}</span></div>
+                          <div className="option"><span>-</span><span>{t("plans.free.feature2")}</span></div>
+                          <div className="option"><span>-</span><span>{t("plans.free.feature3")}</span></div>
+                        </>
+                      )}
+                      {plan.id === "PROFESSIONAL" && (
+                        <>
+                          <div className="option"><span>-</span><span>{t("plans.professional.feature1")}</span></div>
+                          <div className="option"><span>-</span><span>{t("plans.professional.feature2")}</span></div>
+                          <div className="option"><span>-</span><span>{t("plans.professional.feature3")}</span></div>
+                        </>
+                      )}
+                      {plan.id === "PROFESSIONAL_PLUS" && (
+                        <>
+                          <div className="option"><span>-</span><span>{t("plans.professionalPlus.feature1")}</span></div>
+                          <div className="option"><span>-</span><span>{t("plans.professionalPlus.feature4")}</span></div>
+                          <div className="option"><span>-</span><span>{t("plans.professionalPlus.feature7")}</span></div>
+                        </>
+                      )}
                     </div>
                     <span className="card-btn">{t("profile.company.planSelect")}</span>
                   </div>
