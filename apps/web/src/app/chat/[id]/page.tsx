@@ -382,7 +382,7 @@ export default function ChatPage() {
               <div className="loader"></div>
             </div>
           ) : orderedMessages.length === 0 ? (
-            <p className="text-sm text-muted">{t("chat.empty")}</p>
+            <p className="text-sm text-muted" id="nenhumchat">{t("chat.empty")}</p>
           ) : (
             <div className="chat-thread" >
               {sortedMessages.map((item) => (

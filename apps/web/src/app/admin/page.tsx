@@ -121,7 +121,9 @@ export default function AdminPage() {
           <div>
             <p className="admin-eyebrow">{t("admin.eyebrow")}</p>
             <h1 className="heading-xl">{t("admin.title")}</h1>
-            <p className="mt-2 text-muted">{t("admin.subtitle")}</p>
+            <p className="mt-2 text-muted" id="admin-subtitle">
+              {t("admin.subtitle")}
+            </p>
           </div>
           <span className="admin-session-label">{user?.name || user?.email}</span>
         </header>

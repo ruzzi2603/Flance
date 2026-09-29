@@ -91,7 +91,9 @@ export default function ChatListPage() {
           </div>
         ) : (
           <div className="card">
-            <p className="text-sm text-muted">{t("chat.list.empty")}</p>
+            <p className="text-sm text-muted" id="nenhumchat">
+              {t("chat.list.empty")}
+            </p>
           </div>
         )}
       </section>

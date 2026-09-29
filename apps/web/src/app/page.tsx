@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useApiHealth } from "../hooks/useApiHealth";
 import { useAuth } from "../hooks/useAuth";
+import Image from "next/image";
 import Splash from "./Splash";
 
 export default function HomePage() {
@@ -21,6 +22,8 @@ export default function HomePage() {
           transition={{ duration: 0.55, ease: "easeOut" }}
           className="hero-card"
         >
+          <div className="hero-all">
+          <div className="hero-content">
           <p className="hero-eyebrow">flance</p>
 
           <div className="cardT">
@@ -29,17 +32,17 @@ export default function HomePage() {
               <div className="words">
                 <span className="word">serviços.</span>
                 <span className="word">soluções.</span>
-                <span className="word">projetos.</span>
-                <span className="word">cultura.</span>
+                <span className="word">automações.</span>
+                <span className="word">fidelidade.</span>
                 <span className="word">tudo.</span>
               </div>
             </div>
           </div>
 
-          <p className="hero-subtitle">
-            Encontre empresas e prestadores de servico confiaveis, com contato
-            direto e perfis completos. Para quem presta servico, destaque sua
-            empresa com planos pensados para crescer sua visibilidade.
+          <p className="hero-subtitle" id="herotxt">
+            Encontre serviços e prestadores de servico confiaveis, com contato
+            direto e perfis completos. Para quem presta servico, destaque seu
+            serviço com planos pensados para crescer sua visibilidade.
           </p>
           <Link href="/empresas" className="animated-button">
             <svg
@@ -49,7 +52,7 @@ export default function HomePage() {
             >
               <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
             </svg>
-            <span className="text">Conhecer empresas</span>
+            <span className="text">Ver serviços</span>
             <span className="circle"></span>
             <svg
               viewBox="0 0 24 24"
@@ -74,7 +77,7 @@ export default function HomePage() {
                 >
                   <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
                 </svg>
-                <span className="text">Quero divulgar minha empresa</span>
+                <span className="text">Quero divulgar meu serviço</span>
                 <span className="circle" id="circleEmpresas"></span>
                 <svg
                   viewBox="0 0 24 24"
@@ -85,6 +88,11 @@ export default function HomePage() {
                 </svg>
               </Link>
             </>
+          </div>
+          </div>
+           <div className="hero-image">
+         
+        </div>
           </div>
           <div className="heroB"> 
             <div className="subAll">      

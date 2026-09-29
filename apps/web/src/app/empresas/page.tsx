@@ -203,7 +203,7 @@ export default function CompaniesPage() {
             })}
           </div>
         ) : (
-          <div className="card">{t("companies.empty")}</div>
+          <div className="card" id="nenhumaempresa">{t("companies.empty")}</div>
         )}
 
         {companiesQuery.hasNextPage ? (
