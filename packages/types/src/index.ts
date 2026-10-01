@@ -349,6 +349,7 @@ export interface CreatePaymentResponse {
   pixQrCode: string;
   pixCopyPaste: string;
   dueDate?: string;
+  expiresAt?: string | null;
 }
 
 export interface ActivateSubscriptionDto {

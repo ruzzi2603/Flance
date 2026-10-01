@@ -45,9 +45,10 @@ export class PaymentsController {
   @UsePipes(new ZodValidationPipe(createPaymentSchema))
   async createPayment(
     @CurrentUser() user: JwtUserPayload,
+    @Headers("idempotency-key") idempotencyKey: string | undefined,
     @Body() input: CreatePaymentInput,
   ) {
-    const data = await this.paymentsService.createPayment(user.sub, input);
+    const data = await this.paymentsService.createPayment(user.sub, input, idempotencyKey);
     return { success: true, data, timestamp: new Date().toISOString() };
   }
 
@@ -62,6 +63,13 @@ export class PaymentsController {
     @Param("id") paymentId: string,
   ) {
     const data = await this.paymentsService.getPaymentById(user.sub, paymentId);
+    return { success: true, data, timestamp: new Date().toISOString() };
+  }
+
+  @Post(":id/activation-code/resend")
+  @UseGuards(JwtAuthGuard)
+  async resendActivationCode(@CurrentUser() user: JwtUserPayload, @Param("id") paymentId: string) {
+    const data = await this.paymentsService.resendActivationCode(user.sub, paymentId);
     return { success: true, data, timestamp: new Date().toISOString() };
   }
 

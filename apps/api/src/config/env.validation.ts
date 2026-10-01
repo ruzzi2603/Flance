@@ -67,8 +67,9 @@ export const envSchema = z.object({
 
   // === ASAAS (PAGAMENTOS PIX) ===
   ASAAS_API_KEY: z.string().optional(),
-  ASAAS_BASE_URL: z.string().url().default("https://sandbox.asaas.com/api/v3"),
+  ASAAS_BASE_URL: z.string().url().default("https://api-sandbox.asaas.com/v3"),
   ASAAS_WEBHOOK_TOKEN: z.string().optional(),
+  ASAAS_CPF_ENCRYPTION_KEY: z.string().min(32).optional(),
 
   OPENAI_API_KEY: z.string().optional(),
 });
@@ -95,6 +96,9 @@ export function validateEnv(input: Record<string, unknown>): EnvConfig {
       }
       if (!input.DATABASE_URL) {
         throw new Error("DATABASE_URL é obrigatório em produção");
+      }
+      if (!input.ASAAS_API_KEY || !input.ASAAS_WEBHOOK_TOKEN || !input.ASAAS_CPF_ENCRYPTION_KEY) {
+        throw new Error("ASAAS_API_KEY, ASAAS_WEBHOOK_TOKEN e ASAAS_CPF_ENCRYPTION_KEY são obrigatórias em produção");
       }
       // SMTP é recomendado para recuperação de senha
       if (!input.SMTP_HOST || !input.SMTP_USER || !input.SMTP_PASS) {

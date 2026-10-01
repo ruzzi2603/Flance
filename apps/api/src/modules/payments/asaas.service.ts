@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from "@nestjs/common";
 import { maskCpf } from "./utils/cpf-validator";
 
@@ -46,11 +47,36 @@ export class AsaasService {
   }
 
   private get baseUrl(): string {
-    const raw = process.env.ASAAS_BASE_URL || "https://sandbox.asaas.com/api/v3";
+    const raw = (process.env.ASAAS_BASE_URL || "https://api-sandbox.asaas.com/v3").trim();
+    let url: URL;
+    try {
+      url = new URL(raw);
+    } catch {
+      throw new InternalServerErrorException("ASAAS_BASE_URL inválida.");
+    }
+    if (
+      url.protocol !== "https:" ||
+      !["api-sandbox.asaas.com", "api.asaas.com"].includes(url.hostname) ||
+      url.pathname.replace(/\/+$/, "") !== "/v3"
+    ) {
+      throw new InternalServerErrorException("ASAAS_BASE_URL deve usar a API oficial v3 do Asaas.");
+    }
     return raw.replace(/\/+$/, "");
   }
 
+  private assertApiKeyEnvironment() {
+    const key = this.apiKey;
+    const isSandbox = new URL(this.baseUrl).hostname === "api-sandbox.asaas.com";
+    const isSandboxKey = key.startsWith("$aact_hmlg_");
+    const isProductionKey = key.startsWith("$aact_prod_");
+    if ((isSandbox && isProductionKey) || (!isSandbox && isSandboxKey)) {
+      this.logger.error("A chave Asaas não corresponde ao ambiente configurado.");
+      throw new InternalServerErrorException("A chave do Asaas não corresponde ao ambiente Sandbox/Produção configurado.");
+    }
+  }
+
   private getHeaders(): Record<string, string> {
+    this.assertApiKeyEnvironment();
     return {
       "Content-Type": "application/json",
       access_token: this.apiKey,
@@ -68,13 +94,14 @@ export class AsaasService {
     try {
       response = await fetch(url, {
         ...options,
+        signal: options.signal ?? AbortSignal.timeout(15_000),
         headers: {
           ...this.getHeaders(),
           ...(options.headers as Record<string, string> | undefined),
         },
       });
     } catch (err: any) {
-      this.logger.error(`Erro de conexão com Asaas: ${err?.message || err}`);
+      this.logger.error(`Erro de conexão com Asaas (${err?.code || err?.name || "network"}).`);
       throw new BadGatewayException("Não foi possível conectar ao serviço de pagamentos. Tente novamente em instantes.");
     }
 
@@ -87,13 +114,16 @@ export class AsaasService {
     }
 
     if (!response.ok) {
-      const errorMessage =
-        Array.isArray(data?.errors) && data.errors.length > 0
-          ? data.errors.map((e: any) => e.description).join("; ")
-          : data?.message || `Erro Asaas HTTP ${response.status}`;
-
-      this.logger.warn(`Asaas API Error [${response.status}]: ${errorMessage}`);
-      throw new BadRequestException(`Erro no provedor de pagamento: ${errorMessage}`);
+      const providerCodes = Array.isArray(data?.errors)
+        ? data.errors.map((item: any) => item.code).filter(Boolean).join(",")
+        : "";
+      this.logger.warn(`Asaas API respondeu HTTP ${response.status}${providerCodes ? ` (${providerCodes})` : ""}.`);
+      if (response.status === 404) throw new NotFoundException("Registro não encontrado no Asaas.");
+      if (response.status === 401) throw new InternalServerErrorException("Credencial Asaas inválida para o ambiente configurado.");
+      if (response.status >= 500) {
+        throw new BadGatewayException("O serviço de pagamentos está temporariamente indisponível.");
+      }
+      throw new BadRequestException("O Asaas não aceitou os dados da cobrança. Confira os dados e tente novamente.");
     }
 
     return data as T;
@@ -123,7 +153,8 @@ export class AsaasService {
           return existing.id;
         }
       } catch (err) {
-        this.logger.warn(`Cliente Asaas ${existingCustomerId} não encontrado na API. Buscando por CPF.`);
+        if (!(err instanceof NotFoundException)) throw err;
+        this.logger.warn("Cliente vinculado não existe no Asaas; buscando cadastro correspondente.");
       }
     }
 
@@ -139,7 +170,8 @@ export class AsaasService {
         return found.id;
       }
     } catch (err) {
-      this.logger.warn(`Falha na busca de cliente por CPF: ${maskCpf(cpf)}`);
+      if (!(err instanceof NotFoundException)) throw err;
+      this.logger.warn(`Cliente não encontrado no Asaas para CPF ${maskCpf(cpf)}.`);
     }
 
     // 3. Cria novo cliente no Asaas
@@ -207,5 +239,13 @@ export class AsaasService {
     return this.request<AsaasPaymentResponse>(`/payments/${providerPaymentId}`, {
       method: "GET",
     });
+  }
+
+  async findPaymentsByExternalReference(externalReference: string): Promise<AsaasPaymentResponse[]> {
+    const result = await this.request<{ data?: AsaasPaymentResponse[] }>(
+      `/payments?externalReference=${encodeURIComponent(externalReference)}`,
+      { method: "GET" },
+    );
+    return result.data ?? [];
   }
 }

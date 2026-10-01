@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const createPaymentSchema = z.object({
-  plan: z.string().min(1, "Plano é obrigatório"),
-  name: z.string().min(1, "Nome completo é obrigatório"),
-  email: z.string().email("E-mail inválido"),
-  cpf: z.string().min(1, "CPF é obrigatório"),
+  plan: z.enum(["PROFESSIONAL", "PROFESSIONAL_PLUS"]),
+  name: z.string().trim().min(3).max(100),
+  email: z.string().trim().email().max(255),
+  cpf: z.string().trim().min(1).max(32),
 });
 
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;

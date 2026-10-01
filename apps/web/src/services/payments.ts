@@ -29,10 +29,11 @@ export async function getPlans(): Promise<PlanConfig[]> {
 /**
  * Cria cobrança Pix para plano pago
  */
-export async function createPayment(input: CreatePaymentDto): Promise<CreatePaymentResponse> {
+export async function createPayment(input: CreatePaymentDto, idempotencyKey?: string): Promise<CreatePaymentResponse> {
   const response = await api.post<{ success: boolean; data: CreatePaymentResponse }>(
     "/payments/create",
     input,
+    { headers: { "Idempotency-Key": idempotencyKey || crypto.randomUUID() } },
   );
   return response.data.data;
 }
@@ -43,6 +44,13 @@ export async function createPayment(input: CreatePaymentDto): Promise<CreatePaym
 export async function getPayment(paymentId: string): Promise<CreatePaymentResponse> {
   const response = await api.get<{ success: boolean; data: CreatePaymentResponse }>(
     `/payments/${paymentId}`,
+  );
+  return response.data.data;
+}
+
+export async function resendPaymentActivationCode(paymentId: string): Promise<{ sent: boolean; expiresAt: string }> {
+  const response = await api.post<{ success: boolean; data: { sent: boolean; expiresAt: string } }>(
+    `/payments/${paymentId}/activation-code/resend`,
   );
   return response.data.data;
 }

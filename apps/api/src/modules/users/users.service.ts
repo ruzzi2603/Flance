@@ -415,8 +415,12 @@ export class UsersService {
   ): Promise<Omit<UserEntity, "passwordHash">> {
     const current = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { role: true },
+      select: { role: true, planTier: true },
     });
+    if (!current) throw new NotFoundException("Usuário não encontrado.");
+    if (input.planTier && input.planTier !== "FREE" && input.planTier !== current.planTier) {
+      throw new ForbiddenException("Planos pagos devem ser ativados após confirmação do pagamento.");
+    }
     const nextRole =
       input.role === "FREELANCER" && current?.role !== "FREELANCER" ? "FREELANCER" : undefined;
     const normalizedCnpj = this.normalizeCnpj(input.companyCnpj);
@@ -425,7 +429,8 @@ export class UsersService {
     const normalizedEmail = this.normalizeEmail(input.companyEmail);
     const normalizedAddress = this.normalizeOptional(input.companyAddress);
     const normalizedPhotos = input.companyPhotos ?? undefined;
-    const maxPhotos = this.maxPhotosForPlan(input.planTier);
+    const effectivePlan = input.planTier === "FREE" ? "FREE" : current.planTier;
+    const maxPhotos = this.maxPhotosForPlan(effectivePlan);
 
     if (normalizedPhotos && maxPhotos && normalizedPhotos.length > maxPhotos) {
       throw new BadRequestException(`Limite de ${maxPhotos} fotos para o plano selecionado.`);
