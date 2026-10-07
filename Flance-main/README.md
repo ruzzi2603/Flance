@@ -1,628 +1,119 @@
-# 🚀 Flance - Plataforma de Freelancing Moderna
+# Flance
 
-![Flance Banner](https://img.shields.io/badge/version-0.1.0-blue) ![NestJS](https://img.shields.io/badge/NestJS-11-red) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+Plataforma para encontrar empresas e profissionais, publicar serviços, conversar e contratar planos de divulgação. O projeto está organizado como um monorepo npm com frontend Next.js, API NestJS e banco PostgreSQL acessado pelo Prisma.
 
-**Flance** é uma plataforma de matching entre freelancers e clientes com chat em tempo real, sistema de proposals inteligente, pagamentos seguros (escrow) e busca avançada. Construída com arquitetura moderna, escalável e production-ready.
+## Funcionalidades
 
-🔗 **[Website](#)** • 📖 **[Documentação](#)** • 🐛 **[Issues](https://github.com/ruzzi2603/flance/issues)** • 💬 **[Discussões](https://github.com/ruzzi2603/flance/discussions)**
+- Cadastro, login, verificação de email e recuperação de senha.
+- Perfis de usuários e empresas, anúncios e avaliações.
+- Conversas, propostas e recursos administrativos.
+- Planos e pagamentos via Asaas, com suporte a Pix e webhooks.
 
----
+> A cobrança real depende das credenciais de produção e da configuração do Asaas. Para desenvolvimento, use as credenciais e o endereço do Sandbox.
 
-## ✨ Features Principais
+## Tecnologias
 
-### 👥 Usuários & Autenticação
-- Autenticação JWT com refresh tokens
-- Recuperação de senha segura via email
-- Perfis detalhados (freelancers, empresas, clientes)
-- Sistema de gamificação (badges, ratings)
-- Busca avançada com filtros
+- Next.js, React e TypeScript (`apps/web`).
+- NestJS e TypeScript (`apps/api`).
+- PostgreSQL e Prisma (`packages/database`).
+- npm workspaces e Turborepo.
 
-### 💬 Chat em Tempo Real
-- Comunicação websocket de baixa latência
-- Histórico persistente em banco de dados
-- Notificações push via email
-- Suporte a files/attachments (preparado)
-- Typing indicators & read receipts
+## Requisitos
 
-### 💳 Pagamentos & Escrow
-- Integração com Stripe (preparada)
-- Sistema de escrow para proteção (v1.1)
-- Reembolsos e disputas
-- Fatura automática em PDF
+- Node.js e npm compatíveis com as versões declaradas no `package.json`.
+- Acesso a um PostgreSQL. O projeto também pode usar Supabase como provedor PostgreSQL.
+- ngrok instalado e autenticado, somente para testar webhooks recebidos localmente.
 
-### 🔐 Segurança
-- Rate limiting inteligente por endpoint
-- Helmet.js para HTTP headers seguros
-- Validação em duas camadas (Zod + Prisma)
-- CORS dinâmico por environment
-- Hashing bcrypt com salt rounds
+## Configuração local
 
----
+Execute os comandos a partir da raiz do repositório.
 
-## 🏗️ Arquitetura
+1. Instale as dependências:
 
-### Tech Stack
+   ```powershell
+   npm install
+   ```
 
-| Camada | Tecnologia | Versão | Descrição |
-|--------|-----------|--------|-----------|
-| **Frontend** | Next.js (App Router) | 16.1 | Framework React moderno com SSR/SSG |
-| **Backend** | NestJS | 11.1 | Framework Node.js robusto para APIs |
-| **Database** | PostgreSQL | 15+ | Banco relacional com Prisma ORM |
-| **State Management** | Zustand + TanStack Query | 5.0 + 5.62 | Cliente + servidor estado |
-| **Real-time** | Socket.io | 4.8 | Comunicação bidirecional |
-| **Validation** | Zod | 3.23 | Schema validation tipo-seguro |
-| **Logging** | Winston | 3.14 | Logs estruturados com contexto |
-| **ORM** | Prisma | 5.22 | Type-safe database client |
-| **Build Tool** | Turbo | 2.8 | Monorepo task orchestrator |
+2. Crie o arquivo `.env` na raiz. Não compartilhe nem versione esse arquivo. Configure pelo menos:
 
-### Estrutura de Pastas
+   ```dotenv
+   DATABASE_URL="postgresql://USUARIO:SENHA@HOST:6543/postgres?pgbouncer=true&connection_limit=1"
+   DIRECT_URL="postgresql://USUARIO:SENHA@HOST:5432/postgres"
+   JWT_SECRET="gere-uma-chave-aleatoria-com-pelo-menos-32-caracteres"
+   CORS_ORIGIN="http://localhost:3000"
+   WEB_BASE_URL="http://localhost:3000"
+   NEXT_PUBLIC_API_URL="http://localhost:3001"
+   ASAAS_BASE_URL="https://api-sandbox.asaas.com/v3"
+   ```
 
-```
-flance/
-├── 📁 apps/
-│   ├── 📁 api/                          # Backend NestJS
-│   │   ├── src/
-│   │   │   ├── modules/
-│   │   │   │   ├── auth/                # JWT, login, recovery
-│   │   │   │   ├── users/               # Perfis, search, stats
-│   │   │   │   ├── jobs/                # CRUD, lifecycle
-│   │   │   │   ├── proposals/           # Matching, negotiation
-│   │   │   │   ├── chat/                # WebSocket, persistence
-│   │   │   │   ├── payments/            # Escrow, invoices
-│   │   │   │   └── ai/                  # Matching engine (TODO)
-│   │   │   ├── common/
-│   │   │   │   ├── decorators/          # @CurrentUser, @Public
-│   │   │   │   ├── filters/             # Exception handling
-│   │   │   │   ├── guards/              # JWT, RateLimit, Roles
-│   │   │   │   ├── logger/              # Winston setup
-│   │   │   │   ├── middleware/          # CORS, auth
-│   │   │   │   ├── pipes/               # Validation
-│   │   │   │   └── prisma/              # Prisma setup
-│   │   │   ├── config/
-│   │   │   │   └── env.validation.ts    # Zod env schema
-│   │   │   ├── app.controller.ts        # Health check
-│   │   │   ├── app.module.ts            # Root module
-│   │   │   └── main.ts                  # Bootstrap
-│   │   └── test/
-│   │       └── app.e2e-spec.ts          # E2E tests
-│   │
-│   └── 📁 web/                          # Frontend Next.js
-│       ├── src/
-│       │   ├── app/                     # App Router pages
-│       │   │   ├── (auth)/              # Login, register
-│       │   │   ├── api/                 # Route handlers
-│       │   │   ├── chat/                # Chat UI
-│       │   │   ├── jobs/                # Jobs listing/detail
-│       │   │   ├── proposals/           # Proposals UI
-│       │   │   ├── profile/             # User profile
-│       │   │   ├── empresas/            # Companies
-│       │   │   ├── planos/              # Plans/pricing
-│       │   │   └── usuarios/            # Users listing
-│       │   ├── components/
-│       │   │   ├── shared/              # Reusable components
-│       │   │   ├── error-boundary.tsx
-│       │   │   └── loading-skeleton.tsx
-│       │   ├── hooks/
-│       │   │   ├── useAuth.ts           # Auth context
-│       │   │   ├── useApiQuery.ts       # API wrapper
-│       │   │   ├── useApiHealth.ts      # Health check
-│       │   │   └── useEscrow.ts         # Escrow logic
-│       │   ├── services/
-│       │   │   ├── api.ts               # Axios client
-│       │   │   ├── auth.ts              # Auth service
-│       │   │   ├── jobs.ts              # Jobs API
-│       │   │   ├── proposals.ts         # Proposals API
-│       │   │   ├── chat.ts              # Chat API
-│       │   │   ├── users.ts             # Users API
-│       │   │   ├── companies.ts         # Companies API
-│       │   │   ├── freelancers.ts       # Freelancers API
-│       │   │   ├── realtime.ts          # WebSocket client
-│       │   │   └── schemas.ts           # Zod schemas
-│       │   ├── store/
-│       │   │   └── useAuthStore.ts      # Zustand store
-│       │   ├── types/
-│       │   │   └── auth.ts
-│       │   ├── i18n/
-│       │   │   ├── messages.ts          # Translations
-│       │   │   └── useI18n.ts           # i18n hook
-│       │   ├── lib/
-│       │   │   ├── utils.ts
-│       │   │   ├── stripe.ts
-│       │   │   └── cookie-consent.ts
-│       │   ├── providers/
-│       │   │   └── query-provider.tsx   # TanStack Query
-│       │   └── globals.css
-│       └── package.json
-│
-├── 📁 packages/
-│   ├── 📁 database/                     # Prisma schema + migrations
-│   │   ├── prisma/
-│   │   │   ├── schema.prisma            # Data model
-│   │   │   ├── seed.js                  # Seed script
-│   │   │   └── migrations/
-│   │   └── package.json
-│   ├── 📁 types/                        # Tipos compartilhados
-│   │   ├── src/
-│   │   │   └── index.ts
-│   │   └── package.json
-│   ├── 📁 design-system/                # Design tokens
-│   │   ├── src/
-│   │   │   └── tokens.ts
-│   │   └── package.json
-│   └── 📁 eslint-config/                # Lint rules
-│       ├── base.js
-│       └── package.json
-│
-├── docker-compose.yml                   # Dev environment
-├── turbo.json                           # Build orchestration
-├── tsconfig.base.json                   # TS config base
-├── .env.example                         # Environment template
-└── package.json                         # Workspace root
+   Para Supabase, use a connection string do pooler na `DATABASE_URL` e a conexão direta na `DIRECT_URL`. Se estiver usando PostgreSQL local, configure as duas URLs para o host local e a porta do seu banco.
 
+   Para testar pagamentos no Sandbox, configure também `ASAAS_API_KEY`, `ASAAS_WEBHOOK_TOKEN` e `ASAAS_CPF_ENCRYPTION_KEY`. A chave de criptografia deve ter pelo menos 32 caracteres. Para recuperação de senha e emails funcionarem, configure as variáveis `SMTP_*` usadas pela API.
+
+3. Aplique as migrations:
+
+   ```powershell
+   npm run db:migrate:deploy --workspace @flance/api
+   ```
+
+   Para criar e aplicar uma migration durante o desenvolvimento, use `npm run db:migrate:dev --workspace @flance/api`.
+
+4. Inicie o site e a API:
+
+   ```powershell
+   npm run dev
+   ```
+
+   O frontend fica em `http://localhost:3000` e a API em `http://localhost:3001`.
+
+### Iniciar também o ngrok
+
+No Windows, o script abaixo abre o ambiente de desenvolvimento e o ngrok em janelas separadas:
+
+```powershell
+.\iniciar-flance.bat
 ```
 
-### Diagrama de Arquitetura
+O ngrok encaminha para a porta `3001`. No painel do Asaas, use a URL exibida pelo ngrok com o caminho `/v1/payments/webhook`. Mantenha as duas janelas abertas durante os testes. Em contas gratuitas, o endereço do ngrok pode mudar ao iniciar uma nova sessão.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                   Client (Web Browser)                       │
-├─────────────────────────────────────────────────────────────┤
-│  Next.js 16 (App Router) + React 18 + TanStack Query       │
-│  ├─ Pages (Chat, Jobs, Proposals, Profile)                 │
-│  ├─ Components (Shared, Forms, Layouts)                     │
-│  └─ State (Zustand Auth + TQ Server Cache)                  │
-└────────────────────────┬────────────────────────────────────┘
-                         │ HTTP REST + WebSocket
-┌────────────────────────▼────────────────────────────────────┐
-│                  NestJS API Server                           │
-├─────────────────────────────────────────────────────────────┤
-│  ├─ Modules (Auth, Users, Jobs, Proposals, Chat, Payments) │
-│  ├─ Guards (JWT, RateLimit, Roles)                          │
-│  ├─ Filters (Exception Handling)                            │
-│  ├─ Middleware (CORS, Logging)                              │
-│  ├─ Services (Business Logic)                               │
-│  └─ WebSocket Handler (Chat Real-time)                      │
-└────────────────────────┬────────────────────────────────────┘
-                         │ Prisma ORM
-┌────────────────────────▼────────────────────────────────────┐
-│            PostgreSQL Database                              │
-├─────────────────────────────────────────────────────────────┤
-│  ├─ Users (50+ fields)                                      │
-│  ├─ Jobs (Projects)                                         │
-│  ├─ Proposals (Bidding)                                     │
-│  ├─ Chat Messages & Rooms                                   │
-│  ├─ Payments & Escrow                                       │
-│  └─ Indexes (optimizadas para queries comuns)               │
-└─────────────────────────────────────────────────────────────┘
+## Comandos úteis
+
+```powershell
+npm run dev                                       # Frontend e API
+npm run build                                     # Build dos workspaces
+npm run lint                                      # ESLint dos workspaces
+npm run typecheck                                 # Checagem TypeScript
+npm run test --workspace @flance/api              # Testes da API
+npm run db:migrate:dev --workspace @flance/api    # Migrations em desenvolvimento
+npm run db:migrate:deploy --workspace @flance/api # Aplicar migrations existentes
+npm run db:studio --workspace @flance/api         # Prisma Studio
 ```
 
----
+## Estrutura
 
-## 🚀 Como Começar
-
-### Pré-requisitos
-
-- **Node.js** 20.12.0+ ([download](https://nodejs.org))
-- **npm** 10.8.2+ (vem com Node.js)
-- **PostgreSQL** 15+ ([download](https://www.postgresql.org/download))
-  - Alternativa: **Supabase** (cloud PostgreSQL)
-- **Git** 2.0+ ([download](https://git-scm.com))
-
-### Instalação Rápida (5 minutos)
-
-#### 1️⃣ Clone o repositório
-
-```bash
-git clone https://github.com/ruzzi2603/flance.git
-cd flance
+```text
+apps/
+  api/                 API NestJS
+  web/                 Aplicação Next.js
+packages/
+  database/            Schema, migrations e seed Prisma
+  design-system/       Componentes e estilos compartilhados
+  eslint-config/       Configuração ESLint compartilhada
+  legal/               Documentos legais
+  types/               Tipos compartilhados
 ```
 
-#### 2️⃣ Instale dependências
-
-```bash
-npm install
-```
-
-> 💡 Turbo irá instalar todas as dependências dos workspaces automaticamente
-
-#### 3️⃣ Configure o ambiente
-
-```bash
-cp .env.example .env
-```
-
-Edite `.env` com suas configurações:
-
-```bash
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/flance"
-
-# JWT
-JWT_SECRET="seu-jwt-secret-aqui-minimo-32-caracteres"
-JWT_EXPIRATION="7d"
-
-# CORS
-CORS_ORIGIN="http://localhost:3000"
-NODE_ENV="development"
-
-# Email (Gmail com app password)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USER="seu-email@gmail.com"
-SMTP_PASS="seu-app-password"
-SMTP_FROM="noreply@flance.com"
-
-# API
-API_PORT=3001
-API_URL="http://localhost:3001"
-
-# Frontend
-NEXT_PUBLIC_API_URL="http://localhost:3001"
-```
-
-> 🔐 **Segurança:** Nunca commite `.env` - use `.env.local` para desenvolvimento local
-
-#### 4️⃣ Configure o banco de dados
-
-```bash
-# Crie um database vazio no PostgreSQL primeiro
-createdb flance
-
-# Rode as migrations
-npm run db:migrate:dev
-
-# (Opcional) Seed com dados de exemplo
-npm run db:seed
-```
-
-#### 5️⃣ Inicie o desenvolvimento
-
-```bash
-npm run dev
-```
-
-Você verá:
-- 🌐 **Frontend:** http://localhost:3000
-- 🔌 **API:** http://localhost:3001
-- 📊 **Prisma Studio:** http://localhost:5555 (atalho: `npm run db:studio`)
-
----
-
-## 📝 Scripts Disponíveis
-
-### Desenvolvimento
-
-```bash
-npm run dev              # Inicia todos os workspaces em paralelo
-npm run dev --filter=api  # Apenas API
-npm run dev --filter=web  # Apenas Web
-```
-
-### Build & Deploy
-
-```bash
-npm run build            # Build de produção (API + Web)
-npm run build --filter=api
-npm run start            # Inicia API em modo produção
-```
-
-### Database
-
-```bash
-npm run db:migrate:dev   # Roda migrations em dev
-npm run db:migrate:deploy # Roda migrations em produção
-npm run db:studio        # Abre Prisma Studio
-npm run db:seed          # Popula dados de exemplo
-```
-
-### Qualidade
-
-```bash
-npm run lint             # ESLint em todos os workspaces
-npm run typecheck        # TypeScript strict check
-npm run test             # Vitest (API)
-npm run test:coverage    # Com coverage report
-npm run test:ui          # UI interativa do Vitest
-```
-
----
-
-## 🔐 Segurança & Variáveis de Ambiente
-
-### Essenciais para Produção
-
-| Variável | Tipo | Descrição | Geração |
-|----------|------|-----------|---------|
-| `NODE_ENV` | string | `production` \| `development` | Manual |
-| `DATABASE_URL` | string | PostgreSQL connection | Criar DB |
-| `JWT_SECRET` | string | Min 32 caracteres | `openssl rand -base64 32` |
-| `JWT_EXPIRATION` | string | Ex: `7d`, `24h` | Manual |
-| `CORS_ORIGIN` | string | URL do frontend | Manual |
-| `SMTP_*` | string | Credenciais de email | Provider |
-
-### Checklist de Segurança
-
-- ✅ JWT_SECRET com mínimo 32 caracteres
-- ✅ CORS_ORIGIN específico (NUNCA `*` em produção)
-- ✅ HTTPS ativado (Helmet.js habilitado)
-- ✅ Database com autenticação forte
-- ✅ Rate limiting por endpoint ativado
-- ✅ .env não commitado (.gitignore)
-- ✅ Variáveis sensíveis em CI/CD secrets
-- ✅ Password reset link com expiration
-
----
-
-## 📡 API Documentation
-
-### Endpoints Principais
-
-#### 🔐 Autenticação
-
-```bash
-POST /api/v1/auth/register
-POST /api/v1/auth/login
-POST /api/v1/auth/refresh
-POST /api/v1/auth/logout
-POST /api/v1/auth/forgot-password
-POST /api/v1/auth/reset-password/:token
-```
-
-#### 👥 Usuários
-
-```bash
-GET  /api/v1/users                    # List (paginado)
-GET  /api/v1/users/:id                # Get by ID
-GET  /api/v1/users/search?q=...       # Search avançado
-PATCH /api/v1/users/:id               # Update profile
-GET  /api/v1/users/:id/stats          # Stats do usuário
-```
-
-#### 💼 Projetos (Jobs)
-
-```bash
-GET  /api/v1/jobs                     # List com filtros
-POST /api/v1/jobs                     # Create
-GET  /api/v1/jobs/:id                 # Get detail
-PATCH /api/v1/jobs/:id                # Update
-DELETE /api/v1/jobs/:id               # Delete
-POST /api/v1/jobs/:id/proposals       # Ver proposals
-```
-
-#### 🎯 Proposals
-
-```bash
-GET  /api/v1/proposals                # List (filtered by user)
-POST /api/v1/proposals                # Create (freelancer faz oferta)
-GET  /api/v1/proposals/:id            # Get detail
-PATCH /api/v1/proposals/:id           # Update (negotiation)
-POST /api/v1/proposals/:id/accept      # Accept offer
-POST /api/v1/proposals/:id/reject      # Reject
-```
-
-#### 💬 Chat
-
-```
-WebSocket: ws://localhost:3001/socket.io
-Events:
-  - connect              # Cliente conecta
-  - join_room :roomId    # Entra em sala
-  - send_message         # Envia mensagem
-  - message              # Recebe mensagem
-  - typing_start/stop    # Typing indicator
-  - disconnect           # Desconecta
-```
-
-### Documentação Completa
-
-Veja [API.md](./docs/API.md) para OpenAPI spec e exemplos.
-
----
-
-## 🧪 Testes
-
-### Executar Testes
-
-```bash
-# Todos os testes
-npm run test
-
-# Watch mode
-npm run test -- --watch
-
-# Coverage report
-npm run test:coverage
-
-# UI interativa
-npm run test:ui
-```
-
-### Estrutura de Testes
-
-```
-apps/api/
-├── src/modules/
-│   └── users/
-│       ├── users.service.spec.ts      # Unit tests
-│       └── users.controller.spec.ts   # Controller tests
-└── test/
-    └── app.e2e-spec.ts                # E2E tests
-```
-
-### Exemplo de Teste
-
-```typescript
-describe('UsersService', () => {
-  let service: UsersService;
-
-  beforeEach(async () => {
-    const module = await Test.createTestingModule({
-      providers: [UsersService, PrismaService],
-    }).compile();
-    service = module.get<UsersService>(UsersService);
-  });
-
-  it('deve criar um usuário', async () => {
-    const user = await service.create({
-      email: 'test@flance.com',
-      password: 'secure123',
-    });
-    expect(user.id).toBeDefined();
-    expect(user.email).toBe('test@flance.com');
-  });
-});
-```
-
----
-
-## 🌐 Deployment
-
-### Vercel (Recomendado para Frontend)
-
-```bash
-npm install -g vercel
-vercel
-```
-
-### Render / Railway (Backend)
-
-```bash
-# Conectar repositório
-# Variáveis de ambiente automáticas
-# Deploy em push para main
-```
-
-### Docker
-
-```bash
-docker-compose up -d  # Dev environment completo
-
-# Production
-docker build -t flance:latest .
-docker run -d -p 3001:3001 flance:latest
-```
-
-> 📚 Veja [SETUP_GUIDE.md](./docker/SETUP_GUIDE.md) para guia detalhado de deployment
-
----
-
-## 🤝 Contribuindo
-
-Adoramos contribuições! Aqui está como começar:
-
-### Processo
-
-1. **Fork** o repositório
-2. **Clone** seu fork: `git clone https://github.com/ruzzi2603/flance.git`
-3. **Crie uma branch**: `git checkout -b feature/sua-feature`
-4. **Faça as mudanças** (veja [CONTRIBUTING.md](./CONTRIBUTING.md))
-5. **Teste**: `npm run test && npm run lint`
-6. **Commit**: `git commit -am 'feat: adiciona nova feature'`
-7. **Push**: `git push origin feature/sua-feature`
-8. **Abra um Pull Request**
-
-### Convensões
-
-- **Commits:** Use [Conventional Commits](https://www.conventionalcommits.org)
-  - `feat:` Nova feature
-  - `fix:` Bug fix
-  - `docs:` Documentação
-  - `style:` Formatação
-  - `refactor:` Refatoração
-  - `test:` Testes
-  - `chore:` Deps, config
-
-- **Branches:** `feature/*`, `fix/*`, `docs/*`
-- **Code Style:** ESLint + Prettier (configurado)
-- **TypeScript:** Strict mode obrigatório
-
----
-
-## 📋 Roadmap
-
-### ✅ Completado (v0.1.0 - MVP)
-- [x] Autenticação completa (JWT + refresh tokens)
-- [x] CRUD de jobs e proposals
-- [x] Chat em tempo real (WebSocket)
-- [x] Sistema de usuários e profiles
-- [x] Busca avançada
-- [x] Email validation e password reset
-- [x] Rate limiting inteligente
-- [x] Logging estruturado (Winston)
-- [x] Validação em duas camadas (Zod + Prisma)
-
-### 🔄 Em Progresso (v0.2.0)
-- [ ] Sistema de pagamentos (Stripe integration)
-- [ ] Escrow completo
-- [ ] IA de matching inteligente
-- [ ] Notificações push (Firebase)
-- [ ] Gamificação avançada (badges, leaderboards)
-
-### 🎯 Futuro (v1.0+)
-- [ ] Mobile app (React Native)
-- [ ] Agendamento de chamadas (Twilio)
-- [ ] Portfólio e certificações
-- [ ] Blog/Knowledge base
-- [ ] API pública com webhooks
-- [ ] Analytics e dashboards
-
----
-
-## 📊 Métricas & Health Score
-
-| Métrica | Status | Detalhe |
-|---------|--------|---------|
-| **Code Quality** | ✅ 9/10 | 0 TypeScript errors, ESLint strict |
-| **Performance** | ✅ 8/10 | N+1 queries otimizadas, indexes no DB |
-| **Security** | ✅ 9/10 | Rate limiting, JWT, CORS, Helmet |
-| **Documentation** | ✅ 8/10 | Readme, API docs, inline comments |
-| **Test Coverage** | 🟡 40% | Infraestrutura pronta, aguardando testes |
-| **DevOps** | ✅ 8/10 | Docker, CI/CD pronto, env validation |
-| **Overall** | **✅ 9/10** | Production-ready MVP |
-
----
-
-## 🆘 Suporte & Comunidade
-
-- 💬 **Discussões:** [GitHub Discussions](https://github.com/ruzzi2603/flance/discussions)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/ruzzi2603/flance/issues)
-- 📧 **Email:** contato@flance.com
-- 🌐 **Website:** [flance.com](https://flance.com)
-- 💻 **Discord:** [Comunidade Flance](https://discord.gg/flance)
-
----
-
-## 📄 Licença
-
-Este projeto está sob a licença **MIT**. Veja [LICENSE](./LICENSE) para detalhes.
-
----
-
-## 👏 Agradecimentos
-
-- **NestJS** pela excelente framework backend
-- **Next.js** e **Vercel** pelo framework frontend
-- **Prisma** pelo ORM type-safe
-- **TypeScript** pela segurança de tipos
-- Todos os contributors que ajudaram neste projeto 💙
-
----
-
-## 📚 Documentação Adicional
-
-- [Setup & Deployment Guide](./docker/SETUP_GUIDE.md)
-- [API Documentation](./apps/api/README.md)
-- [Frontend Guide](./apps/web/README.md)
-- [Database Schema](./packages/database/README.md)
-- [Contributing Guide](./CONTRIBUTING.md)
-- [Technical Report](./docker/RELATÓRIO_FINAL.md)
-
----
-
-<div align="center">
-
-**⭐ Se você acha Flance útil, considera dar uma estrela no GitHub!**
-
-Made with ❤️ by the Flance Team
-
-</div>
+## Variáveis e segurança
+
+- O `.env` local e credenciais reais não devem ser adicionados ao Git.
+- `DATABASE_URL` é usada pela aplicação; migrations do Prisma usam `DIRECT_URL`.
+- Em produção, configure URLs HTTPS, CORS para o domínio correto, segredos próprios, credenciais reais do Asaas e SMTP.
+- Nunca use a chave do Sandbox em produção nem a chave de produção em testes locais.
+
+## Documentação adicional
+
+- [Guia de API](./apps/api/README.md)
+- [Guia do frontend](./apps/web/README.md)
+- [Setup de Docker](./docker/SETUP_GUIDE.md)
+- [Documentação geral](./DOCUMENTATION.md)
+- [Política de segurança](./SECURITY.md)
