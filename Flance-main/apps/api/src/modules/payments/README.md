@@ -1,5 +1,35 @@
 # Pagamentos — Asaas (Pix) com assinatura mensal no dia da ativação
 
+Este documento descreve o fluxo implementado pelo checkout do Flance, a integração com o Asaas e a gestão da assinatura após a contratação. A escolha de um plano pago não ativa benefícios nem cria uma cobrança por si só; isso acontece no checkout e a ativação depende da confirmação do Pix.
+
+## Ciclo completo da contratação
+
+```mermaid
+flowchart TD
+    A[Usuário escolhe plano pago] --> B[Checkout consulta preço e contrato vigentes]
+    B --> C[Usuário informa dados e aceita o contrato]
+    C --> D[API valida dados, grava aceite e cria cobrança Pix]
+    D --> E[Checkout mostra QR Code e código copia e cola]
+    E --> F[Asaas confirma o recebimento via webhook]
+    F --> G[Flance envia código de ativação por e-mail]
+    G --> H[Usuário informa código no site]
+    H --> I[Plano é ativado e assinatura mensal Pix é agendada]
+    I --> J[Asaas gera Pix das mensalidades]
+    J --> K[Webhook confirma cada renovação]
+```
+
+### O que ocorre em cada etapa
+
+1. **Seleção e preço:** a tela `/profile?plan=...` conserva a seleção até o checkout. `/v1/payments/quote` devolve preço inicial, preço recorrente e data estimada; o navegador não define o valor cobrado.
+2. **Contrato e pagador:** `/checkout` busca o contrato vigente, versão e hash. O usuário precisa aceitar essa versão e informar nome, e-mail verificado da conta e CPF válido. A API valida os dados, grava a prova do aceite (texto/hash, IP, navegador e data) e armazena o CPF criptografado.
+3. **Criação do Pix:** `POST /v1/payments/create` cria uma cobrança `INITIAL` no estado `PENDING`, registra uma chave de idempotência e solicita ao Asaas o QR Code e o código copia e cola. Repetir a chamada com a mesma `Idempotency-Key` recupera a mesma cobrança, sem criar outra.
+4. **Confirmação:** o Asaas envia eventos para `/v1/payments/webhook`. Para considerar pago, a API consulta o pagamento diretamente no Asaas e confere estado liquidado, valor, cliente e referência externa. A transição para `PAID` é atômica e idempotente. Enquanto o webhook não chega, consultar `/v1/payments/:id` também sincroniza o estado como contingência.
+5. **Ativação:** após a confirmação do pagamento inicial, o Flance envia um código de 6 dígitos ao e-mail. Ele expira em 30 minutos, permite até 5 tentativas e pode ser reenviado respeitando o limite e intervalo informados pela API. O usuário o informa na tela `/checkout?step=code`, que chama `POST /v1/subscriptions/activate`. Só então o plano é ativado.
+6. **Renovação:** ao ativar, a API agenda no Asaas a assinatura mensal com Pix. O ciclo começa na ativação; o vencimento mensal usa o mesmo dia (limitado ao dia 28 quando necessário). As mensalidades são cobranças Pix individuais: o usuário precisa pagá-las. `PAYMENT_CREATED` registra a fatura `RECURRING` pendente; `PAYMENT_RECEIVED`/`PAYMENT_CONFIRMED` confirma o recebimento e prorroga o acesso sem pedir outro código.
+7. **Acompanhamento:** em `/assinatura`, o usuário vê plano, vencimento e Pix em aberto, pode pedir uma renovação manual, cancelar ou reativar a renovação. Cancelar interrompe cobranças futuras, mas mantém o acesso até o fim do período pago. Para pagamentos em atraso há tolerância de 3 dias; depois dela o plano volta ao FREE e a recorrência é cancelada.
+
+O CPF não é devolvido ao navegador depois de salvo. A variável `ASAAS_CPF_ENCRYPTION_KEY` precisa ser mantida estável para que o servidor possa descriptografar o dado quando necessário. Trocar a chave sem migrar os CPFs já salvos impedirá a leitura desses registros.
+
 ## Como funciona
 
 1. **Contrato:** no checkout o usuário lê e aceita o contrato (`GET /v1/contracts/subscription`).

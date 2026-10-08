@@ -8,6 +8,7 @@ export interface JwtUserPayload {
   name?: string;
   avatarUrl?: string;
   id?: string;
+  userId?: string;
 }
 
 export const CurrentUser = createParamDecorator(

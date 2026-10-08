@@ -4,7 +4,6 @@ import {
   Get,
   Post,
   UseGuards,
-  UsePipes,
 } from "@nestjs/common";
 import { CurrentUser, type JwtUserPayload } from "../../common/decorators/current-user.decorator";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
@@ -38,10 +37,9 @@ export class SubscriptionsController {
    */
   @Post("activate")
   @UseGuards(JwtAuthGuard)
-  @UsePipes(new ZodValidationPipe(activateSubscriptionSchema))
   async activateSubscription(
     @CurrentUser() user: JwtUserPayload,
-    @Body() input: ActivateSubscriptionInput,
+    @Body(new ZodValidationPipe(activateSubscriptionSchema)) input: ActivateSubscriptionInput,
   ) {
     const data = await this.subscriptionsService.activateSubscription(user.sub, input);
     return { success: true, data, timestamp: new Date().toISOString() };
@@ -53,10 +51,9 @@ export class SubscriptionsController {
    */
   @Post("renew")
   @UseGuards(JwtAuthGuard)
-  @UsePipes(new ZodValidationPipe(renewSubscriptionSchema))
   async renewSubscription(
     @CurrentUser() user: JwtUserPayload,
-    @Body() input: RenewSubscriptionInput,
+    @Body(new ZodValidationPipe(renewSubscriptionSchema)) input: RenewSubscriptionInput,
   ) {
     const data = await this.subscriptionsService.renewSubscription(user.sub, input);
     return { success: true, data, timestamp: new Date().toISOString() };

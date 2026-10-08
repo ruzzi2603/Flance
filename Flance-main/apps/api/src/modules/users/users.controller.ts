@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, UseGuards, UsePipes, UnauthorizedException, Query, Param, NotFoundException } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, UseGuards, Query, Param, NotFoundException } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CurrentUser, type JwtUserPayload } from "../../common/decorators/current-user.decorator";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
@@ -127,14 +127,11 @@ export class UsersController {
 
   @Patch("me")
   @UseGuards(JwtAuthGuard)
-  @UsePipes(new ZodValidationPipe(updateProfileSchema))
   async updateProfile(
     @CurrentUser() user: JwtUserPayload,
-    @Body() body: UpdateProfileInput,
+    @Body(new ZodValidationPipe(updateProfileSchema)) body: UpdateProfileInput,
   ) {
-    const userId = user.sub || user.id;
-    if (!userId) throw new UnauthorizedException("Sessão inválida. Entre novamente.");
-    const updated = await this.usersService.updateProfile(userId, body);
+    const updated = await this.usersService.updateProfile(user.sub, body);
     return { success: true, data: updated, timestamp: new Date().toISOString() };
   }
 }

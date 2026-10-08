@@ -123,7 +123,7 @@ async function bootstrap() {
     origin: env.CORS_ORIGIN,
     credentials: true, // Permitir cookies em requisições cross-origin
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Correlation-Id"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Correlation-Id", "Idempotency-Key"],
     maxAge: 3600, // 1 hora - preflight cache
   });
 

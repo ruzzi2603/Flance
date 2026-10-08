@@ -67,10 +67,12 @@ function CheckoutInner() {
   const [quote, setQuote] = useState<PaymentQuote | null>(null);
   const [contract, setContract] = useState<SubscriptionContract | null>(null);
   const [contractError, setContractError] = useState(false);
+  const [isContractOpen, setIsContractOpen] = useState(false);
   const [accepted, setAccepted] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const activationEmail = me?.email || email;
   const [cpf, setCpf] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -345,7 +347,7 @@ function CheckoutInner() {
             </ol>
           ) : null}
 
-          <div className="card mt-6" aria-live="polite">
+          <div className="card checkout-card mt-6" aria-live="polite">
             {fatalError ? (
               <div>
                 <div className={alertClass}>{fatalError}</div>
@@ -362,36 +364,36 @@ function CheckoutInner() {
             ) : null}
 
             {!fatalError && step === "form" && planKey ? (
-              <form onSubmit={handleCreatePayment} className="grid gap-4" noValidate>
+              <form onSubmit={handleCreatePayment} className="checkout-form grid gap-5" noValidate>
                 {contractError ? <div className={alertClass}>{t("checkout.contract.loadError")}</div> : null}
 
                 {quote ? (
-                  <div className="rounded-xl bg-[#1f2232] px-4 py-3 text-sm text-slate-300">
-                    <p className="font-semibold text-white">{t("checkout.plan", { plan: quote.planName })}</p>
-                    <p className="mt-2">
+                  <div className="checkout-summary">
+                    <p className="checkout-summary-title">{t("checkout.plan", { plan: quote.planName })}</p>
+                    <p className="checkout-summary-price">
                       {t("checkout.quote.today")}:{" "}
-                      <strong className="text-lg text-white">{formatCurrency(quote.initialAmount, "BRL")}</strong>
+                      <strong>{formatCurrency(quote.initialAmount, "BRL")}</strong>
                     </p>
-                    <p>{t("checkout.quote.covers", { date: fmtDate(quote.firstRenewalDate) })}</p>
+                    <p className="checkout-summary-detail">{t("checkout.quote.covers", { date: fmtDate(quote.firstRenewalDate) })}</p>
                     <p>
                       {t("checkout.quote.then", {
                         value: formatCurrency(quote.recurringAmount, "BRL"),
                         day: quote.billingAnchorDay,
                       })}
                     </p>
-                    <p className="mt-2 text-xs text-slate-400">{t("checkout.quote.pixNote")}</p>
+                    <p className="checkout-summary-note">{t("checkout.quote.pixNote")}</p>
                   </div>
                 ) : null}
 
-                <label className="form-label">
+                <label className="checkout-field">
                   {t("checkout.form.name")}
-                  <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
+                  <input className="checkout-input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
                 </label>
-                <label className="form-label">
+                <label className="checkout-field">
                   {t("checkout.form.email")}
-                  <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+                  <input className="checkout-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
                 </label>
-                <label className="form-label">
+                <label className="checkout-field">
                   {t("checkout.form.cpf")}
                   <input
                     className="input"
@@ -402,40 +404,44 @@ function CheckoutInner() {
                     autoComplete="off"
                     required
                   />
-                  <span className="text-xs font-normal text-slate-400">{t("checkout.form.cpfHint")}</span>
+                  <span className="checkout-hint">{t("checkout.form.cpfHint")}</span>
                 </label>
 
                 {contract ? (
-                  <div>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="font-semibold text-white">{t("checkout.contract.title")}</span>
-                      <a className="text-xs text-sky-400 underline" href="/contrato" target="_blank" rel="noopener noreferrer">
-                        {t("checkout.contract.open")}
-                      </a>
-                    </div>
-                    <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-600 bg-[#0f1017] p-4 text-xs leading-relaxed text-slate-300" tabIndex={0}>
-                      {contract.sections.map((section) => (
-                        <section key={section.id} className="mb-3">
-                          <h3 className="font-semibold text-white">{section.title}</h3>
-                          {section.paragraphs.map((paragraph, index) => (
-                            <p key={index} className="mt-1">
-                              {paragraph}
-                            </p>
+                  <div className="checkout-contract-area">
+                    <button
+                      className="checkout-contract-toggle"
+                      type="button"
+                      aria-expanded={isContractOpen}
+                      aria-controls="subscription-contract-card"
+                      onClick={() => setIsContractOpen((open) => !open)}
+                    >
+                      <span>{isContractOpen ? t("checkout.contract.hide") : t("checkout.contract.show")}</span>
+                      <span className="checkout-contract-chevron" aria-hidden="true">{isContractOpen ? "-" : "+"}</span>
+                    </button>
+                    {isContractOpen ? (
+                      <div className="checkout-contract-card" id="subscription-contract-card">
+                        <div className="checkout-contract-heading">
+                          <span>{t("checkout.contract.title")}</span>
+                          <a href="/contrato" target="_blank" rel="noopener noreferrer">{t("checkout.contract.open")}</a>
+                        </div>
+                        <div className="checkout-contract" tabIndex={0}>
+                          {contract.sections.map((section) => (
+                            <section key={section.id} className="mb-3">
+                              <h3>{section.title}</h3>
+                              {section.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+                            </section>
                           ))}
-                        </section>
-                      ))}
-                    </div>
-                    <p className="mt-2 text-xs text-slate-400">
-                      <a className="text-sky-400 underline" href="/pagamentos" target="_blank" rel="noopener noreferrer">
-                        {t("checkout.legal.payments")}
-                      </a>
+                        </div>
+                      </div>
+                    ) : null}
+                    <p className="checkout-legal-links">
+                      <a href="/pagamentos" target="_blank" rel="noopener noreferrer">{t("checkout.legal.payments")}</a>
                       {" · "}
-                      <a className="text-sky-400 underline" href="/privacidade" target="_blank" rel="noopener noreferrer">
-                        {t("checkout.legal.privacy")}
-                      </a>
+                      <a href="/privacidade" target="_blank" rel="noopener noreferrer">{t("checkout.legal.privacy")}</a>
                     </p>
-                    <label className="mt-3 flex items-start gap-2 text-sm text-slate-200">
-                      <input type="checkbox" className="mt-1 h-4 w-4" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} />
+                    <label className="checkout-accept">
+                      <input type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} />
                       <span>{t("checkout.contract.accept", { version: contract.version })}</span>
                     </label>
                   </div>
@@ -447,41 +453,41 @@ function CheckoutInner() {
                   </div>
                 ) : null}
 
-                <button className="btn-primary" type="submit" disabled={isCreating || !contract || !accepted}>
+                <button className="btn-primary checkout-submit" type="submit" disabled={isCreating || !contract || !accepted}>
                   {isCreating ? t("checkout.form.submitting") : t("checkout.form.submit")}
                 </button>
               </form>
             ) : null}
 
             {!fatalError && step === "pix" && payment ? (
-              <div className="grid gap-4">
+              <div className="checkout-stage grid gap-4">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">{t("checkout.pix.title")}</h2>
-                  <p className="mt-1 text-sm text-slate-300">{t("checkout.pix.instructions")}</p>
+                  <h2 className="checkout-stage-title">{t("checkout.pix.title")}</h2>
+                  <p className="checkout-stage-copy">{t("checkout.pix.instructions")}</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-semibold text-white">{formatCurrency(payment.amount, "BRL")}</p>
+                  <p className="checkout-stage-amount">{formatCurrency(payment.amount, "BRL")}</p>
                   {isRecurring && payment.dueDate ? (
-                    <p className="text-sm text-slate-300">{t("checkout.pix.due", { date: fmtDate(payment.dueDate) })}</p>
+                    <p className="checkout-stage-copy">{t("checkout.pix.due", { date: fmtDate(payment.dueDate) })}</p>
                   ) : null}
                 </div>
 
                 {payment.pixQrCode ? (
-                  <div className="mx-auto rounded-2xl bg-white p-3">
+                  <div className="checkout-qr mx-auto">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img className="h-56 w-56" src={`data:image/png;base64,${payment.pixQrCode}`} alt={t("checkout.pix.qrAlt")} />
                   </div>
                 ) : null}
 
-                <label className="form-label">
+                <label className="checkout-field">
                   {t("checkout.pix.copyLabel")}
-                  <textarea className="input font-mono text-xs" rows={4} readOnly value={payment.pixCopyPaste} onFocus={(e) => e.currentTarget.select()} />
+                  <textarea className="checkout-input checkout-pix-code font-mono text-xs" rows={4} readOnly value={payment.pixCopyPaste} onFocus={(e) => e.currentTarget.select()} />
                 </label>
                 <button className="btn-outline" type="button" onClick={handleCopyPix}>
                   {copyState === "copied" ? t("checkout.pix.copied") : copyState === "error" ? t("checkout.pix.copyError") : t("checkout.pix.copy")}
                 </button>
 
-                <p className="flex items-center gap-2 text-sm text-slate-300">
+                <p className="checkout-stage-copy flex items-center gap-2">
                   <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-amber-400" />
                   {t("checkout.pix.waiting")}
                 </p>
@@ -489,9 +495,9 @@ function CheckoutInner() {
             ) : null}
 
             {!fatalError && step === "expired" ? (
-              <div className="grid gap-3">
-                <h2 className="text-lg font-semibold text-white">{t("checkout.expired.title")}</h2>
-                <p className="text-sm text-slate-300">{t("checkout.expired.desc")}</p>
+              <div className="checkout-stage grid gap-3">
+                <h2 className="checkout-stage-title">{t("checkout.expired.title")}</h2>
+                <p className="checkout-stage-copy">{t("checkout.expired.desc")}</p>
                 <button className="btn-primary" type="button" onClick={handleRetryAfterExpired}>
                   {t("checkout.expired.retry")}
                 </button>
@@ -499,16 +505,17 @@ function CheckoutInner() {
             ) : null}
 
             {!fatalError && step === "code" ? (
-              <form onSubmit={handleActivate} className="grid gap-4" noValidate>
-                <div className={okClass}>{t("checkout.pix.paid")}</div>
+              <form onSubmit={handleActivate} className="checkout-form grid gap-5" noValidate>
+                <div className={okClass}>{t("checkout.pix.paid", { email: activationEmail })}</div>
                 <div>
-                  <h2 className="text-lg font-semibold text-white">{t("checkout.code.title")}</h2>
-                  <p className="mt-1 text-sm text-slate-300">{t("checkout.code.desc")}</p>
+                  <h2 className="checkout-stage-title">{t("checkout.code.title")}</h2>
+                  <p className="checkout-stage-copy">{t("checkout.code.desc", { email: activationEmail })}</p>
+                  <div className="checkout-code-email">{activationEmail}</div>
                 </div>
-                <label className="form-label">
+                <label className="checkout-field">
                   {t("checkout.code.label")}
                   <input
-                    className="input text-center font-mono text-2xl tracking-[0.5em]"
+                    className="checkout-input text-center font-mono text-2xl tracking-[0.5em]"
                     inputMode="numeric"
                     autoComplete="one-time-code"
                     maxLength={6}
@@ -533,10 +540,10 @@ function CheckoutInner() {
             ) : null}
 
             {!fatalError && (step === "done" || step === "renewed") ? (
-              <div className="grid gap-2 text-center">
+              <div className="checkout-stage checkout-complete grid gap-2 text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-2xl text-white">✓</div>
-                <h2 className="text-lg font-semibold text-white">{step === "done" ? t("checkout.done.title") : t("checkout.renewed.title")}</h2>
-                <p className="text-sm text-slate-300">
+                <h2 className="checkout-stage-title">{step === "done" ? t("checkout.done.title") : t("checkout.renewed.title")}</h2>
+                <p className="checkout-stage-copy">
                   {step === "done" ? t("checkout.done.desc") : t("checkout.renewed.desc")}
                 </p>
               </div>

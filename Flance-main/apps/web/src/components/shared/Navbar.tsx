@@ -27,20 +27,36 @@ export function Navbar() {
   const [isHidden, setIsHidden] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuMode, setIsMobileMenuMode] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
   async function handleLogout() {
-    if (!user || !window.confirm(t("nav.logoutConfirm"))) return;
+    if (!user || isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
       await logout();
+    } catch {
+      // Clear the local session even if the server-side logout request fails.
     } finally {
       setUser(null);
       queryClient.removeQueries({ queryKey: ["auth", "me"] });
       router.push("/login");
+      setIsLogoutConfirmOpen(false);
+      setIsLoggingOut(false);
     }
   }
+
+  useEffect(() => {
+    if (!isLogoutConfirmOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isLoggingOut) setIsLogoutConfirmOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isLogoutConfirmOpen, isLoggingOut]);
 
   const avatarValue = user?.avatarUrl || "avatar-sky";
   const avatarIsImage = avatarValue.startsWith("data:") || avatarValue.startsWith("http");
@@ -179,6 +195,7 @@ export function Navbar() {
   }, [isMobileMenuMode]);
 
   return (
+    <>
     <header className={`nav-root ${isHidden ? "nav-root-hidden" : ""}`}>
       <div className={`nav-overlay ${isMenuOpen ? "nav-overlay-open" : ""}`} />
       <nav className="nav-shell">
@@ -253,7 +270,7 @@ export function Navbar() {
                   <span className={`nav-avatar ${avatarValue}`}>{initials}</span>
                 )}
               </Link>
-              <button type="button" onClick={handleLogout} className="nav-logout">
+              <button type="button" onClick={() => setIsLogoutConfirmOpen(true)} className="nav-logout">
                 {t("nav.logout")}
               </button>
             </>
@@ -275,5 +292,29 @@ export function Navbar() {
         </div>
       </nav>
     </header>
+    {isLogoutConfirmOpen ? (
+      <div
+        className="logout-dialog-backdrop"
+        role="presentation"
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget && !isLoggingOut) setIsLogoutConfirmOpen(false);
+        }}
+      >
+        <section className="logout-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-description">
+          <div className="logout-dialog-icon" aria-hidden="true">↪</div>
+          <h2 id="logout-dialog-title">{t("nav.logoutTitle")}</h2>
+          <p id="logout-dialog-description">{t("nav.logoutConfirm")}</p>
+          <div className="logout-dialog-actions">
+            <button type="button" className="logout-dialog-cancel" autoFocus disabled={isLoggingOut} onClick={() => setIsLogoutConfirmOpen(false)}>
+              {t("nav.logoutCancel")}
+            </button>
+            <button type="button" className="logout-dialog-confirm" disabled={isLoggingOut} onClick={() => void handleLogout()}>
+              {isLoggingOut ? t("nav.logoutPending") : t("nav.logoutAction")}
+            </button>
+          </div>
+        </section>
+      </div>
+    ) : null}
+    </>
   );
 }

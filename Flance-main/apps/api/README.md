@@ -94,5 +94,5 @@ Swagger nao esta habilitado ainda. Consulte o README raiz para payloads e exempl
 - `src/modules/jobs/`: criacao e consulta de jobs.
 - `src/modules/proposals/`: envio, listagem, aceite/recusa e cancelamento.
 - `src/modules/chat/`: conversas, mensagens e realtime (Socket.IO).
-- `src/modules/payments/`: integracao de pagamentos (escrow/Stripe).
+- `src/modules/payments/`: cobrança Pix pelo Asaas, webhooks, ativação por código e gestão de assinaturas mensais. Consulte o [guia de pagamentos](./src/modules/payments/README.md) para o fluxo, configuração e endpoints.
 - `src/modules/ai/`: matching por IA (stub/base).

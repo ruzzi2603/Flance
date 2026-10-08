@@ -9,6 +9,14 @@ Plataforma para encontrar empresas e profissionais, publicar serviços, conversa
 - Conversas, propostas e recursos administrativos.
 - Planos e pagamentos via Asaas, com suporte a Pix e webhooks.
 
+## Gestão de pagamentos e assinaturas
+
+Os planos pagos são cobrados via Pix pelo Asaas. A escolha do plano no perfil apenas inicia o checkout; o plano só fica ativo depois de o Pix ser confirmado e o usuário informar o código de ativação enviado ao e-mail. O preço é calculado pela API, e o formulário apresenta o valor e as regras de renovação antes do aceite do contrato.
+
+O fluxo é: escolher um plano pago → revisar e aceitar o contrato → informar nome, e-mail verificado e CPF → gerar o Pix → aguardar a confirmação do Asaas → informar o código de ativação → usar o plano. Depois da ativação, o Asaas cria a assinatura mensal em Pix. Cada mensalidade precisa ser paga pelo usuário; o webhook atualiza o Flance e a página **Minha assinatura** permite consultar vencimentos, pagar uma mensalidade, cancelar ou reativar a renovação.
+
+Em desenvolvimento, use o Sandbox do Asaas e configure o webhook para `https://<endereço-ngrok>/v1/payments/webhook`, com o mesmo token definido em `ASAAS_WEBHOOK_TOKEN`. Mantenha a API e o ngrok ativos durante os testes. A integração detalhada, endpoints, eventos, regras de cobrança e configuração estão no [guia de pagamentos](./apps/api/src/modules/payments/README.md).
+
 > A cobrança real depende das credenciais de produção e da configuração do Asaas. Para desenvolvimento, use as credenciais e o endereço do Sandbox.
 
 ## Tecnologias
@@ -113,6 +121,7 @@ packages/
 ## Documentação adicional
 
 - [Guia de API](./apps/api/README.md)
+- [Gestão de pagamentos e assinaturas](./apps/api/src/modules/payments/README.md)
 - [Guia do frontend](./apps/web/README.md)
 - [Setup de Docker](./docker/SETUP_GUIDE.md)
 - [Documentação geral](./DOCUMENTATION.md)

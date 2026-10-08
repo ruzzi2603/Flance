@@ -8,7 +8,6 @@ import {
   Query,
   Req,
   UseGuards,
-  UsePipes,
 } from "@nestjs/common";
 import { CurrentUser, type JwtUserPayload } from "../../common/decorators/current-user.decorator";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
@@ -54,11 +53,10 @@ export class PaymentsController {
    */
   @Post("create")
   @UseGuards(JwtAuthGuard)
-  @UsePipes(new ZodValidationPipe(createPaymentSchema))
   async createPayment(
     @CurrentUser() user: JwtUserPayload,
     @Headers("idempotency-key") idempotencyKey: string | undefined,
-    @Body() input: CreatePaymentInput,
+    @Body(new ZodValidationPipe(createPaymentSchema)) input: CreatePaymentInput,
     @Req() req: any,
   ) {
     // req.ip já considera o "trust proxy" configurado no main.ts. Ler X-Forwarded-For direto

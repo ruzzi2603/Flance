@@ -150,7 +150,12 @@ function ProfilePageInner() {
       setName(user.name || "");
       setAvatarUrl(user.avatarUrl || "avatar-sky");
       setBio(user.bio || "");
-      setSelectedPlan(user.planTier || null);
+      // A plan in the URL is the user's current choice. The API keeps paid
+      // plans inactive until payment succeeds, so its FREE response must not
+      // overwrite that pending choice after saving company details.
+      if (!searchParams.get("plan")) {
+        setSelectedPlan(user.planTier || null);
+      }
       setCompanyEnabled(Boolean(user.companyEnabled));
       setCompanyName(user.companyName || "");
       setCompanyCnpj(user.companyCnpj || "");
@@ -168,7 +173,7 @@ function ProfilePageInner() {
       setCompanyIsPhysical(user.companyIsPhysical ?? false);
       setCompanyPhotos(user.companyPhotos || []);
     }
-  }, [user]);
+  }, [user, searchParams]);
 
   useEffect(() => {
     const planFromUrl = searchParams.get("plan");
@@ -327,21 +332,22 @@ function ProfilePageInner() {
         {showPaymentScreen ? (
           <div className="payment-overlay">
             <div className="payment-card">
-              <h2 className="heading-lg">{t("profile.company.paymentTitle")}</h2>
-              <p className="mt-2 text-muted">
+              <div className="payment-card-icon" aria-hidden="true">✓</div>
+              <h2 className="payment-card-title">{t("profile.company.paymentTitle")}</h2>
+              <p className="payment-plan">
                 {t("profile.company.paymentSelected", {
                   plan: plans.find((plan) => plan.id === selectedPlan)?.label || "",
                 })}
               </p>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="payment-value">
                 {t("profile.company.paymentValue", {
                   value: formatCurrency(plans.find((plan) => plan.id === selectedPlan)?.price ?? 0),
                 })}
               </p>
-              <p className="mt-4 text-sm text-slate-600">
+              <p className="payment-note">
                 {t("profile.company.paymentNote")}
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="payment-actions">
                 <button
                   className="btn-outline"
                   type="button"

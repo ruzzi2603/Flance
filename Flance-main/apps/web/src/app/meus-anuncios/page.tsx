@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCompany } from "../../services/companies";
+import { updateProfile } from "../../services/users";
 import { useAuth } from "../../hooks/useAuth";
 import { useI18n } from "../../i18n/useI18n";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function MyAdsPage() {
   const { user, isLoading } = useAuth();
   const { t } = useI18n();
+  const queryClient = useQueryClient();
+  const { setUser } = useAuthStore();
   const companyQuery = useQuery({
     queryKey: ["my-company-ad", user?.id],
     queryFn: () => getCompany(user!.id),
@@ -19,6 +23,17 @@ export default function MyAdsPage() {
 
   const isMissingAd = axios.isAxiosError(companyQuery.error) && companyQuery.error.response?.status === 404;
   const hasAd = Boolean(companyQuery.data);
+  const deleteAdMutation = useMutation({
+    mutationFn: () => updateProfile({ companyEnabled: false }),
+    onSuccess: (updated) => {
+      setUser(updated);
+      void queryClient.invalidateQueries({ queryKey: ["my-company-ad", updated.id] });
+    },
+  });
+
+  function handleDeleteAd() {
+    if (window.confirm(t("myAds.deleteConfirm"))) deleteAdMutation.mutate();
+  }
 
   return (
     <main className="page-shell">
@@ -82,7 +97,14 @@ export default function MyAdsPage() {
               <div className="my-ad-actions">
                 <Link className="btn-primary" href={`/empresas/${companyQuery.data.id}`}>{t("myAds.viewAd")}</Link>
                 <Link className="btn-outline" href="/profile?edit=company">{t("myAds.editAd")}</Link>
+                <button className="btn-danger" type="button" onClick={handleDeleteAd} disabled={deleteAdMutation.isPending}>
+                  {deleteAdMutation.isPending ? t("myAds.deleting") : t("myAds.delete")}
+                </button>
+                {user.planTier && user.planTier !== "FREE" ? (
+                  <Link className="btn-outline" href="/assinatura">{t("myAds.managePlan")}</Link>
+                ) : null}
               </div>
+              {deleteAdMutation.isError ? <p className="my-ad-delete-error" role="alert">{t("myAds.deleteError")}</p> : null}
             </div>
           </article>
         ) : companyQuery.isError && !isMissingAd ? (
