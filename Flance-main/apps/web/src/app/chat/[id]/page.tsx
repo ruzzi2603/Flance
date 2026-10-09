@@ -383,13 +383,13 @@ export default function ChatPage() {
                       : "chat-message chat-message-other chat-message-left"
                   }`}
                 >
-                  <p id="chatmsg-sender" className={`text-xs font-semibold ${item.senderId === user?.id ? "text-white" : "text-white"}`}>
+                  <p className="chat-message-sender text-xs font-semibold">
                     {item.senderId === user?.id
                       ? t("chat.you")
                       : participantNames[item.senderId] ?? t("chat.other")}
                   </p>
                   <p id="chatmsg-timestamp" className="whitespace-pre-line">{item.body}</p>
-                  <p id="chatmsg-timestamp" className={`mt-2 text-xs ${item.senderId === user?.id ? "text-white" : "text-white"}`}>
+                  <p className="chat-message-timestamp mt-2 text-xs">
                     {new Date(item.createdAt).toLocaleString()}
                   </p>
                 </div>
