@@ -140,7 +140,7 @@ export class AdminService {
       target.id,
       `A equipe Flance ${active ? "reativou" : "removeu"} seu anuncio \"${target.companyName}\".\n\nMotivo: ${reason}`,
     );
-    await this.sendNotice({
+    const emailStatus = await this.sendNotice({
       email: target.email,
       name: target.name,
       subject: active ? "Seu anuncio foi reativado na Flance" : "Seu anuncio foi removido da Flance",
@@ -148,8 +148,8 @@ export class AdminService {
       reason,
       itemLabel: `Anuncio: ${target.companyName}`,
     });
-    await this.updateNotificationStatus(audit.id, "SENT");
-    return { active, notificationStatus: "SENT" as const };
+    await this.updateNotificationStatus(audit.id, emailStatus);
+    return { active, notificationStatus: emailStatus };
   }
 
   async alertUser(adminId: string, targetId: string, reason: string) {
@@ -173,10 +173,9 @@ export class AdminService {
       action: "recebeu um aviso da equipe de administracao",
       reason,
     });
-    // A mensagem já foi gravada no chat; o status geral representa a entrega da notificação.
-    const notificationStatus = "SENT" as const;
+    const notificationStatus = emailStatus;
     await this.updateNotificationStatus(audit.id, notificationStatus);
-    return { notified: true, notificationStatus, emailStatus };
+    return { notified: notificationStatus === "SENT", notificationStatus };
   }
 
   async banUser(adminId: string, targetId: string, reason: string) {
@@ -211,8 +210,8 @@ export class AdminService {
       action: "suspensa",
       reason,
     });
-    await this.updateNotificationStatus(audit.id, "SENT");
-    return { banned: true, notificationStatus: "SENT" as const, emailStatus };
+    await this.updateNotificationStatus(audit.id, emailStatus);
+    return { banned: true, notificationStatus: emailStatus };
   }
 
   async unbanUser(adminId: string, targetId: string, reason: string) {
@@ -243,8 +242,8 @@ export class AdminService {
       action: "reativada",
       reason,
     });
-    await this.updateNotificationStatus(audit.id, "SENT");
-    return { banned: false, notificationStatus: "SENT" as const, emailStatus };
+    await this.updateNotificationStatus(audit.id, emailStatus);
+    return { banned: false, notificationStatus: emailStatus };
   }
 
   async deleteUser(adminId: string, targetId: string, reason: string) {
@@ -359,7 +358,7 @@ export class AdminService {
     const itemLabel = input.itemLabel ? `${input.itemLabel}\n` : "";
     try {
       await transporter.sendMail({
-        from,
+        from: { name: "Flance", address: from },
         to: input.email,
         subject: input.subject,
         text: `Ola, ${input.name}.\n\nSua conta/anuncio foi ${input.action}.\n${itemLabel}\nMotivo informado: ${input.reason}\n\nSe precisar de esclarecimentos, responda a este email ou entre em contato com o suporte Flance.`,
