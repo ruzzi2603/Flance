@@ -215,25 +215,14 @@ export default function ChatPage() {
     <main className="page-shell">
       
       <section className="section-shell">
-      <div id="porranenhuma">
-      {/* Botão para abrir/fechar no mobile */}
-      <button id="btnn"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="p-2 m-2 bg-red-500 text-white rounded 2xl:hidden"
-      >
-        {sidebarOpen ? "Fechar" : "Abrir"}
-      </button>
+     
+     
+   
 
-      {/* Overlay escuro no mobile */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black bg-opacity-50 md:hidden"
-        />
-      )}
+    
 
       {/* Barra lateral */}
-      <div id="aside"
+      <div 
         className={`fixed top-0 left-0 h-full w-64 bg-transparent border-r p-4 transform transition-transform duration-300 
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
           2xl:translate-x-0 2xl:static`}
@@ -386,7 +375,7 @@ export default function ChatPage() {
           ) : (
             <div className="chat-thread" >
               {sortedMessages.map((item) => (
-                <div 
+                <div  id="chatmsg"
                   key={item.id}
                   className={`rounded-2xl px-4 py-3 text-sm ${
                     item.senderId === user?.id
@@ -394,13 +383,13 @@ export default function ChatPage() {
                       : "chat-message chat-message-other chat-message-left"
                   }`}
                 >
-                  <p  className={`text-xs font-semibold ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
+                  <p id="chatmsg-sender" className={`text-xs font-semibold ${item.senderId === user?.id ? "text-white" : "text-white"}`}>
                     {item.senderId === user?.id
                       ? t("chat.you")
                       : participantNames[item.senderId] ?? t("chat.other")}
                   </p>
-                  <p  className="whitespace-pre-line">{item.body}</p>
-                  <p  className={`mt-2 text-xs ${item.senderId === user?.id ? "text-white" : "text-slate-900"}`}>
+                  <p id="chatmsg-timestamp" className="whitespace-pre-line">{item.body}</p>
+                  <p id="chatmsg-timestamp" className={`mt-2 text-xs ${item.senderId === user?.id ? "text-white" : "text-white"}`}>
                     {new Date(item.createdAt).toLocaleString()}
                   </p>
                 </div>
@@ -421,7 +410,7 @@ export default function ChatPage() {
               {sendMutation.isPending ? t("chat.sending") : t("chat.send")}
             </button>
           </form>
-        </div>
+       
         </div>
       </section>
     </main>

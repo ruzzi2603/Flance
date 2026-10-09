@@ -69,7 +69,7 @@ Execute os comandos a partir da raiz do repositório.
 4. Inicie o site e a API:
 
    ```powershell
-   npm run dev
+   npm run dev / npm run dev --workspace @flance/web / npm run dev --workspace @flance/api / ngrok http 3001
    ```
 
    O frontend fica em `http://localhost:3000` e a API em `http://localhost:3001`.

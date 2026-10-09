@@ -8,6 +8,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { useI18n } from "../../i18n/useI18n";
 import { companyProfileSchema } from "../../services/schemas";
 import { getApiErrorDetails } from "../../services/form-errors";
+import { PlanCards, buildPlanOptions } from "../../components/plans/PlanCards";
 
 function ProfilePageInner() {
   const router = useRouter();
@@ -17,11 +18,7 @@ function ProfilePageInner() {
   const { t, formatCurrency } = useI18n();
 
   const plans = useMemo(
-    () => [
-      { id: "FREE", label: t("plans.free.title"), price: 0, limit: 1 },
-      { id: "PROFESSIONAL", label: t("plans.professional.title"), price: 29.99, limit: 5 },
-      { id: "PROFESSIONAL_PLUS", label: t("plans.professionalPlus.title"), price: 39.99, limit: 15 },
-    ],
+    () => buildPlanOptions(t),
     [t],
   );
 
@@ -336,7 +333,7 @@ function ProfilePageInner() {
               <h2 className="payment-card-title">{t("profile.company.paymentTitle")}</h2>
               <p className="payment-plan">
                 {t("profile.company.paymentSelected", {
-                  plan: plans.find((plan) => plan.id === selectedPlan)?.label || "",
+                  plan: plans.find((plan) => plan.id === selectedPlan)?.name || "",
                 })}
               </p>
               <p className="payment-value">
@@ -449,57 +446,8 @@ function ProfilePageInner() {
           <h2 className="heading-lg">{t("profile.company.sectionTitle")}</h2>
           <p className="mt-2 text-muted">{t("profile.company.sectionSubtitle")}</p>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {plans.map((plan) => (
-              <button
-                key={plan.id}
-                type="button"
-                className="plan-card-button"
-                onClick={() => setSelectedPlan(plan.id)}
-              >
-                <div className={`card-container ${selectedPlan === plan.id ? "is-active" : ""}`}>
-                  <div className="title-card">
-                    <p>{plan.label}</p>
-                    <span>{formatCurrency(plan.price)}</span>
-                  </div>
-                  <div className="card-content">
-                    <div className="title">{t("profile.company.planLimit", { limit: plan.limit })}</div>
-                    <div className="plain">
-                      <p>{formatCurrency(plan.price)}</p>
-                      <p>{t("plans.period")}</p>
-                    </div>
-                    <div className="card-separate">
-                      <span>{t("profile.company.planLabel")}</span>
-                      <span className="separate" />
-                    </div>
-                    <div className="card-list-features">
-                      {plan.id === "FREE" && (
-                        <>
-                          <div className="option"><span>-</span><span>{t("plans.free.feature1")}</span></div>
-                          <div className="option"><span>-</span><span>{t("plans.free.feature2")}</span></div>
-                          <div className="option"><span>-</span><span>{t("plans.free.feature3")}</span></div>
-                        </>
-                      )}
-                      {plan.id === "PROFESSIONAL" && (
-                        <>
-                          <div className="option"><span>-</span><span>{t("plans.professional.feature1")}</span></div>
-                          <div className="option"><span>-</span><span>{t("plans.professional.feature2")}</span></div>
-                          <div className="option"><span>-</span><span>{t("plans.professional.feature3")}</span></div>
-                        </>
-                      )}
-                      {plan.id === "PROFESSIONAL_PLUS" && (
-                        <>
-                          <div className="option"><span>-</span><span>{t("plans.professionalPlus.feature1")}</span></div>
-                          <div className="option"><span>-</span><span>{t("plans.professionalPlus.feature4")}</span></div>
-                          <div className="option"><span>-</span><span>{t("plans.professionalPlus.feature7")}</span></div>
-                        </>
-                      )}
-                    </div>
-                    <span className="card-btn">{t("profile.company.planSelect")}</span>
-                  </div>
-                </div>
-              </button>
-            ))}
+          <div className="mt-6">
+            <PlanCards plans={plans} selectedPlan={selectedPlan} onSelect={(plan) => setSelectedPlan(plan.id)} />
           </div>
 
           <div className="mt-6 grid gap-4">

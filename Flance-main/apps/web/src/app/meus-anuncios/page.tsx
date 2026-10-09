@@ -40,9 +40,9 @@ export default function MyAdsPage() {
       <section className="section-shell my-ads-page">
         <header className="my-ads-header">
           <div>
-            <p className="my-ads-eyebrow">{t("myAds.eyebrow")}</p>
-            <h1 className="heading-xl">{t("myAds.title")}</h1>
-            <p className="mt-2 text-muted">{t("myAds.subtitle")}</p>
+            <p className="my-ads-eyebrow" >{t("myAds.eyebrow")}</p>
+            <h1 className="heading-xl" >{t("myAds.title")}</h1>
+            <p className="mt-2 text-muted"  >{t("myAds.subtitle")}</p>
           </div>
           {hasAd ? <span className="my-ads-count">{t("myAds.activeCount", { count: 1 })}</span> : null}
         </header>
@@ -60,7 +60,7 @@ export default function MyAdsPage() {
             </Link>
           </div>
         ) : companyQuery.data ? (
-          <article className="my-ad-listing mt-6">
+          <article className="my-ad-listing mt-6" id="cardMeuAnuncio">
             <div className="my-ad-image-wrap">
               {companyQuery.data.companyPhotos?.[0] ? (
                 <img src={companyQuery.data.companyPhotos[0]} alt={companyQuery.data.companyName || companyQuery.data.name} />
@@ -72,9 +72,9 @@ export default function MyAdsPage() {
             <div className="my-ad-content">
               <div className="my-ad-title-row">
                 <div>
-                  <p className="my-ads-eyebrow">{t("myAds.listingLabel")}</p>
-                  <h2 className="heading-lg">{companyQuery.data.companyName || companyQuery.data.name}</h2>
-                  {companyQuery.data.companyLocation ? <p className="mt-1 text-sm text-muted">{companyQuery.data.companyLocation}</p> : null}
+                  <p className="my-ads-eyebrow" id="wt">{t("myAds.listingLabel")}</p>
+                  <h2 className="heading-lg" id="wt">{companyQuery.data.companyName || companyQuery.data.name}</h2>
+                  {companyQuery.data.companyLocation ? <p className="mt-1 text-sm text-muted" id="wt">{companyQuery.data.companyLocation}</p> : null}
                 </div>
                 {companyQuery.data.reviewMedal ? (
                   <span
@@ -86,7 +86,7 @@ export default function MyAdsPage() {
                   </span>
                 ) : null}
               </div>
-              <p className="my-ad-description">
+              <p className="my-ad-description" id="wt">
                 {companyQuery.data.companyDescription || companyQuery.data.services || t("myAds.noDescription")}
               </p>
               <div className="my-ad-summary">

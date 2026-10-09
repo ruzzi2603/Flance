@@ -8,9 +8,9 @@
 /* ─── Design Tokens ─────────────────────────────────────────────── */
 :root {
   /* Brand */
-  --red-600:  #FF4103;
-  --red-700:   #c50808;
-  --red-800:   #920000;
+  --red-600:   #0000ff;
+  --red-700:   rgb(12, 37, 161);
+  --red-800:   #0000ff;
   --red-50:    #fff1f1;
   --red-100:   #ffe0e0;
 
@@ -98,13 +98,13 @@ body {
     @apply mx-auto flex w-full max-w-4xl flex-col gap-7 px-6 py-14;
   }
 #nenhumaempresa{
-  color: red;
+  color:  #0000ff;
   background-color: #522323;
   justify-self: center;
   font-size: 20px;
 }
 #nenhumchat{
-   color: red;
+   color:  #0000ff;
   background-color: #00000000;
   justify-self: center;
   font-size: 20px;
@@ -189,13 +189,19 @@ body {
 #pes{
   color: #f7f7f7;
 }
+#chatmsg-timestamp{
+  color: white;
+}
+#chatmsg-sender{
+  color: white;
+}
   .card:hover {
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
   }
  .cardC {
     @apply rounded-2xl   p-6;
-     background: linear-gradient(to top, #ff0000 0%, #880808 40%, #000000 60%,#000000 100%);
+     background: linear-gradient(to top, white 0%, #fbfcfe 40%, #fdfeff 60%,#f8f8f8 100%);
     box-shadow: var(--shadow-sm);
     transition: box-shadow var(--duration) var(--ease-out),
                 transform   var(--duration) var(--ease-out);
@@ -243,6 +249,9 @@ margin-left: 15%;
  }
   #descE{
   color: #ada5a2
+ }
+ #wt{
+  color: white;
  }
   .heading-lg {
   
@@ -316,7 +325,7 @@ margin-left: 15%;
            transition-all duration-200;
     box-shadow: 0 1px 3px rgba(15,31,61,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
     color: rgb(255, 255, 255);
-    background-color: #ff0000;
+    background-color:  #0000ff;
   }
 #cth{
  background-color: rgb(18, 7, 39);
@@ -376,17 +385,17 @@ margin-left: 15%;
            rounded-xl  bg-white px-5 py-2.5
            text-sm font-semibold 
            transition-all duration-200;
-            background-color: #ff0202;
+            background-color:  #0000ff;
             color: #fefefe;
   }
 #chatcd{
-  background-color: #ff0000;
+  background-color:  #0000ff;
   color: white;
   border: none;
   border-radius: 8px;
 }
   .btn-outline:hover {
-    border-color: #ff2f00a8;
+    border-color:  #0000ff;
     background-color: #201b1b;
     color: rgb(234, 226, 226);
   }
@@ -524,7 +533,7 @@ margin-left: 15%;
   }
 
   .hero-highlight {
-    color: #FF4103;
+    color:  #0000ff;
   }
 
   .hero-actions {
@@ -668,7 +677,7 @@ margin-left: 15%;
   }
 
   .cookie-consent-item input {
-    accent-color: #ff4103;
+    accent-color:  #0000ff;
   }
 
   .cookie-consent-item-locked {
@@ -706,7 +715,7 @@ margin-left: 15%;
   /* ── Navbar ── */
   .nav-root {
     @apply sticky top-0 z-50 border-b border-[#c5080832];
-    background-color: #ff0000;
+    background-color:  #0000ff;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
@@ -1001,7 +1010,7 @@ margin-left: 15%;
 
   .my-ads-eyebrow {
     margin-bottom: 6px;
-    color: #0a9187;
+    color: #68c0ff;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -1109,7 +1118,7 @@ margin-left: 15%;
     align-items: center;
     gap: 12px;
     margin-top: 16px;
-    color: #73818a;
+    color: #00ff37;
     font-size: 12px;
   }
 
@@ -1155,7 +1164,16 @@ margin-left: 15%;
     justify-content: space-between;
     gap: 18px;
   }
-
+#company-ad-form{
+  border: thick solid   #0000ff;
+  border-width: 2px;
+ 
+}
+#cardMeuAnuncio{
+  background: #0044ff;
+  color: white;
+  border: none;
+}
   .admin-header {
     border-bottom: 1px solid rgba(132, 150, 160, 0.28);
     padding-bottom: 20px;
@@ -1865,6 +1883,19 @@ background-color: #e60808;
     transition: transform 220ms ease, box-shadow 220ms ease;
   }
 
+  .plan-card-selectable {
+    width: 100%;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .plan-card-selectable:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 4px;
+  }
+
   .plan-card-full:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 36px rgba(0,0,0,0.10);
@@ -1877,6 +1908,16 @@ background-color: #e60808;
 
   .plan-card-highlighted:hover {
     box-shadow: 0 14px 40px rgba(229, 62, 62, 0.25);
+  }
+
+  .plan-card-full.plan-card-selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 8px 28px rgba(37, 99, 235, 0.14);
+  }
+
+  .plan-card-full.plan-card-selected:hover {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 12px 36px rgba(37, 99, 235, 0.2);
   }
 
   .plan-badge {
@@ -2209,7 +2250,7 @@ background-color: #e60808;
 }
   .nav-link-active {
     @apply font-bold;
-       color: #8b0000;
+       color: #8880ff;
    
   }
 
@@ -2462,7 +2503,9 @@ border-width: 2px;
   /* Firefox */
   
 }
-
+#chatmsg{
+  background-color: blue;
+}
 /* Chrome, Safari, Edge */
 .chat-thread::-webkit-scrollbar {
   width: 4px; /* valor final escolhido */
@@ -2478,7 +2521,7 @@ border-width: 2px;
 }
 
 .chat-thread::-webkit-scrollbar-thumb:hover {
-  background: #555; /* se quiser manter o hover mais escuro */
+  background: #f3eeee; /* se quiser manter o hover mais escuro */
 }
   .chat-message {
     @apply w-full rounded-2xl border border-[#e8edf6] px-4 py-3 md:w-1/2;
@@ -2589,7 +2632,7 @@ border-width: 2px;
   height: 100%;
   z-index: 2;
   padding-left: 6px;
-  color:  #ff0000;
+  color:   #0077ff;
   animation: spin_4995 5s infinite;
 }
 
@@ -2641,7 +2684,7 @@ border-width: 2px;
     height: 50px;
     width: 50px;
     background: rgba(0, 0, 0, 0);
-    border: red 3px solid;
+    border:  #0000ff 3px solid;
     border-top: transparent;
     border-radius: 50%;
     animation: animate81323 0.8s linear infinite;
@@ -2885,7 +2928,7 @@ margin-top: 1px;
   border: 2px solid;
   border-color: rgba(249, 246, 246, 0);
   font-size: 16px;
-  background-color: #ff0000;
+  background-color:  #0000ff;
   border-radius: 100px;
   font-weight: 600;
   color: #ffffff;
@@ -2957,7 +3000,7 @@ margin-top: 1px;
 
 .animated-button:active {
   scale: 0.95;
-  box-shadow: 0 0 0 4px #ff0000;
+  box-shadow: 0 0 0 4px  #0000ff;
 }
 
 .animated-button:hover .circle {
@@ -3153,7 +3196,7 @@ html[data-theme="light"] .heading-xl  {
  
 }
  html[data-theme="light"] .nav-root{
-  background-color: #ff0000;
+  background-color:  #0000ff;
   color: #0f172a;
 
 }
@@ -3483,6 +3526,7 @@ html[data-theme="light"] .logout-dialog-cancel:hover:not(:disabled) { background
 
 html[data-theme="dark"] body .checkout-card,
 html[data-theme="dark"] body .checkout-card :is(p, h2, h3, label, span, strong) { color: #182238; }
+html[data-theme="dark"] body .plan-card-full {background: black;}
 html[data-theme="dark"] body .checkout-summary-title,
 html[data-theme="dark"] body .checkout-contract h3,
 html[data-theme="dark"] body .checkout-stage-title { color: #182238; }
@@ -3494,7 +3538,7 @@ html[data-theme="dark"] body .checkout-stage-copy { color: #465570; }
 html[data-theme="dark"] body .checkout-summary-price strong,
 html[data-theme="dark"] body .checkout-stage-amount { color: #1647c8; }
 html[data-theme="dark"] body .checkout-code-email { color: #1e3f9c; }
-
+html[data-theme="dark"] body .plan-price { color: white; }
 @media (max-width: 520px) {
   .checkout-card { padding: 20px; border-radius: 20px; }
   .checkout-contract { max-height: 240px; padding: 13px; }
