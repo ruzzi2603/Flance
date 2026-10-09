@@ -1295,7 +1295,10 @@ margin-left: 15%;
   .admin-status.is-banned { border-color: #f0d2d2; background: #fff5f4; color: #a23d36; }
 
   .admin-row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-  .admin-row-actions button {
+  .admin-row-actions button,
+  .admin-row-actions .admin-row-action-link {
+    display: inline-flex;
+    align-items: center;
     border: 1px solid #d4dfe2;
     border-radius: 5px;
     padding: 6px 8px;
@@ -1304,9 +1307,11 @@ margin-left: 15%;
     cursor: pointer;
     font-size: 10px;
     font-weight: 600;
+    text-decoration: none;
   }
 
-  .admin-row-actions button:hover { border-color: #138a83; color: #087e78; }
+  .admin-row-actions button:hover,
+  .admin-row-actions .admin-row-action-link:hover { border-color: #138a83; color: #087e78; }
   .admin-row-actions button.is-danger { border-color: #eed2d0; color: #a43f38; }
   .admin-row-actions button.is-danger:hover { background: #fff5f4; }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
@@ -187,6 +188,7 @@ export default function AdminPage() {
                     <td>{formatDate(ad.createdAt)}</td>
                     <td><span className={`admin-status ${ad.companyEnabled ? "is-active" : "is-banned"}`}>{ad.companyEnabled ? t("admin.active") : t("admin.removed")}</span></td>
                     <td><div className="admin-row-actions">
+                      {ad.companyEnabled ? <Link className="admin-row-action-link" href={`/empresas/${ad.id}`} target="_blank" rel="noopener noreferrer">{t("admin.analyzeAd")}</Link> : null}
                       <button type="button" onClick={() => openAction({ type: "alert", id: ad.id, label: ad.name })}>{t("admin.alert")}</button>
                       <button className={ad.companyEnabled ? "is-danger" : ""} type="button" onClick={() => openAction({ type: "ad", id: ad.id, label: ad.companyName, active: !ad.companyEnabled })}>{ad.companyEnabled ? t("admin.removeAd") : t("admin.restoreAd")}</button>
                     </div></td>
