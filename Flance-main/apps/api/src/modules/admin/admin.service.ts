@@ -9,12 +9,14 @@ import {
 import { AdminActionType, Prisma, Role } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import { RealtimeService } from "../chat/realtime.service";
 
 @Injectable()
 export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly privacyService: PrivacyService,
+    private readonly realtimeService: RealtimeService,
   ) {}
 
   async listUsers(query: string | undefined, limit: number, offset: number) {
@@ -133,7 +135,12 @@ export class AdminService {
       });
     });
 
-    const notificationStatus = await this.sendNotice({
+    await this.sendChatNotice(
+      adminId,
+      target.id,
+      `A equipe Flance ${active ? "reativou" : "removeu"} seu anuncio \"${target.companyName}\".\n\nMotivo: ${reason}`,
+    );
+    await this.sendNotice({
       email: target.email,
       name: target.name,
       subject: active ? "Seu anuncio foi reativado na Flance" : "Seu anuncio foi removido da Flance",
@@ -141,8 +148,8 @@ export class AdminService {
       reason,
       itemLabel: `Anuncio: ${target.companyName}`,
     });
-    await this.updateNotificationStatus(audit.id, notificationStatus);
-    return { active, notificationStatus };
+    await this.updateNotificationStatus(audit.id, "SENT");
+    return { active, notificationStatus: "SENT" as const };
   }
 
   async alertUser(adminId: string, targetId: string, reason: string) {
@@ -158,15 +165,18 @@ export class AdminService {
       },
       select: { id: true },
     });
-    const notificationStatus = await this.sendNotice({
+    await this.sendChatNotice(adminId, target.id, `Mensagem da equipe Flance:\n\n${reason}`);
+    const emailStatus = await this.sendNotice({
       email: target.email,
       name: target.name,
       subject: "Aviso da equipe Flance",
       action: "recebeu um aviso da equipe de administracao",
       reason,
     });
+    // A mensagem já foi gravada no chat; o status geral representa a entrega da notificação.
+    const notificationStatus = "SENT" as const;
     await this.updateNotificationStatus(audit.id, notificationStatus);
-    return { notified: notificationStatus === "SENT", notificationStatus };
+    return { notified: true, notificationStatus, emailStatus };
   }
 
   async banUser(adminId: string, targetId: string, reason: string) {
@@ -193,15 +203,16 @@ export class AdminService {
         select: { id: true },
       });
     });
-    const notificationStatus = await this.sendNotice({
+    await this.sendChatNotice(adminId, target.id, `A equipe Flance suspendeu sua conta.\n\nMotivo: ${reason}`);
+    const emailStatus = await this.sendNotice({
       email: target.email,
       name: target.name,
       subject: "Sua conta Flance foi suspensa",
       action: "suspensa",
       reason,
     });
-    await this.updateNotificationStatus(audit.id, notificationStatus);
-    return { banned: true, notificationStatus };
+    await this.updateNotificationStatus(audit.id, "SENT");
+    return { banned: true, notificationStatus: "SENT" as const, emailStatus };
   }
 
   async unbanUser(adminId: string, targetId: string, reason: string) {
@@ -224,15 +235,16 @@ export class AdminService {
         select: { id: true },
       });
     });
-    const notificationStatus = await this.sendNotice({
+    await this.sendChatNotice(adminId, target.id, `A equipe Flance reativou sua conta.\n\nMotivo: ${reason}`);
+    const emailStatus = await this.sendNotice({
       email: target.email,
       name: target.name,
       subject: "Sua conta Flance foi reativada",
       action: "reativada",
       reason,
     });
-    await this.updateNotificationStatus(audit.id, notificationStatus);
-    return { banned: false, notificationStatus };
+    await this.updateNotificationStatus(audit.id, "SENT");
+    return { banned: false, notificationStatus: "SENT" as const, emailStatus };
   }
 
   async deleteUser(adminId: string, targetId: string, reason: string) {
@@ -275,6 +287,46 @@ export class AdminService {
     if (!target) throw new NotFoundException("User not found");
     if (target.role === Role.ADMIN) throw new ForbiddenException("Administrator accounts cannot be moderated here");
     return target;
+  }
+
+  private async sendChatNotice(adminId: string, targetId: string, body: string) {
+    const result = await this.prisma.$transaction(async (transaction) => {
+      let conversation = await transaction.conversation.findFirst({
+        where: { clientId: adminId, freelancerId: targetId, jobId: null, proposalId: null },
+        select: { id: true, clientId: true, freelancerId: true },
+      });
+
+      if (!conversation) {
+        conversation = await transaction.conversation.create({
+          data: { clientId: adminId, freelancerId: targetId },
+          select: { id: true, clientId: true, freelancerId: true },
+        });
+      }
+
+      const message = await transaction.message.create({
+        data: { conversationId: conversation.id, senderId: adminId, body },
+      });
+      await transaction.conversation.update({
+        where: { id: conversation.id },
+        data: { updatedAt: new Date() },
+      });
+
+      return { conversation, message };
+    });
+
+    const payload = {
+      conversationId: result.conversation.id,
+      message: {
+        id: result.message.id,
+        conversationId: result.message.conversationId,
+        senderId: result.message.senderId,
+        body: result.message.body,
+        createdAt: result.message.createdAt.toISOString(),
+      },
+    };
+    this.realtimeService.emitToConversation(result.conversation.id, "message.created", payload);
+    this.realtimeService.emitToUser(targetId, "message.created", payload);
+    this.realtimeService.emitToUser(adminId, "message.created", payload);
   }
 
   private async updateNotificationStatus(logId: string, notificationStatus: "SENT" | "FAILED") {
