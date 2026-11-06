@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
+import { SupabaseMediaStorageService } from "./supabase-media-storage.service";
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { UsersService } from "./users.service";
     }),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, SupabaseMediaStorageService],
   exports: [UsersService],
 })
 export class UsersModule {}

@@ -4,7 +4,7 @@ export const registerSchema = z.object({
   name: z.string().min(2).max(120),
   email: z.string().email(),
   password: z.string().min(8),
-  avatarUrl: z.string().min(3).max(3000000).optional(),
+  avatarUrl: z.enum(["avatar-sky", "avatar-amber", "avatar-emerald", "avatar-rose", "avatar-violet", "avatar-slate"]).optional(),
 });
 
 export const companyProfileSchema = z.object({

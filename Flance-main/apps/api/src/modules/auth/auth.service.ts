@@ -15,6 +15,7 @@ import nodemailer from "nodemailer";
 import { UsersService } from "../users/users.service";
 import type { LoginInput, RegisterInput, VerifyRegistrationEmailInput } from "./schemas/auth.schema";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import { LoggerService } from "../../common/logger/logger.service";
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly prisma: PrismaService,
+    private readonly logger: LoggerService,
   ) {}
 
   async register(input: RegisterInput) {
@@ -495,10 +497,16 @@ export class AuthService {
 
     try {
       await this.sendRegistrationEmail(input.email, input.name, code);
-    } catch {
+    } catch (error) {
       await this.prisma.emailVerificationCode.update({
         where: { id: verification.id },
         data: { lastSentAt: new Date(now.getTime() - 60_000) },
+      });
+      const smtpError = error as { code?: unknown; command?: unknown; responseCode?: unknown };
+      this.logger.warn("Registration verification email delivery failed", {
+        smtpCode: smtpError?.code,
+        smtpCommand: smtpError?.command,
+        smtpResponseCode: smtpError?.responseCode,
       });
       throw new ServiceUnavailableException("Could not send the verification email. Try again shortly.");
     }
@@ -518,6 +526,14 @@ export class AuthService {
     const port = Number(process.env.SMTP_PORT || 465);
     const from = process.env.SMTP_FROM || user;
     if (!host || !user || !pass || !from) {
+      this.logger.warn("SMTP is not configured for registration verification email", {
+        missing: [
+          !host && "SMTP_HOST",
+          !user && "SMTP_USER",
+          !pass && "SMTP_PASS",
+          !from && "SMTP_FROM or SMTP_USER",
+        ].filter(Boolean),
+      });
       throw new ServiceUnavailableException("Email delivery is not configured");
     }
     const transporter = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass } });

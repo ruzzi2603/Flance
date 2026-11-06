@@ -17,14 +17,11 @@ export default function RegisterPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [avatarUrl, setAvatarUrl] = useState("avatar-sky");
-  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
-
-  const avatarIsImage = avatarUrl.startsWith("data:") || avatarUrl.startsWith("http");
 
   function getRegisterFieldError(field: string, value: string) {
     if (field === "name") {
@@ -51,27 +48,6 @@ export default function RegisterPage() {
     const timer = window.setTimeout(() => setResendCountdown((seconds) => Math.max(0, seconds - 1)), 1000);
     return () => window.clearTimeout(timer);
   }, [resendCountdown]);
-
-  function handleAvatarUpload(file: File | null) {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setAvatarError(t("auth.register.photoErrorType"));
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setAvatarError(t("auth.register.photoErrorSize"));
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === "string" ? reader.result : "";
-      if (result) {
-        setAvatarUrl(result);
-        setAvatarError(null);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -221,25 +197,8 @@ export default function RegisterPage() {
 
             <div className="form-label">
               {t("auth.register.photo")}
-              <label className="form-label">
-                {t("auth.register.photoUpload")}
-                <input
-                  className="input file-input"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => handleAvatarUpload(event.target.files?.[0] || null)}
-                />
-                <span className="text-xs text-slate-500">{t("auth.register.photoHint")}</span>
-                {avatarError ? <span className="text-xs text-rose-600">{avatarError}</span> : null}
-              </label>
+              <span className="text-xs text-slate-500">{t("auth.register.photoHint")}</span>
               <div className="avatar-grid ">
-                {avatarIsImage ? (
-                  <label className="avatar-option is-active">
-                    <input type="radio" checked readOnly />
-                    <img className="avatar-image" src={avatarUrl} alt="Foto enviada" />
-                    <span className="text-xs text-slate-600">{t("auth.register.photoFile")}</span>
-                  </label>
-                ) : null}
                 {[
                   { id: "avatar-sky", label: t("auth.register.avatar.blue") },
                   { id: "avatar-amber", label: t("auth.register.avatar.yellow") },

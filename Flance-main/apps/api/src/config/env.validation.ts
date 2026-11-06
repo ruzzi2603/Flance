@@ -23,6 +23,9 @@ export const envSchema = z.object({
   // === DATABASE ===
   DATABASE_URL: z.string().url().min(1, "DATABASE_URL é obrigatório"),
   DIRECT_URL: z.string().url().optional(), // Para migrations diretas no Supabase
+  SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  SUPABASE_STORAGE_BUCKET: z.string().default("flance-media"),
   REDIS_URL: z.string().url().optional(), // Opcional - para cache em prod
 
   // === JWT / AUTH ===
@@ -107,6 +110,9 @@ export function validateEnv(input: Record<string, unknown>): EnvConfig {
       }
       if (!input.ASAAS_API_KEY || !input.ASAAS_WEBHOOK_TOKEN || !input.ASAAS_CPF_ENCRYPTION_KEY) {
         throw new Error("ASAAS_API_KEY, ASAAS_WEBHOOK_TOKEN e ASAAS_CPF_ENCRYPTION_KEY são obrigatórias em produção");
+      }
+      if (!input.SUPABASE_URL || !input.SUPABASE_SERVICE_ROLE_KEY) {
+        throw new Error("SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórias em produção para armazenar fotos");
       }
       // SMTP é recomendado para recuperação de senha
       if (!input.SMTP_HOST || !input.SMTP_USER || !input.SMTP_PASS) {

@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Patch, Post, UseGuards, Query, Param, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Patch, Post, UseGuards, Query, Param, NotFoundException, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CurrentUser, type JwtUserPayload } from "../../common/decorators/current-user.decorator";
 import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
 import { updateProfileSchema, type UpdateProfileInput } from "./schemas/update-profile.schema";
 import { UsersService } from "./users.service";
+import { SupabaseMediaStorageService, type UploadedImage, type UserMediaKind } from "./supabase-media-storage.service";
 import { companyReviewSchema, type CompanyReviewInput } from "./schemas/company-review.schema";
 import {
   companyShareSchema,
@@ -15,7 +17,24 @@ import {
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
+    private readonly mediaStorage: SupabaseMediaStorageService,
   ) {}
+
+  @Post("me/media")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: 2 * 1024 * 1024, files: 1 } }))
+  async uploadMyMedia(
+    @CurrentUser() user: JwtUserPayload,
+    @UploadedFile() file: UploadedImage | undefined,
+    @Body("kind") kind: string,
+  ) {
+    if (!file) throw new BadRequestException("Selecione uma imagem para enviar.");
+    if (kind !== "avatar" && kind !== "company-photo") {
+      throw new BadRequestException("Tipo de imagem inválido.");
+    }
+    const url = await this.mediaStorage.uploadUserImage(user.sub, kind as UserMediaKind, file);
+    return { success: true, data: { url }, timestamp: new Date().toISOString() };
+  }
 
   @Get("health")
   health() {

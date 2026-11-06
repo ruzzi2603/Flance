@@ -9,6 +9,7 @@ import { useI18n } from "../../i18n/useI18n";
 import { companyProfileSchema } from "../../services/schemas";
 import { getApiErrorDetails } from "../../services/form-errors";
 import { PlanCards, buildPlanOptions } from "../../components/plans/PlanCards";
+import { uploadProfileMedia } from "../../services/media";
 
 function ProfilePageInner() {
   const router = useRouter();
@@ -29,6 +30,8 @@ function ProfilePageInner() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isUploadingCompanyPhoto, setIsUploadingCompanyPhoto] = useState(false);
 
   const [selectedPlan, setSelectedPlan] = useState<string | null>(user?.planTier || null);
   const [companyEnabled, setCompanyEnabled] = useState(Boolean(user?.companyEnabled));
@@ -91,9 +94,9 @@ function ProfilePageInner() {
     return t("profile.company.invalid");
   }
 
-  function handleAvatarUpload(file: File | null) {
+  async function handleAvatarUpload(file: File | null) {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
       setAvatarError(t("profile.photoErrorType"));
       return;
     }
@@ -101,20 +104,23 @@ function ProfilePageInner() {
       setAvatarError(t("profile.photoErrorSize"));
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === "string" ? reader.result : "";
-      if (result) {
-        setAvatarUrl(result);
-        setAvatarError(null);
-      }
-    };
-    reader.readAsDataURL(file);
+    setIsUploadingAvatar(true);
+    setAvatarError(null);
+    try {
+      setAvatarUrl(await uploadProfileMedia(file, "avatar"));
+    } catch (error) {
+      const message = typeof error === "object" && error && "response" in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : null;
+      setAvatarError(message || t("profile.photoUploadError"));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   }
 
-  function handleCompanyPhotoUpload(index: number, file: File | null) {
+  async function handleCompanyPhotoUpload(index: number, file: File | null) {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
       setCompanyPhotoError(t("profile.company.photoErrorType"));
       return;
     }
@@ -122,18 +128,23 @@ function ProfilePageInner() {
       setCompanyPhotoError(t("profile.company.photoErrorSize"));
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === "string" ? reader.result : "";
-      if (!result) return;
+    setIsUploadingCompanyPhoto(true);
+    setCompanyPhotoError(null);
+    try {
+      const result = await uploadProfileMedia(file, "company-photo");
       setCompanyPhotos((current) => {
         const next = [...current];
         next[index] = result;
         return next;
       });
-      setCompanyPhotoError(null);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      const message = typeof error === "object" && error && "response" in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : null;
+      setCompanyPhotoError(message || t("profile.company.photoUploadError"));
+    } finally {
+      setIsUploadingCompanyPhoto(false);
+    }
   }
 
   const initials = useMemo(() => {
@@ -402,7 +413,7 @@ function ProfilePageInner() {
                 <input
                   className="input file-input"
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/webp"
                   onChange={(event) => handleAvatarUpload(event.target.files?.[0] || null)}
                 />
                 {avatarError ? <span className="text-xs text-rose-600">{avatarError}</span> : null}
@@ -436,8 +447,8 @@ function ProfilePageInner() {
                 ))}
               </div>
             </div>
-            <button type="button" className="btn-primary" onClick={handleSaveProfile} disabled={isSaving}>
-              {isSaving ? t("profile.saving") : t("profile.save")}
+            <button type="button" className="btn-primary" onClick={handleSaveProfile} disabled={isSaving || isUploadingAvatar}>
+              {isUploadingAvatar ? t("profile.photoUploading") : isSaving ? t("profile.saving") : t("profile.save")}
             </button>
           </div>
         </div>
@@ -654,7 +665,8 @@ function ProfilePageInner() {
                     <input
                       className="input file-input mt-3"
                       type="file"
-                      accept="image/*"
+                      accept="image/png,image/jpeg,image/webp"
+                      disabled={isUploadingCompanyPhoto}
                       onChange={(event) => handleCompanyPhotoUpload(index, event.target.files?.[0] || null)}
                     />
                     {companyPhotos[index] ? (
@@ -691,8 +703,10 @@ function ProfilePageInner() {
             <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{saveSuccess}</div>
           ) : null}
 
-          <button type="button" className="btn-primary mt-5" onClick={handleSaveCompany} disabled={isSaving}>
-            {isSaving
+          <button type="button" className="btn-primary mt-5" onClick={handleSaveCompany} disabled={isSaving || isUploadingCompanyPhoto}>
+            {isUploadingCompanyPhoto
+              ? t("profile.photoUploading")
+              : isSaving
               ? t("profile.saving")
               : companyEnabled
                 ? t("profile.company.update")

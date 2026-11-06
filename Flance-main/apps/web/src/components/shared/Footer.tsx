@@ -32,7 +32,7 @@ export function Footer() {
             <a href="/pagamentos" className="footer-link">
               {t("footer.payments")}
             </a>
-            <a href="mailto:gestaoFlance@gmail.com" className="footer-link">
+            <a href="mailto:matheusruzzi8@gmail.com" className="footer-link">
               {t("footer.contact")}
             </a>
             <a href="https://github.com/ruzzi2603/Flance" target="_blank" rel="noreferrer" className="footer-link">
