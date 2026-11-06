@@ -105,9 +105,6 @@ export function validateEnv(input: Record<string, unknown>): EnvConfig {
       if (!input.DATABASE_URL) {
         throw new Error("DATABASE_URL é obrigatório em produção");
       }
-      if (!input.COMPANY_LEGAL_NAME || !input.COMPANY_CNPJ || !input.COMPANY_ADDRESS) {
-        throw new Error("COMPANY_LEGAL_NAME, COMPANY_CNPJ e COMPANY_ADDRESS são obrigatórias em produção (constam no contrato de assinatura)");
-      }
       if (!input.ASAAS_API_KEY || !input.ASAAS_WEBHOOK_TOKEN || !input.ASAAS_CPF_ENCRYPTION_KEY) {
         throw new Error("ASAAS_API_KEY, ASAAS_WEBHOOK_TOKEN e ASAAS_CPF_ENCRYPTION_KEY são obrigatórias em produção");
       }

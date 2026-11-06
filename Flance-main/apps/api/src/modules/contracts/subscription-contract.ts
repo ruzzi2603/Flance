@@ -7,7 +7,7 @@ export const SUBSCRIPTION_CONTRACT_KEY = "SUBSCRIPTION_TERMS";
  * Mude esta versão SEMPRE que alterar o texto das cláusulas abaixo.
  * (O hash também muda sozinho se preços/dia de cobrança mudarem.)
  */
-export const SUBSCRIPTION_CONTRACT_VERSION = "2026-10-05.1";
+export const SUBSCRIPTION_CONTRACT_VERSION = "2026-11-06.1";
 
 export interface ContractSection {
   id: string;
@@ -32,9 +32,9 @@ export function getCompanyInfo() {
   const supportEmail =
     process.env.COMPANY_SUPPORT_EMAIL?.trim() || process.env.SMTP_FROM?.trim() || "[E-MAIL DE SUPORTE - PREENCHER]";
   return {
-    legalName: process.env.COMPANY_LEGAL_NAME?.trim() || "[RAZÃO SOCIAL DA FLANCE - PREENCHER]",
-    cnpj: process.env.COMPANY_CNPJ?.trim() || "[CNPJ - PREENCHER]",
-    address: process.env.COMPANY_ADDRESS?.trim() || "[ENDEREÇO - PREENCHER]",
+    legalName: process.env.COMPANY_LEGAL_NAME?.trim() || "Flance",
+    cnpj: process.env.COMPANY_CNPJ?.trim() || "",
+    address: process.env.COMPANY_ADDRESS?.trim() || "",
     supportEmail,
     // Encarregado (DPO) – art. 41 da LGPD. Se não houver e-mail próprio, usa o de suporte.
     privacyEmail: process.env.COMPANY_PRIVACY_EMAIL?.trim() || supportEmail,
@@ -52,7 +52,9 @@ export function buildSubscriptionContract(): SubscriptionContract {
       id: "partes",
       title: "1. Partes e aceite eletrônico",
       paragraphs: [
-        `Este contrato é firmado entre ${company.legalName}, inscrita no CNPJ sob o nº ${company.cnpj}, com sede em ${company.address} ("Flance"), e a pessoa física ou jurídica que o aceita na plataforma ("Assinante").`,
+        company.cnpj && company.address && company.legalName !== "Flance"
+          ? `Este contrato é firmado entre ${company.legalName}, inscrita no CNPJ sob o nº ${company.cnpj}, com sede em ${company.address} ("Flance"), e a pessoa física ou jurídica que o aceita na plataforma ("Assinante").`
+          : "Este contrato estabelece as condições da assinatura de plano entre o Assinante e a plataforma Flance.",
         "O Assinante declara ter lido e concordado com este contrato ao marcar a opção de aceite antes de gerar o primeiro pagamento. O aceite eletrônico tem validade jurídica e é registrado com data, hora, endereço IP, navegador e versão exata do texto aceito.",
       ],
     },

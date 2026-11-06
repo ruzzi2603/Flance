@@ -54,7 +54,7 @@ if (["change-me", "secret", "troque-por-um-segredo-com-no-minimo-32-caracteres"]
 // --- Contrato
 for (const name of ["COMPANY_LEGAL_NAME", "COMPANY_CNPJ", "COMPANY_ADDRESS"]) {
   const v = (env[name] || "").trim();
-  !v || v.includes("PREENCHER") ? (isProd ? fail : warn)(`${name} não preenchida (consta no contrato de assinatura).`) : ok(`${name} preenchida.`);
+  !v || v.includes("PREENCHER") ? warn(`${name} não preenchida; o contrato exibirá apenas o nome Flance, sem dados cadastrais fictícios.`) : ok(`${name} preenchida.`);
 }
 if (!(env.COMPANY_SUPPORT_EMAIL || env.SMTP_FROM)) warn("COMPANY_SUPPORT_EMAIL/SMTP_FROM ausentes: o contrato mostrará um e-mail de suporte genérico.");
 

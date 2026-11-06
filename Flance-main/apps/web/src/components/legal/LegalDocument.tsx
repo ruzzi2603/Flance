@@ -46,9 +46,9 @@ export function LegalDocument({ title, version, updatedAt, intro, buildSections,
           {company ? (
             <aside className="card mb-6 text-sm text-slate-300" aria-label={companyHeading}>
               <h2 className="text-base font-semibold text-white">{companyHeading}</h2>
-              <p className="mt-2">{company.legalName}</p>
-              <p>CNPJ: {company.cnpj}</p>
-              <p>{company.address}</p>
+              {company.legalName ? <p className="mt-2">{company.legalName}</p> : null}
+              {company.cnpj ? <p>CNPJ: {company.cnpj}</p> : null}
+              {company.address ? <p>{company.address}</p> : null}
               <p>Contato e Encarregado (DPO): {company.privacyEmail}</p>
             </aside>
           ) : null}
