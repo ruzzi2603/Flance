@@ -32,6 +32,8 @@ export class SupabaseMediaStorageService {
 
     await this.ensureBucket(config);
     const path = `${userId}/${kind}/${randomUUID()}.${image.extension}`;
+    const imageBytes = new Uint8Array(file.buffer.length);
+    imageBytes.set(file.buffer);
     const response = await fetch(
       `${config.url}/storage/v1/object/${encodeURIComponent(config.bucket)}/${this.encodePath(path)}`,
       {
@@ -43,7 +45,7 @@ export class SupabaseMediaStorageService {
           "cache-control": "max-age=31536000",
           "x-upsert": "false",
         },
-        body: new Blob([file.buffer], { type: image.contentType }),
+        body: new Blob([imageBytes.buffer], { type: image.contentType }),
         signal: AbortSignal.timeout(20_000),
       },
     ).catch((error: unknown) => {
@@ -89,18 +91,28 @@ export class SupabaseMediaStorageService {
   }
 
   private async checkBucket(config: { url: string; secretKey: string; bucket: string }) {
-    const response = await fetch(`${config.url}/storage/v1/bucket/${encodeURIComponent(config.bucket)}`, {
-      headers: { apikey: config.secretKey, Authorization: `Bearer ${config.secretKey}` },
-      signal: AbortSignal.timeout(10_000),
-    }).catch((error: unknown) => {
-      this.logger.error(`Falha ao conferir bucket de mídia (${this.errorName(error)}).`);
-      throw new ServiceUnavailableException("Não foi possível conectar ao armazenamento de imagens.");
-    });
-
+    let response = await this.requestBucket(config);
     if (response.status === 404) {
-      throw new ServiceUnavailableException(
-        `Crie no Supabase Storage o bucket público "${config.bucket}" com limite de 2 MB e tipos PNG, JPEG e WebP.`,
-      );
+      response = await fetch(`${config.url}/storage/v1/bucket`, {
+        method: "POST",
+        headers: {
+          apikey: config.secretKey,
+          Authorization: `Bearer ${config.secretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: config.bucket,
+          name: config.bucket,
+          public: true,
+          file_size_limit: 2 * 1024 * 1024,
+          allowed_mime_types: ["image/png", "image/jpeg", "image/webp"],
+        }),
+        signal: AbortSignal.timeout(10_000),
+      }).catch((error: unknown) => {
+        this.logger.error(`Falha ao criar bucket de mídia (${this.errorName(error)}).`);
+        throw new ServiceUnavailableException("Não foi possível preparar o armazenamento de imagens.");
+      });
+      if (response.status === 409) response = await this.requestBucket(config);
     }
     if (!response.ok) {
       this.logger.error(`Supabase Storage recusou consulta de bucket (HTTP ${response.status}).`);
@@ -113,6 +125,16 @@ export class SupabaseMediaStorageService {
     if (bucket.file_size_limit != null && bucket.file_size_limit < 2 * 1024 * 1024) {
       throw new ServiceUnavailableException(`Aumente o limite do bucket "${config.bucket}" para 2 MB.`);
     }
+  }
+
+  private async requestBucket(config: { url: string; secretKey: string; bucket: string }) {
+    return fetch(`${config.url}/storage/v1/bucket/${encodeURIComponent(config.bucket)}`, {
+      headers: { apikey: config.secretKey, Authorization: `Bearer ${config.secretKey}` },
+      signal: AbortSignal.timeout(10_000),
+    }).catch((error: unknown) => {
+      this.logger.error(`Falha ao conferir bucket de mídia (${this.errorName(error)}).`);
+      throw new ServiceUnavailableException("Não foi possível conectar ao armazenamento de imagens.");
+    });
   }
 
   private identifyImage(buffer: Buffer): { contentType: string; extension: string } | null {
