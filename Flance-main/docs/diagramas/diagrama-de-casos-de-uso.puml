@@ -1,0 +1,113 @@
+@startuml FlanceUseCases
+left to right direction
+title Flance — Diagrama de Casos de Uso
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  FontColor #0F172A
+}
+
+actor Visitante
+actor "Usuário autenticado" as User
+actor Cliente
+actor Freelancer
+actor Administrador as Admin
+actor "Asaas\n(Gateway Pix)" as Asaas
+actor "Serviço de e-mail" as Email
+
+Cliente --|> User
+Freelancer --|> User
+Admin --|> User
+
+rectangle "Plataforma Flance" {
+  usecase "Criar conta" as UC_Register
+  usecase "Confirmar e-mail" as UC_VerifyEmail
+  usecase "Entrar e sair" as UC_Auth
+  usecase "Recuperar senha" as UC_ResetPassword
+  usecase "Consultar freelancers\ne anúncios" as UC_Browse
+  usecase "Visualizar perfil\ne anúncio" as UC_ViewProfile
+
+  usecase "Manter perfil\npúblico" as UC_Profile
+  usecase "Publicar e gerenciar\nanúncios" as UC_Ads
+  usecase "Conversar pelo chat" as UC_Chat
+  usecase "Enviar e responder\npropostas" as UC_Proposals
+  usecase "Avaliar freelancer" as UC_Review
+
+  usecase "Consultar planos" as UC_Plans
+  usecase "Contratar plano pago" as UC_Subscribe
+  usecase "Aceitar contrato" as UC_Contract
+  usecase "Gerar cobrança Pix" as UC_Pix
+  usecase "Ativar plano com\ncódigo por e-mail" as UC_Activate
+  usecase "Consultar assinatura,\npagar renovação ou cancelar" as UC_ManageSubscription
+
+  usecase "Moderar usuários\ne anúncios" as UC_Moderate
+  usecase "Enviar alerta administrativo\npelo chat" as UC_AdminChatAlert
+  usecase "Enviar justificativa de\nbanimento por e-mail" as UC_BanEmail
+  usecase "Registrar ações\nde auditoria" as UC_Audit
+
+  usecase "Receber webhook e\nconfirmar pagamento" as UC_Webhook
+  usecase "Enviar códigos e\nnotificações por e-mail" as UC_SendEmail
+}
+
+Visitante --> UC_Register
+Visitante --> UC_Auth
+Visitante --> UC_Browse
+Visitante --> UC_ViewProfile
+Visitante --> UC_ResetPassword
+
+UC_Register .> UC_VerifyEmail : <<include>>
+UC_VerifyEmail .> UC_SendEmail : <<include>>
+UC_ResetPassword .> UC_SendEmail : <<include>>
+
+Cliente --> UC_Browse
+Cliente --> UC_ViewProfile
+Cliente --> UC_Chat
+Cliente --> UC_Proposals
+Cliente --> UC_Review
+Cliente --> UC_Plans
+
+Freelancer --> UC_Profile
+Freelancer --> UC_Ads
+Freelancer --> UC_Chat
+Freelancer --> UC_Proposals
+Freelancer --> UC_Plans
+
+UC_Subscribe .> UC_Plans : <<include>>
+UC_Subscribe .> UC_Contract : <<include>>
+UC_Subscribe .> UC_Pix : <<include>>
+UC_Pix --> Asaas
+Asaas --> UC_Webhook
+UC_Webhook .> UC_Activate : <<include>>
+UC_Activate .> UC_SendEmail : <<include>>
+UC_ManageSubscription --> Asaas
+UC_ManageSubscription .> UC_Webhook : renovações
+
+User --> UC_Auth
+User --> UC_ResetPassword
+User --> UC_ManageSubscription
+
+Admin --> UC_Moderate
+Admin --> UC_AdminChatAlert
+Admin --> UC_BanEmail
+UC_Moderate .> UC_Audit : <<include>>
+UC_AdminChatAlert .> UC_Audit : <<include>>
+UC_BanEmail .> UC_Audit : <<include>>
+UC_BanEmail .> UC_SendEmail : <<include>>
+
+UC_SendEmail --> Email
+
+note bottom of UC_ManageSubscription
+  O Pix mensal é pago manualmente pelo assinante;
+  não há débito automático.
+end note
+
+note bottom of UC_Ads
+  As opções disponíveis dependem do plano
+  e dos limites configurados para a conta.
+end note
+
+@enduml

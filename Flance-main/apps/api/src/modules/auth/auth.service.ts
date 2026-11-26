@@ -479,7 +479,7 @@ export class AuthService {
         passwordHash: input.passwordHash,
         avatarUrl: input.avatarUrl ?? null,
         codeHash: this.hashRegistrationCode(input.email, code),
-        expiresAt: new Date(now.getTime() + 60_000),
+        expiresAt: new Date(now.getTime() + 10 * 60_000),
         lastSentAt: now,
         attempts: 0,
       },
@@ -488,7 +488,7 @@ export class AuthService {
         passwordHash: input.passwordHash,
         avatarUrl: input.avatarUrl ?? null,
         codeHash: this.hashRegistrationCode(input.email, code),
-        expiresAt: new Date(now.getTime() + 60_000),
+        expiresAt: new Date(now.getTime() + 10 * 60_000),
         lastSentAt: now,
         attempts: 0,
       },
@@ -536,13 +536,21 @@ export class AuthService {
       });
       throw new ServiceUnavailableException("Email delivery is not configured");
     }
-    const transporter = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass } });
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
+    });
     await transporter.sendMail({
       from,
       to: email,
       subject: "Codigo de verificacao da Flance",
-      text: `Ola, ${name}. Seu codigo de verificacao e ${code}. Ele expira em 1 minuto. Se voce nao criou uma conta, ignore este email.`,
-      html: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Confirme seu email</h2><p>Ola, ${this.escapeEmailHtml(name)}.</p><p>Digite este codigo no site da Flance:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p><p>O codigo expira em 1 minuto. Se voce nao criou uma conta, ignore este email.</p></div>`,
+      text: `Ola, ${name}. Seu codigo de verificacao e ${code}. Ele expira em 10 minutos. Se voce nao criou uma conta, ignore este email.`,
+      html: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Confirme seu email</h2><p>Ola, ${this.escapeEmailHtml(name)}.</p><p>Digite este codigo no site da Flance:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p><p>O codigo expira em 10 minutos. Se voce nao criou uma conta, ignore este email.</p></div>`,
     });
   }
 
@@ -564,7 +572,8 @@ export class AuthService {
     const from = process.env.SMTP_FROM || user;
 
     if (!host || !user || !pass || !from) {
-      throw new UnauthorizedException("SMTP not configured");
+      this.logger.warn("SMTP is not configured for password reset email");
+      throw new ServiceUnavailableException("Email não está configurado no servidor.");
     }
 
     const transporter = nodemailer.createTransport({
@@ -572,6 +581,9 @@ export class AuthService {
       port,
       secure: port === 465,
       auth: { user, pass },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
     });
 
     const subject = "Recuperacao de senha - Flance";
@@ -586,12 +598,16 @@ export class AuthService {
       </div>
     `;
 
-    await transporter.sendMail({
-      from,
-      to: email,
-      subject,
-      text,
-      html,
-    });
+    try {
+      await transporter.sendMail({ from, to: email, subject, text, html });
+    } catch (error) {
+      const smtpError = error as { code?: unknown; command?: unknown; responseCode?: unknown };
+      this.logger.warn("Password reset email delivery failed", {
+        smtpCode: smtpError?.code,
+        smtpCommand: smtpError?.command,
+        smtpResponseCode: smtpError?.responseCode,
+      });
+      throw new ServiceUnavailableException("Não foi possível enviar o email agora. Tente novamente em instantes.");
+    }
   }
 }

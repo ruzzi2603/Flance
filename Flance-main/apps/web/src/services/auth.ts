@@ -61,7 +61,8 @@ export async function register(input: {
   password: string;
   avatarUrl?: string;
 }): Promise<RegistrationResponse> {
-  const response = await api.post("/auth/register", input);
+  // Registration waits for SMTP delivery. Allow for Render waking a sleeping API instance.
+  const response = await api.post("/auth/register", input, { timeout: 70_000 });
   return z.object({
     verificationRequired: z.literal(true),
     email: z.string().email(),
@@ -77,7 +78,7 @@ export async function verifyRegistrationEmail(input: { email: string; code: stri
 }
 
 export async function resendRegistrationCode(email: string): Promise<{ sent: boolean; resendAfterSeconds: number }> {
-  const response = await api.post("/auth/register/resend", { email });
+  const response = await api.post("/auth/register/resend", { email }, { timeout: 70_000 });
   return z.object({ sent: z.boolean(), resendAfterSeconds: z.number().int().nonnegative() }).parse(response.data);
 }
 
@@ -102,7 +103,10 @@ export async function requestPasswordReset(email: string): Promise<{ sent: boole
     body: JSON.stringify({ email }),
   });
   if (!response.ok) {
-    throw new Error("Nao foi possivel enviar o link.");
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
+    throw new Error(payload.error?.message || "Nao foi possivel enviar o codigo.");
   }
   const payload = (await response.json()) as { data?: { sent: boolean } };
   return payload.data ?? { sent: true };
