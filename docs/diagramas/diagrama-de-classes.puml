@@ -1,0 +1,539 @@
+@startuml classes-autenticacao
+title Flance — Classes: cadastro e autenticação
+top to bottom direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EAF7FC
+skinparam classHeaderBackgroundColor #79C9E9
+skinparam classBorderColor #246A89
+skinparam ArrowColor #526B7A
+hide empty members
+
+package "Modelos Prisma" {
+  class "Usuário (User)" as User <<modelo>> {
+    id: String
+    nome / name: String
+    e-mail / email: String
+    perfil / role: Role
+  }
+  class "Código de confirmação\n(EmailVerificationCode)" as EmailVerificationCode <<modelo>> {
+    id: String
+    e-mail / email: String
+    tentativas / attempts: Int
+    validade / expiresAt: DateTime
+  }
+  class "Sessão renovável\n(RefreshToken)" as RefreshToken <<modelo>> {
+    id: String
+    usuário / userId: String
+    validade / expiresAt: DateTime
+    revogadoEm / revokedAt: DateTime?
+  }
+  class "Recuperação de senha\n(PasswordReset)" as PasswordReset <<modelo>> {
+    id: String
+    usuário / userId: String
+    tentativas / attempts: Int
+    validade / expiresAt: DateTime
+  }
+}
+
+package "API" {
+  class "Controlador de autenticação\n(AuthController)" as AuthController <<controlador>> {
+    register()
+    verifyRegistrationEmail()
+    resendRegistrationEmail()
+    login()
+    me()
+    refresh()
+    logout()
+    forgotPassword()
+    verifyCode()
+    resetPassword()
+  }
+  class "Serviço de autenticação\n(AuthService)" as AuthService <<serviço>> {
+    register()
+    verifyRegistrationCode()
+    resendRegistrationCode()
+    login()
+    refresh()
+    logout()
+    requestPasswordReset()
+    getResetOptions()
+    verifyResetCode()
+    verifyResetCodeByEmail()
+    resetPassword()
+  }
+}
+
+AuthController --> AuthService : encaminha solicitações
+AuthService ..> User : cria e consulta
+AuthService ..> EmailVerificationCode : confirma cadastro
+AuthService ..> RefreshToken : gerencia sessão
+AuthService ..> PasswordReset : redefine senha
+User "1" -- "0..*" RefreshToken : sessões
+User "1" -- "0..*" PasswordReset : recuperações
+note bottom of AuthService
+  Os nomes de operações entre parênteses
+  correspondem aos métodos reais da API.
+end note
+@enduml
+
+@startuml classes-vagas-propostas
+title Flance — Classes: vagas e propostas
+top to bottom direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EAF7FC
+skinparam classHeaderBackgroundColor #79C9E9
+skinparam classBorderColor #246A89
+skinparam ArrowColor #526B7A
+hide empty members
+
+package "Modelos Prisma" {
+  class "Usuário (User)" as User <<modelo>> {
+    id: String
+    nome / name: String
+    perfil / role: Role
+  }
+  class "Vaga (Job)" as Job <<modelo>> {
+    id: String
+    título / title: String
+    responsável / clientId: String
+    situação / status: JobStatus
+  }
+  class "Proposta (Proposal)" as Proposal <<modelo>> {
+    id: String
+    profissional / freelancerId: String
+    vaga / jobId: String
+    valor / bidAmount: Decimal
+    situação / status: ProposalStatus
+  }
+  class "Transação de garantia\n(EscrowTransaction)" as EscrowTransaction <<modelo>> {
+    id: String
+    vaga / jobId: String
+    valor / amount: Decimal
+    situação / status: EscrowStatus
+  }
+}
+
+package "API" {
+  class "Controlador de vagas\n(JobsController)" as JobsController <<controlador>> {
+    list()
+    detail()
+    create()
+  }
+  class "Serviço de vagas\n(JobsService)" as JobsService <<serviço>> {
+    findAll()
+    findById()
+    create()
+  }
+  class "Controlador de propostas\n(ProposalsController)" as ProposalsController <<controlador>> {
+    create()
+    listForClient()
+    listForFreelancer()
+    updateStatus()
+    updateBid()
+    cancelAgreement()
+  }
+  class "Serviço de propostas\n(ProposalsService)" as ProposalsService <<serviço>> {
+    create()
+    listForClient()
+    listForFreelancer()
+    updateStatus()
+    updateBid()
+    cancelAgreement()
+  }
+}
+
+User "1" -- "0..*" Job : publica
+User "1" -- "0..*" Proposal : envia
+Job "1" -- "0..*" Proposal : recebe
+Job "1" -- "0..*" EscrowTransaction : registra
+JobsController --> JobsService : encaminha solicitações
+ProposalsController --> ProposalsService : encaminha solicitações
+JobsService ..> Job : consulta e grava
+ProposalsService ..> Proposal : consulta e grava
+ProposalsService ..> Job : valida vaga
+note right of EscrowTransaction
+  O modelo existe no banco. O diagrama não
+  presume um fluxo de garantia em produção.
+end note
+@enduml
+
+@startuml classes-conversas
+title Flance — Classes: conversas e mensagens
+top to bottom direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EAF7FC
+skinparam classHeaderBackgroundColor #79C9E9
+skinparam classBorderColor #246A89
+skinparam ArrowColor #526B7A
+hide empty members
+
+package "Modelos Prisma" {
+  class "Usuário (User)" as User <<modelo>> {
+    id: String
+    nome / name: String
+  }
+  class "Proposta (Proposal)" as Proposal <<modelo>> {
+    id: String
+    vaga / jobId: String
+    profissional / freelancerId: String
+    situação / status: ProposalStatus
+  }
+  class "Conversa (Conversation)" as Conversation <<modelo>> {
+    id: String
+    vaga / jobId: String?
+    cliente / clientId: String
+    profissional / freelancerId: String
+    proposta / proposalId: String?
+  }
+  class "Mensagem (Message)" as Message <<modelo>> {
+    id: String
+    conversa / conversationId: String
+    remetente / senderId: String
+    conteúdo / body: String
+  }
+}
+
+package "API" {
+  class "Controlador de conversas\n(ChatController)" as ChatController <<controlador>> {
+    list()
+    createDirect()
+    listMessages()
+    getProposal()
+    sendMessage()
+  }
+  class "Serviço de conversas\n(ChatService)" as ChatService <<serviço>> {
+    listConversations()
+    listMessages()
+    sendMessage()
+    getOrCreateDirectConversation()
+    getConversationProposal()
+  }
+}
+
+User "1" -- "0..*" Conversation : participa como cliente
+User "1" -- "0..*" Conversation : participa como profissional
+Proposal "0..1" -- "0..1" Conversation : vínculo opcional e único
+Conversation "1" -- "0..*" Message : contém
+User "1" -- "0..*" Message : envia
+ChatController --> ChatService : encaminha solicitações
+ChatService ..> Conversation : consulta e grava
+ChatService ..> Message : consulta e grava
+@enduml
+
+@startuml classes-perfil-empresas
+title Flance — Classes: perfis e empresas
+top to bottom direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EAF7FC
+skinparam classHeaderBackgroundColor #79C9E9
+skinparam classBorderColor #246A89
+skinparam ArrowColor #526B7A
+hide empty members
+
+package "Modelos Prisma" {
+  class "Usuário (User)" as User <<modelo>> {
+    id: String
+    nome / name: String
+    empresa ativa / companyEnabled: Boolean
+  }
+  class "Avaliação da empresa\n(CompanyReview)" as CompanyReview <<modelo>> {
+    id: String
+    empresa / companyId: String
+    autor / authorId: String
+    nota / rating: Int
+  }
+  class "Indicador da empresa\n(CompanyAnalyticsEvent)" as CompanyAnalyticsEvent <<modelo>> {
+    id: String
+    empresa / companyId: String
+    evento / eventType: CompanyAnalyticsEventType
+    sessão / sessionId: String
+  }
+  class "Conquista (Badge)" as Badge <<modelo>> {
+    id: String
+    usuário / userId: String
+    nome / name: String
+  }
+}
+
+package "API" {
+  class "Controlador de usuários\n(UsersController)" as UsersController <<controlador>> {
+    listFreelancers()
+    getFreelancer()
+    listCompanyReviews()
+    getPublicProfile()
+    updateProfile()
+    listCompanies()
+    getCompany()
+    getCompanyAnalytics()
+    reviewCompany()
+    uploadMyMedia()
+  }
+  class "Serviço de usuários\n(UsersService)" as UsersService <<serviço>> {
+    updateProfile()
+    listFreelancers()
+    getFreelancerById()
+    listCompanies()
+    getCompanyById()
+    upsertCompanyReview()
+    getCompanyAnalytics()
+  }
+  class "Armazenamento de mídia\n(SupabaseMediaStorageService)" as MediaStorage <<serviço>> {
+    uploadUserImage()
+  }
+  class "Controlador de correspondência\n(AiController)" as AiController <<controlador>> {
+    match()
+  }
+  class "Serviço de correspondência\n(MatchingService)" as MatchingService <<serviço>> {
+    rankFreelancers()
+  }
+}
+
+User "1" -- "0..*" CompanyReview : é a empresa avaliada
+User "1" -- "0..*" CompanyReview : recebe avaliação de
+User "1" -- "0..*" CompanyAnalyticsEvent : reúne indicadores
+User "1" -- "0..*" Badge : recebe conquistas
+UsersController --> UsersService : encaminha solicitações
+UsersController --> MediaStorage : envia imagens
+AiController --> MatchingService : encaminha solicitação
+UsersService ..> User : consulta e atualiza
+UsersService ..> CompanyReview : registra e consulta
+UsersService ..> CompanyAnalyticsEvent : consulta
+@enduml
+
+@startuml classes-assinaturas-dados
+title Flance — Classes: assinatura e dados de pagamento
+top to bottom direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EAF7FC
+skinparam classHeaderBackgroundColor #79C9E9
+skinparam classBorderColor #246A89
+skinparam ArrowColor #526B7A
+hide empty members
+
+package "Modelos Prisma" {
+  class "Usuário (User)" as User <<modelo>> {
+    id: String
+    plano / planTier: PlanTier
+    cliente Asaas / asaasCustomerId: String?
+  }
+  class "Assinatura (Subscription)" as Subscription <<modelo>> {
+    id: String
+    usuário / userId: String
+    plano / plan: PlanTier
+    situação / status: SubscriptionStatus
+    próxima cobrança / nextDueDate: DateTime?
+    cancelar ao fim do período / cancelAtPeriodEnd: Boolean
+  }
+  class "Pagamento (Payment)" as Payment <<modelo>> {
+    id: String
+    usuário / userId: String
+    assinatura / subscriptionId: String?
+    valor / amount: Decimal
+    tipo / kind: PaymentKind
+    situação / status: PaymentStatus
+  }
+  class "Código de ativação\n(PaymentActivationCode)" as PaymentActivationCode <<modelo>> {
+    id: String
+    usuário / userId: String
+    pagamento / paymentId: String
+    validade / expiresAt: DateTime
+  }
+  class "Aviso de pagamento\n(PaymentWebhookEvent)" as PaymentWebhookEvent <<modelo>> {
+    id: String
+    identificador / eventId: String
+    situação / status: WebhookEventStatus
+  }
+  class "Aceite do contrato\n(ContractAcceptance)" as ContractAcceptance <<modelo>> {
+    id: String
+    usuário / userId: String
+    versão / contractVersion: String
+    pagamento / paymentId: String?
+    aceitoEm / acceptedAt: DateTime
+  }
+}
+
+User "1" -- "0..*" Subscription : possui
+User "1" -- "0..*" Payment : realiza
+Subscription "0..1" -- "0..*" Payment : pode gerar
+Payment "1" -- "0..1" PaymentActivationCode : pode receber
+User "1" -- "0..*" PaymentActivationCode : recebe
+User "1" -- "0..*" ContractAcceptance : registra
+note right of PaymentWebhookEvent
+  providerPaymentId não possui relação
+  declarada no schema Prisma.
+end note
+note right of ContractAcceptance
+  paymentId é uma coluna opcional e única,
+  sem relação/FK declarada com Payment.
+end note
+@enduml
+
+@startuml classes-pagamentos-api
+title Flance — Classes: serviços de cobrança
+top to bottom direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EAF7FC
+skinparam classHeaderBackgroundColor #79C9E9
+skinparam classBorderColor #246A89
+skinparam ArrowColor #526B7A
+hide empty members
+
+package "Controladores" {
+  class "Controlador de pagamentos\n(PaymentsController)" as PaymentsController <<controlador>> {
+    getPlans()
+    getQuote()
+    createPayment()
+    getPendingActivation()
+    getPayment()
+    resendActivationCode()
+    handleWebhook()
+  }
+  class "Controlador de assinatura\n(SubscriptionsController)" as SubscriptionsController <<controlador>> {
+    getMySubscription()
+    activateSubscription()
+    renewSubscription()
+    cancelRenewal()
+    reactivateRenewal()
+  }
+  class "Controlador de contrato\n(ContractsController)" as ContractsController <<controlador>> {
+    getSubscriptionContract()
+    getAccepted()
+  }
+}
+
+package "Serviços" {
+  class "Serviço de pagamentos\n(PaymentsService)" as PaymentsService <<serviço>> {
+    getAvailablePlans()
+    getQuote()
+    createPayment()
+    getPendingActivation()
+    resendActivationCode()
+    getPaymentById()
+    handleWebhook()
+    processPaymentConfirmation()
+    upsertRecurringPayment()
+    syncSubscriptionInvoices()
+  }
+  class "Serviço de assinatura\n(SubscriptionsService)" as SubscriptionsService <<serviço>> {
+    activateSubscription()
+    ensureRecurringBilling()
+    getMySubscription()
+    renewSubscription()
+    cancelRenewal()
+    reactivateRenewal()
+    expireSubscription()
+  }
+  class "Verificação periódica\n(SubscriptionsCheckService)" as SubscriptionsCheckService <<serviço>> {
+    checkAllSubscriptions()
+  }
+  class "Integração Asaas\n(AsaasService)" as AsaasService <<serviço>> {
+    findOrCreateCustomer()
+    createPixPayment()
+    getPixQrCode()
+    getPayment()
+    createSubscription()
+    deleteSubscription()
+    listSubscriptionPayments()
+  }
+  class "Serviço de contratos\n(ContractsService)" as ContractsService <<serviço>> {
+    getSubscriptionContract()
+    assertCurrent()
+    recordAcceptance()
+    getLatestAcceptance()
+  }
+}
+
+class "Pagamento (Payment)" as Payment <<modelo>>
+class "Assinatura (Subscription)" as Subscription <<modelo>>
+class "Aceite do contrato\n(ContractAcceptance)" as ContractAcceptance <<modelo>>
+
+PaymentsController --> PaymentsService : encaminha solicitações
+SubscriptionsController --> SubscriptionsService : encaminha solicitações
+ContractsController --> ContractsService : encaminha solicitações
+PaymentsService ..> Payment : registra cobranças
+PaymentsService ..> ContractsService : valida contrato
+PaymentsService ..> AsaasService : consulta e cobra
+SubscriptionsService ..> Subscription : atualiza assinatura
+SubscriptionsService ..> PaymentsService : sincroniza cobranças
+SubscriptionsService ..> AsaasService : agenda renovação
+SubscriptionsCheckService ..> SubscriptionsService : verifica vencimentos
+SubscriptionsCheckService ..> PaymentsService : sincroniza pagamentos
+ContractsService ..> ContractAcceptance : registra aceite
+@enduml
+
+@startuml classes-administracao-privacidade
+title Flance — Classes: administração e privacidade
+top to bottom direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EAF7FC
+skinparam classHeaderBackgroundColor #79C9E9
+skinparam classBorderColor #246A89
+skinparam ArrowColor #526B7A
+hide empty members
+
+package "Controladores" {
+  class "Controlador administrativo\n(AdminController)" as AdminController <<controlador>> {
+    listUsers()
+    listAds()
+    listAuditLogs()
+    moderateAd()
+    banUser()
+    alertUser()
+    unbanUser()
+    deleteUser()
+  }
+  class "Controlador de privacidade\n(PrivacyController)" as PrivacyController <<controlador>> {
+    exportData()
+    deleteAccount()
+  }
+}
+
+package "Serviços" {
+  class "Serviço administrativo\n(AdminService)" as AdminService <<serviço>> {
+    listUsers()
+    listAds()
+    listAuditLogs()
+    moderateAd()
+    alertUser()
+    banUser()
+    unbanUser()
+    deleteUser()
+  }
+  class "Serviço de privacidade\n(PrivacyService)" as PrivacyService <<serviço>> {
+    exportData()
+    deleteAccount()
+    cancelRecurringBilling()
+  }
+}
+
+class "Registro de auditoria\n(AdminAuditLog)" as AdminAuditLog <<modelo>> {
+  id: String
+  administrador / adminId: String
+  usuário-alvo / targetUserId: String?
+  ação / action: AdminActionType
+}
+class "Usuário (User)" as User <<modelo>>
+
+AdminController --> AdminService : encaminha solicitações
+PrivacyController --> PrivacyService : encaminha solicitações
+AdminService ..> AdminAuditLog : consulta registros
+PrivacyService ..> User : exporta ou remove dados
+note right of AdminAuditLog
+  adminId e targetUserId são colunas escalares;
+  o schema não declara relações/FKs para User.
+end note
+@enduml

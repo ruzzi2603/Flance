@@ -93,7 +93,7 @@ ASAAS_BASE_URL=https://api-sandbox.asaas.com/v3
 ASAAS_WEBHOOK_TOKEN=<openssl rand -hex 32>
 ASAAS_CPF_ENCRYPTION_KEY=<openssl rand -hex 32>
 
-# Dados que constam no contrato (obrigatórios em produção)
+# Dados cadastrais opcionais exibidos no contrato quando preenchidos
 COMPANY_LEGAL_NAME="Sua Razão Social Ltda"
 COMPANY_CNPJ="00.000.000/0001-00"
 COMPANY_ADDRESS="Rua X, 123 - Cidade/UF"
@@ -124,7 +124,7 @@ cd apps/api && npm run payments:check   # valida variáveis, par chave/ambiente 
 ```
 
 1. Rotacionar segredos que já circularam (chave Asaas, senha do banco, JWT, SMTP).
-2. Variáveis de produção: modelo em `/.env.production.example`.
+2. Variáveis de produção: modelo em `/.env.production.example`. `COMPANY_LEGAL_NAME`, `COMPANY_CNPJ` e `COMPANY_ADDRESS` são opcionais; vazios, o contrato identifica a plataforma como Flance e não exibe dados cadastrais fictícios.
 3. `DIRECT_URL` definida (porta 5432) e `npx prisma migrate deploy`.
 4. Webhook no painel de produção do Asaas (URL HTTPS, token, eventos acima).
 5. Conta Asaas aprovada, com chave Pix cadastrada.
