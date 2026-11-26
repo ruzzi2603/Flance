@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const initialLocale = detectLocaleFromHeader(acceptLanguage);
 
   return (
-    <html lang={initialLocale}>
+    <html lang={initialLocale} data-theme="light">
       <body className="app-body">
         <ButtonActionGuard />
         <LocaleProvider initialLocale={initialLocale}>

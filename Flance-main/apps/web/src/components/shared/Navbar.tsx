@@ -8,7 +8,6 @@ import { logout } from "../../services/auth";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "../../i18n/useI18n";
-import { canPersistPreferences, readStoredPreference, writeStoredPreference } from "../../lib/cookie-consent";
 
 const MOBILE_MENU_BREAKPOINT_QUERY = "(max-width: 480px)";
 
@@ -29,7 +28,7 @@ export function Navbar() {
   const [isMobileMenuMode, setIsMobileMenuMode] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
@@ -127,26 +126,7 @@ export function Navbar() {
   }, [visibleLinks, pathname]);
 
   useEffect(() => {
-    const savedTheme = readStoredPreference("flance_theme");
-    const initialTheme: "dark" | "light" = savedTheme === "light" ? "light" : "dark";
-    setTheme(initialTheme);
-    document.documentElement.setAttribute("data-theme", initialTheme);
-  }, []);
-
-  useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    writeStoredPreference("flance_theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    function handleConsentUpdated() {
-      if (canPersistPreferences()) {
-        writeStoredPreference("flance_theme", theme);
-      }
-    }
-    window.addEventListener("flance:cookie-consent-updated", handleConsentUpdated as EventListener);
-    return () =>
-      window.removeEventListener("flance:cookie-consent-updated", handleConsentUpdated as EventListener);
   }, [theme]);
 
   useEffect(() => {

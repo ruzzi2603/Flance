@@ -1,0 +1,441 @@
+@startuml FlanceDatabase
+title Flance — Diagrama UML do banco de dados
+
+hide methods
+skinparam linetype ortho
+skinparam shadowing false
+skinparam entity {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  FontColor #0F172A
+}
+skinparam packageStyle rectangle
+
+package "Identidade e administração" {
+  entity "User" as User {
+    * id : String <<PK>>
+    --
+    email : String <<UQ>>
+    password : String
+    name : String
+    role : Role
+    bannedAt : DateTime?
+    banReason : String?
+    emailVerifiedAt : DateTime?
+    bio : String?
+    avatarUrl : String?
+    headline : String?
+    services : String?
+    servicesTags : String[]
+    needs : String?
+    companyEnabled : Boolean
+    companyName : String?
+    companyCnpj : String?
+    companyDescription : String?
+    companyLocation : String?
+    companyCity : String?
+    companyState : String?
+    companyAddress : String?
+    companyWebsite : String?
+    companyInstagram : String?
+    companyWhatsapp : String?
+    companyEmail : String?
+    companyHours : String?
+    companyPhotos : String[]
+    companyIsOnline : Boolean
+    companyIsPhysical : Boolean
+    companyViews : Int
+    planTier : PlanTier
+    planStartedAt : DateTime?
+    planRenewsAt : DateTime?
+    asaasCustomerId : String? <<UQ>>
+    cpf : String?
+    cpfEncrypted : String?
+    xp : Int
+    level : Int
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+
+  entity "EmailVerificationCode" as EmailVerificationCode {
+    * id : String <<PK>>
+    --
+    email : String <<UQ>>
+    name : String
+    passwordHash : String
+    avatarUrl : String?
+    codeHash : String
+    attempts : Int
+    expiresAt : DateTime
+    lastSentAt : DateTime
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+
+  entity "AdminAuditLog" as AdminAuditLog {
+    * id : String <<PK>>
+    --
+    adminId : String
+    targetUserId : String?
+    targetEmail : String
+    targetName : String
+    action : AdminActionType
+    reason : String
+    notificationStatus : AdminNotificationStatus
+    createdAt : DateTime
+  }
+
+  entity "RefreshToken" as RefreshToken {
+    * id : String <<PK>>
+    --
+    tokenHash : String <<UQ>>
+    userId : String <<FK>>
+    expiresAt : DateTime
+    revokedAt : DateTime?
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+
+  entity "PasswordReset" as PasswordReset {
+    * id : String <<PK>>
+    --
+    userId : String <<FK>>
+    tokenHash : String <<UQ>>
+    code : String
+    attempts : Int
+    expiresAt : DateTime
+    usedAt : DateTime?
+    createdAt : DateTime
+  }
+}
+
+package "Serviços, propostas e conversa" {
+  entity "Job" as Job {
+    * id : String <<PK>>
+    --
+    title : String
+    description : String
+    budgetType : BudgetType
+    budget : Decimal(10,2)?
+    budgetMin : Decimal(10,2)?
+    budgetMax : Decimal(10,2)?
+    status : JobStatus
+    clientId : String <<FK>>
+    category : String
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+
+  entity "Proposal" as Proposal {
+    * id : String <<PK>>
+    --
+    text : String
+    bidAmount : Decimal(10,2)
+    freelancerId : String <<FK>>
+    jobId : String <<FK>>
+    aiScore : Float
+    status : ProposalStatus
+    respondedAt : DateTime?
+    createdAt : DateTime
+    updatedAt : DateTime
+    UQ(freelancerId, jobId)
+  }
+
+  entity "Conversation" as Conversation {
+    * id : String <<PK>>
+    --
+    jobId : String? <<FK>>
+    clientId : String <<FK>>
+    freelancerId : String <<FK>>
+    proposalId : String? <<FK, UQ>>
+    createdAt : DateTime
+    updatedAt : DateTime
+    UQ(jobId, freelancerId)
+  }
+
+  entity "Message" as Message {
+    * id : String <<PK>>
+    --
+    conversationId : String <<FK>>
+    senderId : String <<FK>>
+    body : String
+    createdAt : DateTime
+  }
+
+  entity "EscrowTransaction" as EscrowTransaction {
+    * id : String <<PK>>
+    --
+    amount : Decimal(10,2)
+    status : EscrowStatus
+    jobId : String <<FK>>
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+}
+
+package "Perfil e reputação" {
+  entity "CompanyReview" as CompanyReview {
+    * id : String <<PK>>
+    --
+    rating : Int
+    comment : String?
+    companyId : String <<FK>>
+    authorId : String <<FK>>
+    createdAt : DateTime
+    updatedAt : DateTime
+    UQ(companyId, authorId)
+  }
+
+  entity "CompanyAnalyticsEvent" as CompanyAnalyticsEvent {
+    * id : String <<PK>>
+    --
+    companyId : String <<FK>>
+    eventType : CompanyAnalyticsEventType
+    sessionId : String
+    source : String
+    durationSeconds : Int
+    createdAt : DateTime
+    UQ(companyId, sessionId, eventType, source)
+  }
+
+  entity "Badge" as Badge {
+    * id : String <<PK>>
+    --
+    name : String
+    icon : String
+    userId : String <<FK>>
+    createdAt : DateTime
+    UQ(userId, name)
+  }
+}
+
+package "Planos, pagamentos e contratos" {
+  entity "Subscription" as Subscription {
+    * id : String <<PK>>
+    --
+    userId : String <<FK>>
+    plan : PlanTier
+    status : SubscriptionStatus
+    startedAt : DateTime?
+    expiresAt : DateTime?
+    renewalReminderSentAt : DateTime?
+    asaasSubscriptionId : String? <<UQ>>
+    billingAnchorDay : Int
+    nextDueDate : DateTime?
+    recurringAmount : Decimal(10,2)?
+    cancelAtPeriodEnd : Boolean
+    canceledAt : DateTime?
+    billingSyncLockedAt : DateTime?
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+
+  entity "Payment" as Payment {
+    * id : String <<PK>>
+    --
+    userId : String <<FK>>
+    subscriptionId : String? <<FK>>
+    plan : PlanTier
+    amount : Decimal(10,2)
+    provider : PaymentProvider
+    providerPaymentId : String? <<UQ>>
+    requestKey : String? <<UQ>>
+    kind : PaymentKind
+    providerSubscriptionId : String?
+    coversUntil : DateTime?
+    reminderSentAt : DateTime?
+    overdueNoticeSentAt : DateTime?
+    status : PaymentStatus
+    dueDate : DateTime?
+    paidAt : DateTime?
+    pixQrCode : Text?
+    pixCopyPaste : Text?
+    pixExpiresAt : DateTime?
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+
+  entity "PaymentActivationCode" as PaymentActivationCode {
+    * id : String <<PK>>
+    --
+    userId : String <<FK>>
+    paymentId : String <<FK, UQ>>
+    plan : PlanTier
+    codeHash : String
+    attempts : Int
+    resendCount : Int
+    lastSentAt : DateTime?
+    emailSentAt : DateTime?
+    expiresAt : DateTime
+    usedAt : DateTime?
+    createdAt : DateTime
+    updatedAt : DateTime
+  }
+
+  entity "PaymentWebhookEvent" as PaymentWebhookEvent {
+    * id : String <<PK>>
+    --
+    eventId : String <<UQ>>
+    eventType : String
+    providerPaymentId : String?
+    status : WebhookEventStatus
+    payload : Json?
+    errorMessage : String?
+    receivedAt : DateTime
+    processedAt : DateTime?
+  }
+
+  entity "ContractAcceptance" as ContractAcceptance {
+    * id : String <<PK>>
+    --
+    userId : String <<FK>>
+    contractKey : String
+    contractVersion : String
+    contractHash : String
+    contractSnapshot : Json
+    plan : PlanTier
+    planPrice : Decimal(10,2)
+    billingAnchorDay : Int
+    initialAmount : Decimal(10,2)
+    paymentId : String? <<UQ>>
+    ipAddress : String?
+    userAgent : String?
+    acceptedAt : DateTime
+  }
+}
+
+package "Enums PostgreSQL" {
+  enum Role {
+    CLIENT
+    FREELANCER
+    ADMIN
+  }
+  enum AdminActionType {
+    USER_ALERTED
+    AD_REMOVED
+    AD_RESTORED
+    USER_BANNED
+    USER_UNBANNED
+    USER_DELETED
+  }
+  enum AdminNotificationStatus {
+    PENDING
+    SENT
+    FAILED
+  }
+  enum JobStatus {
+    OPEN
+    IN_PROGRESS
+    COMPLETED
+  }
+  enum BudgetType {
+    FIXED
+    RANGE
+    NEGOTIABLE
+  }
+  enum EscrowStatus {
+    PENDING
+    RELEASED
+    REFUNDED
+  }
+  enum ProposalStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+    CANCELLED
+  }
+  enum PlanTier {
+    FREE
+    BASIC
+    PRO
+    PREMIUM
+    PROFESSIONAL
+    PROFESSIONAL_PLUS
+  }
+  enum PaymentStatus {
+    PENDING
+    PAID
+    FAILED
+    CANCELED
+    EXPIRED
+    REFUNDED
+  }
+  enum PaymentKind {
+    INITIAL
+    RECURRING
+  }
+  enum PaymentProvider {
+    ASAAS
+  }
+  enum SubscriptionStatus {
+    PENDING
+    ACTIVE
+    EXPIRED
+    CANCELED
+  }
+  enum WebhookEventStatus {
+    RECEIVED
+    PROCESSING
+    PROCESSED
+    FAILED
+  }
+  enum CompanyAnalyticsEventType {
+    VIEW
+    SHARE
+  }
+}
+
+' Relaciones definidas como FK/relation no schema.prisma
+User ||--o{ Job : "publica (client)"
+User ||--o{ Proposal : "envia (freelancer)"
+User ||--o{ CompanyReview : "recebe (perfil)"
+User ||--o{ CompanyReview : "escreve (author)"
+User ||--o{ CompanyAnalyticsEvent : "gera eventos"
+User ||--o{ Badge : "recebe"
+User ||--o{ RefreshToken : "possui"
+User ||--o{ PasswordReset : "solicita"
+User ||--o{ Conversation : "participa como cliente"
+User ||--o{ Conversation : "participa como freelancer"
+User ||--o{ Message : "envia"
+User ||--o{ Subscription : "contrata"
+User ||--o{ Payment : "realiza"
+User ||--o{ PaymentActivationCode : "recebe"
+User ||--o{ ContractAcceptance : "aceita"
+Job ||--o{ Proposal : "recebe"
+Job ||--o{ EscrowTransaction : "registra"
+Job o|--o{ Conversation : "contexto opcional"
+Proposal o|--o| Conversation : "proposta opcional"
+Conversation ||--o{ Message : "contém"
+Subscription o|--o{ Payment : "cobranças"
+Payment ||--o| PaymentActivationCode : "código de ativação"
+
+note bottom of AdminAuditLog
+  adminId e targetUserId são IDs escalares;
+  o schema Prisma não declara relações FK.
+end note
+
+note bottom of EmailVerificationCode
+  Vinculado ao cadastro pendente pelo email;
+  não possui relação FK com User.
+end note
+
+note bottom of PaymentWebhookEvent
+  providerPaymentId é referência do Asaas;
+  não possui relação FK com Payment.
+end note
+
+note bottom of ContractAcceptance
+  paymentId é opcional e único, mas o schema
+  não declara relação FK com Payment.
+end note
+
+legend right
+  |= Marca |= Significado |
+  | PK | Chave primária |
+  | FK | Chave estrangeira/relação Prisma |
+  | UQ | Campo ou combinação única |
+  | ? | Campo opcional (nullable) |
+  Os enums representam tipos enum do PostgreSQL.
+endlegend
+
+@enduml

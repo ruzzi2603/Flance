@@ -10,7 +10,6 @@ import { useAuth } from "../../../hooks/useAuth";
 import { getSocket } from "../../../services/realtime";
 import type { MessageEntity } from "@flance/types";
 import { useI18n } from "../../../i18n/useI18n";
-import Sidebar from "../../../components/Sidebar";
 
 
 
@@ -204,31 +203,9 @@ export default function ChatPage() {
     }
   }
 
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-    const conversations = [
-      { id: "1", title: "Chat com João" },
-      { id: "2", title: "Suporte Técnico" },
-      { id: "3", title: "Projeto Flance" },
-    ];
   return (
     <main className="page-shell">
-      
       <section className="section-shell">
-     
-     
-   
-
-    
-
-      {/* Barra lateral */}
-      <div 
-        className={`fixed top-0 left-0 h-full w-64 bg-transparent border-r p-4 transform transition-transform duration-300 
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-          2xl:translate-x-0 2xl:static`}
-      >
-        <Sidebar conversations={conversations} />
-      </div>
         <div className="cardC">
           {conversationInfo && user?.id ? (
             <div id="chatcd" className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">

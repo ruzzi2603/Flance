@@ -46,9 +46,9 @@ export function CookieConsentBanner() {
     if (locale === "en-US") {
       return {
         title: "Cookie Settings",
-        text: "We use necessary cookies to keep the platform secure and stable. With your permission, we also use preference cookies (theme/language/currency) and analytics cookies to improve your experience.",
+        text: "We use necessary cookies to keep the platform secure and stable. With your permission, we also use preference cookies (language/currency) and analytics cookies to improve your experience.",
         necessaryLabel: "Necessary cookies (always active)",
-        preferencesLabel: "Preference cookies (theme, language, currency)",
+        preferencesLabel: "Preference cookies (language, currency)",
         analyticsLabel: "Analytics cookies (usage metrics)",
         acceptAll: "Accept all",
         saveSelection: "Save selection",
@@ -59,9 +59,9 @@ export function CookieConsentBanner() {
     }
     return {
       title: "Configuracao de Cookies",
-      text: "Usamos cookies necessarios para manter a plataforma segura e funcional. Com sua permissao, usamos tambem cookies de preferencias (tema/idioma/moeda) e cookies de analise para melhorar sua experiencia.",
+      text: "Usamos cookies necessarios para manter a plataforma segura e funcional. Com sua permissao, usamos tambem cookies de preferencias (idioma/moeda) e cookies de analise para melhorar sua experiencia.",
       necessaryLabel: "Cookies necessarios (sempre ativos)",
-      preferencesLabel: "Cookies de preferencias (tema, idioma, moeda)",
+      preferencesLabel: "Cookies de preferencias (idioma, moeda)",
       analyticsLabel: "Cookies de analise (metricas de uso)",
       acceptAll: "Aceitar todos",
       saveSelection: "Salvar selecao",
