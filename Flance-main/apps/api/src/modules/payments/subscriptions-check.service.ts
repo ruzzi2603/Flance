@@ -115,7 +115,7 @@ export class SubscriptionsCheckService implements OnModuleInit {
         variant: isOverdue ? "overdue" : "reminder",
       });
       if (!sent) {
-        // SMTP falhou: libera para tentar de novo na próxima rotina
+        // Envio por e-mail falhou: libera para tentar de novo na próxima rotina
         await this.prisma.payment.update({
           where: { id: invoice.id },
           data: isOverdue ? { overdueNoticeSentAt: null } : { reminderSentAt: null },

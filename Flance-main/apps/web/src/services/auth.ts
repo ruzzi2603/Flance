@@ -61,7 +61,7 @@ export async function register(input: {
   password: string;
   avatarUrl?: string;
 }): Promise<RegistrationResponse> {
-  // Registration waits for SMTP delivery. Allow for Render waking a sleeping API instance.
+  // Registration waits for email provider delivery. Allow for Render waking a sleeping API instance.
   const response = await api.post("/auth/register", input, { timeout: 70_000 });
   return z.object({
     verificationRequired: z.literal(true),

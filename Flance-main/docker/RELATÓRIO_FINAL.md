@@ -215,7 +215,7 @@ Message
 // - Token + Code (two-factor)
 // - Attempts limit (5)
 
-// ✅ Email sent via SMTP (SendGrid em prod)
+// ✅ Email sent via HTTPS email API (Resend em prod)
 // - Não expor credenciais em logs ⚠️
 // - TLS encryption em trânsito
 
@@ -521,7 +521,7 @@ const { data } = useApiQuery('proposals', () => {
 - [ ] HTTPS + HSTS ativados
 - [ ] Rate limits ajustados para escala
 - [ ] Database backups em dias alternados
-- [ ] Email sending testado (prod SMTP)
+- [ ] Email sending testado (Resend em producao)
 
 ### QUALITY (Antes de Prod)
 
@@ -593,7 +593,7 @@ const { data } = useApiQuery('proposals', () => {
 - WebSocket without heartbeat (may disconnect)
 - No offline support
 - No image optimization (TODO: Cloudinary)
-- SMTP required for password reset
+- Resend HTTPS API required for password reset
 - No API rate limiting per IP (per-user only)
 
 ---

@@ -11,11 +11,11 @@ import { JwtService } from "@nestjs/jwt";
 import type { Role } from "@prisma/client";
 import { createHash, createHmac, randomBytes, randomInt, randomUUID, timingSafeEqual } from "crypto";
 import bcrypt from "bcryptjs";
-import nodemailer from "nodemailer";
 import { UsersService } from "../users/users.service";
 import type { LoginInput, RegisterInput, VerifyRegistrationEmailInput } from "./schemas/auth.schema";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { LoggerService } from "../../common/logger/logger.service";
+import { sendEmail } from "../../common/email/email-api";
 
 @Injectable()
 export class AuthService {
@@ -502,11 +502,8 @@ export class AuthService {
         where: { id: verification.id },
         data: { lastSentAt: new Date(now.getTime() - 60_000) },
       });
-      const smtpError = error as { code?: unknown; command?: unknown; responseCode?: unknown };
       this.logger.warn("Registration verification email delivery failed", {
-        smtpCode: smtpError?.code,
-        smtpCommand: smtpError?.command,
-        smtpResponseCode: smtpError?.responseCode,
+        reason: error instanceof Error ? error.message : "unknown provider error",
       });
       throw new ServiceUnavailableException("Could not send the verification email. Try again shortly.");
     }
@@ -520,38 +517,19 @@ export class AuthService {
   }
 
   private async sendRegistrationEmail(email: string, name: string, code: string) {
-    const host = process.env.SMTP_HOST;
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
-    const port = Number(process.env.SMTP_PORT || 465);
-    const from = process.env.SMTP_FROM || user;
-    if (!host || !user || !pass || !from) {
-      this.logger.warn("SMTP is not configured for registration verification email", {
-        missing: [
-          !host && "SMTP_HOST",
-          !user && "SMTP_USER",
-          !pass && "SMTP_PASS",
-          !from && "SMTP_FROM or SMTP_USER",
-        ].filter(Boolean),
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Codigo de verificacao da Flance",
+        text: `Ola, ${name}. Seu codigo de verificacao e ${code}. Ele expira em 10 minutos. Se voce nao criou uma conta, ignore este email.`,
+        html: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Confirme seu email</h2><p>Ola, ${this.escapeEmailHtml(name)}.</p><p>Digite este codigo no site da Flance:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p><p>O codigo expira em 10 minutos. Se voce nao criou uma conta, ignore este email.</p></div>`,
       });
-      throw new ServiceUnavailableException("Email delivery is not configured");
+    } catch (error) {
+      this.logger.warn("Registration verification email delivery failed", {
+        reason: error instanceof Error ? error.message : "unknown provider error",
+      });
+      throw new ServiceUnavailableException("Não foi possível enviar o email de verificação. Confira as configurações de e-mail.");
     }
-    const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: { user, pass },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 15_000,
-    });
-    await transporter.sendMail({
-      from,
-      to: email,
-      subject: "Codigo de verificacao da Flance",
-      text: `Ola, ${name}. Seu codigo de verificacao e ${code}. Ele expira em 10 minutos. Se voce nao criou uma conta, ignore este email.`,
-      html: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>Confirme seu email</h2><p>Ola, ${this.escapeEmailHtml(name)}.</p><p>Digite este codigo no site da Flance:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p><p>O codigo expira em 10 minutos. Se voce nao criou uma conta, ignore este email.</p></div>`,
-    });
   }
 
   private escapeEmailHtml(value: string) {
@@ -565,27 +543,6 @@ export class AuthService {
   }
 
   private async sendResetEmail(email: string, code: string) {
-    const host = process.env.SMTP_HOST;
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
-    const port = Number(process.env.SMTP_PORT || 465);
-    const from = process.env.SMTP_FROM || user;
-
-    if (!host || !user || !pass || !from) {
-      this.logger.warn("SMTP is not configured for password reset email");
-      throw new ServiceUnavailableException("Email não está configurado no servidor.");
-    }
-
-    const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: { user, pass },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 15_000,
-    });
-
     const subject = "Recuperacao de senha - Flance";
     const text = `Recebemos seu pedido de recuperacao de senha.\n\nCodigo de confirmacao: ${code}\n\nAcesse o site do Flance, escolha "Esqueci minha senha", informe seu email e digite o codigo para definir uma nova senha.\n\nSe voce nao solicitou, ignore.`;
     const html = `
@@ -599,13 +556,10 @@ export class AuthService {
     `;
 
     try {
-      await transporter.sendMail({ from, to: email, subject, text, html });
+      await sendEmail({ to: email, subject, text, html });
     } catch (error) {
-      const smtpError = error as { code?: unknown; command?: unknown; responseCode?: unknown };
       this.logger.warn("Password reset email delivery failed", {
-        smtpCode: smtpError?.code,
-        smtpCommand: smtpError?.command,
-        smtpResponseCode: smtpError?.responseCode,
+        reason: error instanceof Error ? error.message : "unknown provider error",
       });
       throw new ServiceUnavailableException("Não foi possível enviar o email agora. Tente novamente em instantes.");
     }

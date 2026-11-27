@@ -56,7 +56,7 @@ for (const name of ["COMPANY_LEGAL_NAME", "COMPANY_CNPJ", "COMPANY_ADDRESS"]) {
   const v = (env[name] || "").trim();
   !v || v.includes("PREENCHER") ? warn(`${name} não preenchida; o contrato exibirá apenas o nome Flance, sem dados cadastrais fictícios.`) : ok(`${name} preenchida.`);
 }
-if (!(env.COMPANY_SUPPORT_EMAIL || env.SMTP_FROM)) warn("COMPANY_SUPPORT_EMAIL/SMTP_FROM ausentes: o contrato mostrará um e-mail de suporte genérico.");
+if (!(env.COMPANY_SUPPORT_EMAIL || env.EMAIL_FROM)) warn("COMPANY_SUPPORT_EMAIL/EMAIL_FROM ausentes: o contrato mostrará um e-mail de suporte genérico.");
 
 // --- URLs
 for (const name of ["WEB_BASE_URL", "CORS_ORIGIN", "NEXT_PUBLIC_API_URL"]) {
@@ -73,7 +73,7 @@ else if (/:6543\b|pgbouncer=true/.test(dbUrl) && !env.DIRECT_URL) fail("DATABASE
 else ok("Configuração de banco consistente para migrations.");
 
 // --- E-mail
-for (const name of ["SMTP_HOST", "SMTP_USER", "SMTP_PASS"]) env[name] ? ok(`${name} definido.`) : fail(`${name} ausente: o código de ativação e os avisos de cobrança dependem de e-mail.`);
+for (const name of ["RESEND_API_KEY", "EMAIL_FROM"]) env[name] ? ok(`${name} definido.`) : fail(`${name} ausente: envio de email requer a API HTTPS do Resend.`);
 
 // --- Proxy
 isProd && !env.TRUST_PROXY_HOPS ? warn("TRUST_PROXY_HOPS não definido. Atrás de proxy/load balancer defina 1, senão o IP do aceite do contrato será o do proxy.") : ok("TRUST_PROXY_HOPS configurado ou não necessário.");

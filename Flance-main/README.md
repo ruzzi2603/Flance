@@ -85,7 +85,7 @@ Execute os comandos a partir da raiz do repositório.
 
    Para Supabase, use o pooler de transação (porta `6543`) em `DATABASE_URL` e o pooler de sessão (porta `5432`) em `DIRECT_URL`, copiando as URLs em **Connect** no painel. Apesar do nome da variável Prisma, a URL de sessão também pode ser usada para migrations em ambientes que não alcançam a conexão direta IPv6. Para PostgreSQL local, configure as duas URLs para o host e a porta do banco.
 
-   Para testar pagamentos no Sandbox, configure também `ASAAS_API_KEY`, `ASAAS_WEBHOOK_TOKEN` e `ASAAS_CPF_ENCRYPTION_KEY`. A chave de criptografia deve ter pelo menos 32 caracteres. Para recuperação de senha e e-mails funcionarem, configure as variáveis `SMTP_*` usadas pela API. Para testar uploads de fotos, configure também `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` na API; mantenha a chave privada apenas no backend.
+   Para testar pagamentos no Sandbox, configure também `ASAAS_API_KEY`, `ASAAS_WEBHOOK_TOKEN` e `ASAAS_CPF_ENCRYPTION_KEY`. A chave de criptografia deve ter pelo menos 32 caracteres. Para que os e-mails de verificacao, recuperacao de senha, administracao e pagamentos funcionem no Render Free, configure `RESEND_API_KEY` e `EMAIL_FROM` na API. O remetente deve pertencer a um dominio verificado no Resend. Para testar uploads de fotos, configure também `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` na API; mantenha a chave privada apenas no backend.
 
 3. Aplique as migrations:
 
@@ -124,7 +124,7 @@ Crie dois serviços Node:
 | API | `npm ci && npm run build --workspace @flance/api` | `npm run start --workspace @flance/api` |
 | Site | `npm ci && npm run build --workspace @flance/web` | `npm run start --workspace @flance/web` |
 
-Configure `NEXT_PUBLIC_API_URL` no serviço do site com a URL HTTPS pública da API. No serviço da API, configure `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CORS_ORIGIN` e `WEB_BASE_URL`, além das credenciais de e-mail e Asaas necessárias. `CORS_ORIGIN` e `WEB_BASE_URL` devem usar a origem HTTPS do site publicado, sem caminhos. Para uploads, a API também exige `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`; `SUPABASE_STORAGE_BUCKET` pode ser definido como `flance-media` (padrão). O bucket é público para leitura das imagens e aceita PNG, JPEG e WebP de até 2 MB.
+Configure `NEXT_PUBLIC_API_URL` no serviço do site com a URL HTTPS pública da API. No servico da API, configure `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `WEB_BASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM` e as credenciais do Asaas. `CORS_ORIGIN` e `WEB_BASE_URL` devem usar a origem HTTPS do site publicado, sem caminhos. Para uploads, a API também exige `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`; `SUPABASE_STORAGE_BUCKET` pode ser definido como `flance-media` (padrão). O bucket é público para leitura das imagens e aceita PNG, JPEG e WebP de até 2 MB.
 
 `COMPANY_LEGAL_NAME`, `COMPANY_CNPJ` e `COMPANY_ADDRESS` são opcionais. Se não forem configuradas, o contrato usa o nome Flance e omite os campos de CNPJ e endereço.
 
@@ -166,7 +166,7 @@ packages/
 
 - O `.env` local e credenciais reais não devem ser adicionados ao Git.
 - `DATABASE_URL` é usada pela aplicação; migrations do Prisma usam `DIRECT_URL`.
-- Em produção, configure URLs HTTPS, CORS para o domínio do site, segredos próprios, credenciais reais do Asaas, SMTP e Supabase Storage.
+- Em produção, configure URLs HTTPS, CORS para o domínio do site, segredos próprios, credenciais reais do Asaas, Resend e Supabase Storage.
 - Nunca use a chave do Sandbox em produção nem a chave de produção em testes locais.
 
 ## Documentação adicional

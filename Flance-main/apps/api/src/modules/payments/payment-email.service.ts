@@ -1,32 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../../common/email/email-api";
 
 @Injectable()
 export class PaymentEmailService {
   private readonly logger = new Logger(PaymentEmailService.name);
-
-  private getTransporter() {
-    const host = process.env.SMTP_HOST;
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
-    const port = Number(process.env.SMTP_PORT || 465);
-
-    if (!host || !user || !pass) {
-      this.logger.warn("SMTP não configurado. E-mails de pagamento não serão enviados.");
-      return null;
-    }
-
-    return nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: { user, pass },
-    });
-  }
-
-  private getFromAddress(): string {
-    return process.env.SMTP_FROM || process.env.SMTP_USER || "contato@flance.com.br";
-  }
 
   /**
    * Envia o código de ativação de 6 dígitos após confirmação de pagamento (Regra 20)
@@ -38,12 +15,6 @@ export class PaymentEmailService {
     code: string;
     expiresInMinutes?: number;
   }): Promise<boolean> {
-    const transporter = this.getTransporter();
-    if (!transporter) {
-      this.logger.warn(`Não foi possível enviar e-mail com código para ${params.to} (SMTP desabilitado)`);
-      return false;
-    }
-
     const { to, userName, planName, code, expiresInMinutes = 30 } = params;
     const webBaseUrl = process.env.WEB_BASE_URL || "http://localhost:3000";
 
@@ -79,8 +50,7 @@ export class PaymentEmailService {
     `;
 
     try {
-      await transporter.sendMail({
-        from: this.getFromAddress(),
+      await sendEmail({
         to,
         subject,
         text,
@@ -104,9 +74,6 @@ export class PaymentEmailService {
     daysRemaining: number;
     expiresAtDateString: string;
   }): Promise<boolean> {
-    const transporter = this.getTransporter();
-    if (!transporter) return false;
-
     const { to, userName, planName, daysRemaining, expiresAtDateString } = params;
     const webBaseUrl = process.env.WEB_BASE_URL || "http://localhost:3000";
 
@@ -138,8 +105,7 @@ export class PaymentEmailService {
     `;
 
     try {
-      await transporter.sendMail({
-        from: this.getFromAddress(),
+      await sendEmail({
         to,
         subject,
         text,
@@ -165,9 +131,6 @@ export class PaymentEmailService {
     footnote?: string;
     logLabel: string;
   }): Promise<boolean> {
-    const transporter = this.getTransporter();
-    if (!transporter) return false;
-
     const webBaseUrl = process.env.WEB_BASE_URL || "http://localhost:3000";
     const url = `${webBaseUrl}${params.ctaPath}`;
     const rowsText = params.rows.map(([k, v]) => `${k}: ${v}`).join("\n");
@@ -189,7 +152,7 @@ export class PaymentEmailService {
       </div>`;
 
     try {
-      await transporter.sendMail({ from: this.getFromAddress(), to: params.to, subject: params.subject, text, html });
+      await sendEmail({ to: params.to, subject: params.subject, text, html });
       this.logger.log(`E-mail (${params.logLabel}) enviado para ${params.to}`);
       return true;
     } catch (err: any) {

@@ -51,12 +51,9 @@ export const envSchema = z.object({
     "CORS origin para requisições do frontend. Em produção, usar URL específica (ex: https://flance.com)",
   ),
 
-  // === EMAIL (SMTP) ===
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().int().positive().optional(),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASS: z.string().optional(),
-  SMTP_FROM: z.string().email().optional(),
+  // === EMAIL (HTTPS API / Resend) ===
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().min(1).optional(),
 
   // === FRONTEND ===
   WEB_BASE_URL: z.string().url().default("http://localhost:3000"),
@@ -111,9 +108,8 @@ export function validateEnv(input: Record<string, unknown>): EnvConfig {
       if (!input.SUPABASE_URL || !input.SUPABASE_SERVICE_ROLE_KEY) {
         throw new Error("SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórias em produção para armazenar fotos");
       }
-      // SMTP é recomendado para recuperação de senha
-      if (!input.SMTP_HOST || !input.SMTP_USER || !input.SMTP_PASS) {
-        console.warn("[WARNING] SMTP não configurado - password reset não funcionará em produção");
+      if (!input.RESEND_API_KEY || !input.EMAIL_FROM) {
+        console.warn("[WARNING] RESEND_API_KEY/EMAIL_FROM ausentes - envio de e-mails não funcionará em produção");
       }
     }
 

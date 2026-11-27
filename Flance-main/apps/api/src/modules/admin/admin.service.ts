@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { AdminActionType, Prisma, Role } from "@prisma/client";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../../common/email/email-api";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { RealtimeService } from "../chat/realtime.service";
 
@@ -340,13 +340,6 @@ export class AdminService {
     reason: string;
     itemLabel?: string;
   }): Promise<"SENT" | "FAILED"> {
-    const host = process.env.SMTP_HOST;
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
-    const port = Number(process.env.SMTP_PORT || 465);
-    const from = process.env.SMTP_FROM || user;
-    if (!host || !user || !pass || !from) return "FAILED";
-
     const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({
       "&": "&amp;",
       "<": "&lt;",
@@ -354,11 +347,9 @@ export class AdminService {
       '"': "&quot;",
       "'": "&#39;",
     })[character] ?? character);
-    const transporter = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass } });
     const itemLabel = input.itemLabel ? `${input.itemLabel}\n` : "";
     try {
-      await transporter.sendMail({
-        from: { name: "Flance", address: from },
+      await sendEmail({
         to: input.email,
         subject: input.subject,
         text: `Ola, ${input.name}.\n\nSua conta/anuncio foi ${input.action}.\n${itemLabel}\nMotivo informado: ${input.reason}\n\nSe precisar de esclarecimentos, responda a este email ou entre em contato com o suporte Flance.`,

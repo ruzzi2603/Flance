@@ -30,7 +30,7 @@ const brl = (value: number) => `R$ ${value.toFixed(2).replace(".", ",")}`;
 
 export function getCompanyInfo() {
   const supportEmail =
-    process.env.COMPANY_SUPPORT_EMAIL?.trim() || process.env.SMTP_FROM?.trim() || "[E-MAIL DE SUPORTE - PREENCHER]";
+    process.env.COMPANY_SUPPORT_EMAIL?.trim() || process.env.EMAIL_FROM?.trim() || "[E-MAIL DE SUPORTE - PREENCHER]";
   return {
     legalName: process.env.COMPANY_LEGAL_NAME?.trim() || "Flance",
     cnpj: process.env.COMPANY_CNPJ?.trim() || "",

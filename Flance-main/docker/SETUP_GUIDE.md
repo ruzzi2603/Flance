@@ -22,7 +22,7 @@ cp .env.example .env
 # IMPORTANTE: Edite .env com suas credenciais:
 # - DATABASE_URL: PostgreSQL connection string
 # - JWT_SECRET: Min 32 caracteres (gere com: openssl rand -base64 32)
-# - SMTP_*: Credenciais de email (Gmail com app password)
+# - RESEND_API_KEY e EMAIL_FROM: credenciais para envio via API HTTPS
 # - CORS_ORIGIN: http://localhost:3000 (dev)
 
 # 3. Setup database
@@ -84,7 +84,8 @@ flance/
 | `DATABASE_URL` | PostgreSQL | `postgresql://user:pass@host/db` |
 | `JWT_SECRET` | Signing key | Min 32 chars (use `openssl rand -base64 32`) |
 | `CORS_ORIGIN` | Frontend URL | `https://flance.com` (NUNCA use `*`) |
-| `SMTP_HOST` | Email SMTP | `smtp.gmail.com` |
+| `RESEND_API_KEY` | Chave da API HTTPS do Resend | `re_...` |
+| `EMAIL_FROM` | Remetente de um dominio verificado no Resend | `nao-responda@seudominio.com` |
 
 **🔑 Segurança Crítica:**
 - ❌ NUNCA commit .env em git
